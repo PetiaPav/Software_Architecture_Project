@@ -6,15 +6,16 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 
 class Appointment(models.Model):
-    time = models.DateTimeField(null=True)
-    length = models.IntegerField(null=True)
-    room = models.IntegerField(null=True)
-    doctor = models.CharField(max_length=50, null=True)
-    booked_by = models.IntegerField(null=True)  # TODO make into fk (patient)
+    start_time = models.DateTimeField(null=True)
+    end_time = models.DateTimeField(null=True)
+    room_id = models.IntegerField(null=True)
+    doctor_id = models.IntegerField(null=True)
+    patient_id = models.IntegerField(null=True)  # TODO make into fk (patient)
+    clinic_id = models.IntegerField(null=True)
 
     # can be defined to easily view item in browser
-    # def __str__(self):
-    #     return self.time
+    def __str__(self):
+        return "Clinic/Room: " + self.clinic_id + "/" + self.room_id + ", Patient: " + self.patient_id + " time: " +self.start_time
 
 
 class User(AbstractUser):

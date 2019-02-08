@@ -6,14 +6,15 @@ from ubersante.models import Appointment, Patient
 class AppointmentsAdmin(admin.ModelAdmin):
     list_display = (
         'id',
-        'time',
-        'length',
-        'room',
-        'doctor',
-        'booked_by'
+        'start_time',
+        'end_time',
+        'room_id',
+        'doctor_id',
+        'patient_id'
+        'clinic_id'
     )
-    list_display_links = ('id', 'time')
-    search_fields = ('time', 'content')
+    list_display_links = ('id', 'start_time')
+    search_fields = ('start_time', 'content')
     list_per_page = 25
 
 
