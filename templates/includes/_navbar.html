@@ -7,8 +7,15 @@
         <div class="navbar-nav">
             <a class="nav-item nav-link" href="/">Home</a>
             <a class="nav-item nav-link" href="/about">About</a>
+            {% if session.logged_in %}
+            <a class="nav-item nav-link" href="/logout">Logout</a>
+            {% if session.type == 'patient' %}
+            <a class="nav-item nav-link" href="/patient_dashboard">Dashboard</a>
+            {% endif %}
+            {% else %}
             <a class="nav-item nav-link" href="/login">Login</a>
             <a class="nav-item nav-link" href="/register">Register</a>
+            {% endif %}
         </div>
     </div>
 </nav>

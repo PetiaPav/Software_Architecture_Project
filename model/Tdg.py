@@ -18,10 +18,20 @@ class Tdg:
     def insert_patient(self, email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address):
         connection = self.mysql.connect()
         cur = connection.cursor()
-        print(email + password + first_name + gender)
         cur.execute("""INSERT INTO PATIENTS(id, email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address) VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                     (email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address))
         cur.close()
         connection.commit()
+
+    def get_patient_by_email(self, email):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM PATIENTS WHERE email = %s", [email])
+        data = cur.fetchone()
+        cur.close()
+        if data is None:
+            return False
+        else:
+            return data
 
 

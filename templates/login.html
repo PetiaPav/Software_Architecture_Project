@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<div class="container login-container">
+    <h1>PATIENT LOG IN</h1>
+        <form method="POST" action="/login">
+            <div class="form-group">
+                <input type="text" name="email" class="form-control" placeholder="E-mail" value="{{request.form.email}}" />
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" class="form-control" placeholder="Password" value="{{request.form.password}}" />
+            </div>
+            <div class="form-group">
+                <input type="submit" class="btnSubmit" value="Login" />
+            </div>
+        </form>
+</div>
+
+
+{% endblock %}
