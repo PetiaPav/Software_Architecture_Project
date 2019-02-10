@@ -14,3 +14,12 @@ class RegisterForm(Form):
     birthday = StringField('Birth Date')  # format='%d-%m-%Y'
     gender = SelectField('Gender', choices=[('M', 'Male'), ('F', 'Female')])
     physical_address = StringField('Address')
+
+
+class AppointmentForm(Form):
+    doctor_id = SelectField('Doctor Name', choices=[('1', 'Ivanov'), ('2', 'Petrov')])
+    room = SelectField('Room Number', choices=[('1', '1'), ('2', '2')])
+    # TODO will need to properly validate and convert the times
+    start_time = StringField('Start Time')
+    end_time = StringField('Start Time')
+

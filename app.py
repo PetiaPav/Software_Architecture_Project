@@ -1,6 +1,6 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from model.Tdg import Tdg
-from model.Forms import RegisterForm
+from model.Forms import RegisterForm, AppointmentForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 
@@ -23,16 +23,16 @@ def about():
 def register():
     # TODO either rename this and login, or create separate tabs on the respective pages.
     form = RegisterForm(request.form)
-    email = form.email.data
-    password=sha256_crypt.hash(str(form.password.data))
-    first_name = form.first_name.data
-    last_name = form.first_name.data
-    health_card = form.health_card.data
-    phone_number = form.phone_number.data
-    birthday = form.birthday.data
-    gender = form.gender.data
-    physical_address = form.physical_address.data
     if request.method == 'POST' and form.validate():
+        email = form.email.data
+        password=sha256_crypt.hash(str(form.password.data))
+        first_name = form.first_name.data
+        last_name = form.first_name.data
+        health_card = form.health_card.data
+        phone_number = form.phone_number.data
+        birthday = form.birthday.data
+        gender = form.gender.data
+        physical_address = form.physical_address.data
         tdg.insert_patient(email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address)
         flash('You are now registered and can log in!', 'success')
         return redirect(url_for('login'))
@@ -52,6 +52,7 @@ def login():
                 session['logged_in'] = True
                 session['email'] = user['email']
                 session['first_name'] = user['first_name']
+                session['id'] = user['id']
                 session['type'] = 'patient'
                 flash('You are now logged in', 'success')
                 return redirect(url_for('patient_dashboard'))
@@ -74,6 +75,7 @@ def is_logged_in(f):
 
 
 @app.route('/logout')
+@is_logged_in
 def logout():
     session.clear()
     flash('You are now logged out!', 'success')
@@ -84,6 +86,23 @@ def logout():
 @is_logged_in
 def patient_dashboard():
     return render_template('patient_dashboard.html')
+
+
+@app.route('/add_appointment', methods=['GET', 'POST'])
+@is_logged_in
+def add_appointment():
+    form = AppointmentForm(request.form)
+    #TODO ids as fks
+    if request.method == 'POST' and form.validate():
+        patient_id = session['id']
+        doctor_id = form.doctor_id.data
+        clinic_id = 1
+        room = form.room.data
+        start_time = form.start_time.data
+        end_time = form.end_time.data
+        tdg.insert_appointment(patient_id, doctor_id, clinic_id, room, start_time, end_time)
+    return render_template('add_appointment.html', form=form)
+
 
 if __name__ == '__main__':
     app.secret_key = 'secret123'

@@ -23,6 +23,14 @@ class Tdg:
         cur.close()
         connection.commit()
 
+    def insert_appointment(self, patient_id, doctor_id, clinic_id, room, start_time, end_time):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("""INSERT INTO APPOINTMENTS(id, patient_id, doctor_id, clinic_id, room, start_time, end_time) VALUES(NULL, %s, %s, %s, %s, %s, %s)""",
+                    (patient_id, doctor_id, clinic_id, room, start_time, end_time))
+        cur.close()
+        connection.commit()
+
     def get_patient_by_email(self, email):
         connection = self.mysql.connect()
         cur = connection.cursor()
