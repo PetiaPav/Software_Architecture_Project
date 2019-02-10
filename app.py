@@ -101,6 +101,8 @@ def add_appointment():
         start_time = form.start_time.data
         end_time = form.end_time.data
         tdg.insert_appointment(patient_id, doctor_id, clinic_id, room, start_time, end_time)
+        flash('Appointment created!', 'success')
+        return redirect(url_for('patient_dashboard'))
     return render_template('add_appointment.html', form=form)
 
 
