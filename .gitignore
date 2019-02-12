@@ -1,0 +1,9 @@
+.vscode/*
+.idea/*
+/venv
+*.pyc
+*.iml
+__pycache__/
+sketch.py
+*.DS_Store
+node_modules/
