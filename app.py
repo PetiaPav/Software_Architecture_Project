@@ -106,6 +106,10 @@ def add_appointment():
     return render_template('add_appointment.html', form=form)
 
 
+@app.route('/calendar_example')
+def calendar_example():
+    return render_template('calendar_example.html')
+
 if __name__ == '__main__':
     app.secret_key = 'secret123'
     app.run(debug=True)
