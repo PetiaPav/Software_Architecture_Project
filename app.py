@@ -3,7 +3,7 @@ from model.Tdg import Tdg
 from model.Forms import RegisterForm, AppointmentForm
 from passlib.hash import sha256_crypt
 from functools import wraps
-
+import json
 
 app = Flask(__name__)
 tdg = Tdg(app)
@@ -109,6 +109,17 @@ def add_appointment():
 @app.route('/calendar_example')
 def calendar_example():
     return render_template('calendar_example.html')
+
+
+@app.route('/data')
+def return_data():
+    # Used for specifying range of events to get from db (instead of getting entire table)
+    start_date = request.args.get('start', '')
+    end_date = request.args.get('end', '')
+
+    with open("events.json", "r") as input_data:
+        return input_data.read()
+
 
 if __name__ == '__main__':
     app.secret_key = 'secret123'

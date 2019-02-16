@@ -1,70 +1,41 @@
 // this runs after the page has been initialized
-
 $(document).ready(function() {
     $('#calendar').fullCalendar({
-        // put options and callbacks here
+        // Define fullcalendar license key
         schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
+
+        // Define header properties and buttons
+        header: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'agendaWeek,agendaDay'
+			},
+
+        // Default view upon opening calendar is weekly view
         defaultView: 'agendaWeek',
 
-        // for example only, events sources should be fetched from the backend
-        eventSources: [
-        
-            // event source : available slots    
-                {
-                    events: [
-                        {
-                            title : 'available 1',
-                            start : '2019-02-16T08:00:00.000',
-                            end : '2019-02-16T08:20:00.000'
-                        },
-                        {
-                            title : 'available 2',
-                            start : '2019-02-16T10:00:00.000',
-                            end : '2019-02-16T010:20:00.000'
-                        },
-                        {
-                            title : 'available 3',
-                            start : '2019-02-16T11:00:00.000',
-                            end : '2019-02-16T11:20:00.000'
-                        },
-                        {
-                            title : 'available 4',
-                            start : '2019-02-18T08:00:00.000',
-                            end : '2019-02-18T08:20:00.000'
-                        },
-                        {
-                            title : 'available 5',
-                            start : '2019-02-18T09:20:00.000',
-                            end : '2019-02-18T09:40:00.000'
-                        }
-                    ],
-                    color: 'green',
-                    textColor: 'black'
-                },
-                
-            // event source : my desired appointment
-                {
-                    events: [
-                        {
-                            title : 'desired',
-                            start : '2019-02-16T08:40:00.000',
-                            end : '2019-02-16T09:00:00.000'
-                        },
-                        {
-                            title : 'desired',
-                            start : '2019-02-19T08:00:00.000',
-                            end : '2019-02-18T08:20:00.000'
-                        },
-    
-                    ],
-                    color: 'red',
-                    textColor: 'black'
-                }
-            ]
-            
+        eventLimit: true, // allow "more" link when too many events
 
-    })
-    
-}
-    
-    );
+        // Limit hours visible per day
+        minTime: "07:30:00",
+        maxTime: "21:00:00",
+
+        // Height of calendar
+        contentHeight: 1000,
+
+        // Grey out non-business hours
+        businessHours: {
+            dow: [1, 2, 3, 4, 5],   // Days of the week - Mon to Fri
+            start: "08:00:00",
+            end: "20:00:00",
+        },
+
+        // Frequency for displaying time slots, in minutes (20 minute partitions)
+        slotDuration: "00:20:00",
+
+        // Retrieve events using /data route
+        events: {
+				url: 'data'
+			}
+    });
+})
