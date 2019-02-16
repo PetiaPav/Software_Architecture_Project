@@ -25,7 +25,7 @@ $(document).ready(function() {
 
         // Grey out non-business hours
         businessHours: {
-            dow: [1, 2, 3, 4, 5],   // Days of the week - Mon to Fri
+            dow: [0, 1, 2, 3, 4, 5, 6],   // Days of the week - Mon to Fri
             start: "08:00:00",
             end: "20:00:00",
         },
@@ -34,8 +34,24 @@ $(document).ready(function() {
         slotDuration: "00:20:00",
 
         // Retrieve events using /data route
-        events: {
-				url: 'data'
-			}
+        events: { url: 'data' },
+
+         // onClick of an event
+		eventClick: function(eventObj) {
+		    alert("Clicked " + eventObj.title)
+            $.ajax({
+                url: 'data',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify({title: eventObj.title, start: eventObj.start}),
+                success : function(res){
+                    console.log("Response received")
+                }
+            });
+		},
+
+
+
     });
 })

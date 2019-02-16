@@ -108,17 +108,23 @@ def add_appointment():
 
 @app.route('/calendar_example')
 def calendar_example():
+    print("LOADING CALENDAR PAGE")
     return render_template('calendar_example.html')
 
 
-@app.route('/data')
+@app.route('/data', methods=["GET", "POST"])
 def return_data():
-    # Used for specifying range of events to get from db (instead of getting entire table)
-    start_date = request.args.get('start', '')
-    end_date = request.args.get('end', '')
+    if request.method == 'GET':
+        # Used for specifying range of events to get from db (instead of getting entire table)
+        start_date = request.args.get('start', '')
+        end_date = request.args.get('end', '')
 
-    with open("events.json", "r") as input_data:
-        return input_data.read()
+        with open("events.json", "r") as input_data:
+            return input_data.read()
+
+    if request.method == 'POST':
+        print(request.json)
+        return render_template("home.html")
 
 
 if __name__ == '__main__':
