@@ -110,6 +110,12 @@ def calendar_example():
     return render_template('calendar_example.html')
 
 
+@app.route('/calendar_doctor')
+def calendar_doctor():
+    print("LOADING CALENDAR PAGE")
+    return render_template('calendar_doctor.html')
+
+
 @app.route('/data', methods=["GET", "POST"])
 def return_data():
     if request.method == 'GET':
