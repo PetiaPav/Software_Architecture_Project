@@ -3,7 +3,6 @@ from model.Tdg import Tdg
 from model.Forms import RegisterForm, AppointmentForm
 from passlib.hash import sha256_crypt
 from functools import wraps
-import json
 
 app = Flask(__name__)
 tdg = Tdg(app)
@@ -108,7 +107,6 @@ def add_appointment():
 
 @app.route('/calendar_example')
 def calendar_example():
-    print("LOADING CALENDAR PAGE")
     return render_template('calendar_example.html')
 
 
@@ -123,8 +121,12 @@ def return_data():
             return input_data.read()
 
     if request.method == 'POST':
-        print(request.json)
-        return render_template("home.html")
+        return url_for('selected_appointment', id=request.json['id'])
+
+
+@app.route('/selected_appointment/<id>')
+def selected_appointment(id):
+    return render_template('appointment.html', eventid=id)
 
 
 if __name__ == '__main__':
