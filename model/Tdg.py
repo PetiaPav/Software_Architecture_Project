@@ -19,11 +19,39 @@ class Tdg:
         connection = self.mysql.connect()
         cur = connection.cursor()
 
-        cur.execute("INSERT INTO USERS(id, first_name, last_name, password) VALUES(NULL, %s, %s, %s)", (first_name, last_name, password))
-
+        cur.execute("INSERT INTO USERS(id, first_name, last_name, password) VALUES (NULL, %s, %s, %s)",
+                    (first_name, last_name, password))
         last_inserted_id = cur.lastrowid
 
-        cur.execute("INSERT INTO PATIENTS(id, user_fk, email, health_card, phone_number, birthday, gender, physical_address) VALUES(NULL, %s, %s, %s, %s, %s, %s, %s)", (last_inserted_id, email, health_card, phone_number, birthday, gender, physical_address))
+        cur.execute("INSERT INTO PATIENTS(id, user_fk, email, health_card, phone_number, birthday, gender, physical_address) VALUES(NULL, %s, %s, %s, %s, %s, %s, %s)",
+                    (last_inserted_id, email, health_card, phone_number, birthday, gender, physical_address))
+
+        cur.close()
+        connection.commit()
+
+    def insert_doctor(self, first_name, last_name, password, permit_number, specialty, city):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+
+        cur.execute("INSERT INTO USERS(id, first_name, last_name, password) VALUES (NULL, %s, %s, %s)",
+                    (first_name, last_name, password))
+        last_inserted_id = cur.lastrowid
+
+        cur.execute("INSERT INTO DOCTORS(id, user_fk, permit_number, specialty, city) VALUES(NULL, %s, %s, %s, %s)",
+                    (last_inserted_id, permit_number, specialty, city))
+
+        cur.close()
+        connection.commit()
+
+    def insert_nurse(self, first_name, last_name, password, access_id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+
+        cur.execute("INSERT INTO USERS(id, first_name, last_name, password) VALUES (NULL, %s, %s, %s)",
+                    (first_name, last_name, password))
+        last_inserted_id = cur.lastrowid
+
+        cur.execute("INSERT INTO DOCTORS(id, user_fk, access_id) VALUES(NULL, %s, %s)", (last_inserted_id, access_id))
 
         cur.close()
         connection.commit()

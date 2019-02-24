@@ -46,7 +46,7 @@ def register_patient():
         flash('You are now registered and can log in!', 'success')
         return redirect(url_for('login'))
 
-    flash('Server encountered error - Please try again', 'error')
+    flash('Server encountered error - Please try again later', 'error')
     return render_template('register.html', form=form)
 
 
@@ -64,12 +64,11 @@ def register_doctor():
         specialty = form.specialty.data
         city = form.city.data
 
-        # Implement insert_doctor in tdg
-        # tdg.insert_doctor(first_name, last_name, password, permit_number, specialty, city)
+        tdg.insert_doctor(first_name, last_name, password, permit_number, specialty, city)
         flash('You are now registered and can log in!', 'success')
         return redirect(url_for('login'))
 
-    flash('Server encountered error - Please try again', 'error')
+    flash('Server encountered error - Please try again later', 'error')
     return render_template('register.html', form=form)
 
 
@@ -85,12 +84,11 @@ def register_nurse():
         # Nurse attributes
         access_id = form.access_id.data
 
-        # Implement insert_doctor in tdg
-        # tdg.insert_nurse(first_name, last_name, password, access_id)
+        tdg.insert_nurse(first_name, last_name, password, access_id)
         flash('You are now registered and can log in!', 'success')
         return redirect(url_for('login'))
 
-    flash('Server encountered error - Please try again', 'error')
+    flash('Server encountered error - Please try again later', 'error')
     return render_template('register.html', form=form)
 
 
@@ -108,7 +106,7 @@ def get_registration_form(user_type, form):
 def login():
     # TODO as above.
     if request.method == 'POST':
-        form = PatientRegisterForm(request.form)
+        form = PatientForm(request.form)
         email = form.email.data
         password_candidate = form.password.data
         user = tdg.get_patient_by_email(email)
