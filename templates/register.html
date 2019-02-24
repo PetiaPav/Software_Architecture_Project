@@ -1,9 +1,21 @@
 {% extends 'layout.html' %}
-
-
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 {% block body %}
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<h1>REGISTER</h1>
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link active" href="#">Patients</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">Doctor</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">Nurse</a>
+  </li>
+</ul>
 <div class="container login-container">
-<h1>REGISTER PATIENT</h1>
 {% from "includes/_form_helpers.html" import render_field %}
     <form method="POST" action="">
         <div class="form-group">
