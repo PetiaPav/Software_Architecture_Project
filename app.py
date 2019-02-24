@@ -1,6 +1,6 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from model.Tdg import Tdg
-from model.Forms import RegisterForm, AppointmentForm
+from model.Forms import PatientForm, DoctorForm, NurseForm, AppointmentForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 
@@ -19,31 +19,96 @@ def about():
     return render_template('about.html')
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET'])
 def register():
-    # TODO either rename this and login, or create separate tabs on the respective pages.
-    form = RegisterForm(request.form)
+    form = PatientForm(request.form)
+    return render_template('register.html', form=form)
+
+
+@app.route('/register/patient', methods=['POST'])
+def register_patient():
+    form = get_registration_form("patient", request.form)
     if request.method == 'POST' and form.validate():
-        email = form.email.data
-        password=sha256_crypt.hash(str(form.password.data))
+        # Common user attributes
         first_name = form.first_name.data
-        last_name = form.first_name.data
+        last_name = form.last_name.data
+        password = sha256_crypt.hash(str(form.password.data))
+
+        # Patient attributes
+        email = form.email.data
         health_card = form.health_card.data
         phone_number = form.phone_number.data
         birthday = form.birthday.data
         gender = form.gender.data
         physical_address = form.physical_address.data
+
         tdg.insert_patient(email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address)
         flash('You are now registered and can log in!', 'success')
         return redirect(url_for('login'))
+
+    flash('Server encountered error - Please try again', 'error')
     return render_template('register.html', form=form)
+
+
+@app.route('/register/doctor', methods=['POST'])
+def register_doctor():
+    form = get_registration_form("doctor", request.form)
+    if request.method == 'POST' and form.validate():
+        # Common user attributes
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        password = sha256_crypt.hash(str(form.password.data))
+
+        # Doctor attributes
+        permit_number = form.permit_number.data
+        specialty = form.specialty.data
+        city = form.city.data
+
+        # Implement insert_doctor in tdg
+        # tdg.insert_doctor(first_name, last_name, password, permit_number, specialty, city)
+        flash('You are now registered and can log in!', 'success')
+        return redirect(url_for('login'))
+
+    flash('Server encountered error - Please try again', 'error')
+    return render_template('register.html', form=form)
+
+
+@app.route('/register/nurse', methods=['POST'])
+def register_nurse():
+    form = get_registration_form("nurse", request.form)
+    if request.method == 'POST' and form.validate():
+        # Common user attributes
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        password = sha256_crypt.hash(str(form.password.data))
+
+        # Nurse attributes
+        access_id = form.access_id.data
+
+        # Implement insert_doctor in tdg
+        # tdg.insert_nurse(first_name, last_name, password, access_id)
+        flash('You are now registered and can log in!', 'success')
+        return redirect(url_for('login'))
+
+    flash('Server encountered error - Please try again', 'error')
+    return render_template('register.html', form=form)
+
+
+def get_registration_form(user_type, form):
+    if user_type == "patient":
+        return PatientForm(form)
+    elif user_type == 'doctor':
+        return DoctorForm(form)
+    elif user_type == 'nurse':
+        return NurseForm(form)
+    return None
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     # TODO as above.
     if request.method == 'POST':
-        form = RegisterForm(request.form)
+        form = PatientRegisterForm(request.form)
         email = form.email.data
         password_candidate = form.password.data
         user = tdg.get_patient_by_email(email)

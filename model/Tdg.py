@@ -18,8 +18,13 @@ class Tdg:
     def insert_patient(self, email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address):
         connection = self.mysql.connect()
         cur = connection.cursor()
-        cur.execute("""INSERT INTO PATIENTS(id, email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address) VALUES(NULL, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                    (email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address))
+
+        cur.execute("INSERT INTO USERS(id, first_name, last_name, password) VALUES(NULL, %s, %s, %s)", (first_name, last_name, password))
+
+        last_inserted_id = cur.lastrowid
+
+        cur.execute("INSERT INTO PATIENTS(id, user_fk, email, health_card, phone_number, birthday, gender, physical_address) VALUES(NULL, %s, %s, %s, %s, %s, %s, %s)", (last_inserted_id, email, health_card, phone_number, birthday, gender, physical_address))
+
         cur.close()
         connection.commit()
 
