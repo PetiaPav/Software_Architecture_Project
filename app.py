@@ -39,29 +39,6 @@ def register():
     return render_template('register.html', form=form)
 
 
-# @app.route('/login', methods=['GET', 'POST'])
-# def login():
-#     # TODO as above.
-#     if request.method == 'POST':
-#         form = RegisterForm(request.form)
-#         email = form.email.data
-#         password_candidate = form.password.data
-#         user = tdg.get_patient_by_email(email)
-#         if user:
-#             if sha256_crypt.verify(password_candidate, user['password']):
-#                 session['logged_in'] = True
-#                 session['email'] = user['email']
-#                 session['first_name'] = user['first_name']
-#                 session['id'] = user['id']
-#                 session['type'] = 'patient'
-#                 flash('You are now logged in', 'success')
-#                 return redirect(url_for('patient_dashboard'))
-#             else:
-#                 flash('Wrong password', 'danger')
-#         else:
-#             flash('Incorrect username', 'danger')
-#     return render_template('login.html')
-
 @app.route('/login/<user_type>', methods=['GET', 'POST'])
 def login_user(user_type):
     form = None
