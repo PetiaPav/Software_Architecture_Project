@@ -8,5 +8,8 @@
 {% if user_type == 'doctor' %}
     {% include 'includes/_doctor_dashboard.html' %}
 {% endif %}
+{% if user_type == 'nurse' %}
+    {% include 'includes/_nurse_dashboard.html' %}
+{% endif %}
 
 {% endblock %}
