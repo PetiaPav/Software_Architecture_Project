@@ -3,7 +3,7 @@ from model.Tdg import Tdg
 from model.Forms import PatientForm, DoctorForm, NurseForm, AppointmentForm
 from passlib.hash import sha256_crypt
 from functools import wraps
-
+from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
 
 app = Flask(__name__)
 tdg = Tdg(app)
@@ -98,6 +98,29 @@ def register_nurse():
     return render_template('register.html', form=form)
 
 
+@app.route('/login/<user_type>', methods=['GET', 'POST'])
+def login_user(user_type):
+    form = None
+    if user_type == 'patient':
+        form = LoginPatientAuthenticator(request.form)
+    elif user_type == 'doctor':
+        form = LoginDoctorAuthenticator(request.form)
+    elif user_type == 'nurse':
+        form = LoginNurseAuthenticator(request.form)
+
+    if request.method == 'POST':
+        if form is not None and form.validate():
+            if form.authenticate_user(tdg):
+                return redirect(url_for('dashboard'))
+
+    return render_template('login.html', form=form, user_type=user_type)
+
+
+@app.route('/login')
+def login():
+    return render_template('login_choice.html')
+
+
 def get_registration_form(user_type, form):
     if user_type == "patient":
         return PatientForm(form)
@@ -106,30 +129,6 @@ def get_registration_form(user_type, form):
     elif user_type == 'nurse':
         return NurseForm(form)
     return None
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    # TODO as above.
-    if request.method == 'POST':
-        form = PatientForm(request.form)
-        email = form.email.data
-        password_candidate = form.password.data
-        user = tdg.get_patient_by_email(email)
-        if user:
-            if sha256_crypt.verify(password_candidate, user['password']):
-                session['logged_in'] = True
-                session['email'] = user['email']
-                session['first_name'] = user['first_name']
-                session['id'] = user['id']
-                session['type'] = 'patient'
-                flash('You are now logged in', 'success')
-                return redirect(url_for('patient_dashboard'))
-            else:
-                flash('Wrong password', 'danger')
-        else:
-            flash('Incorrect username', 'danger')
-    return render_template('login.html')
 
 
 def is_logged_in(f):
@@ -155,6 +154,13 @@ def logout():
 @is_logged_in
 def patient_dashboard():
     return render_template('patient_dashboard.html')
+
+
+@app.route('/dashboard')
+@is_logged_in
+def dashboard():
+    user_type = session['user_type']
+    return render_template('dashboard.html', user_type=user_type)
 
 
 @app.route('/add_appointment', methods=['GET', 'POST'])

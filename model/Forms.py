@@ -51,4 +51,3 @@ class AppointmentForm(Form):
     # TODO will need to properly validate and convert the times
     start_time = StringField('Start Time')
     end_time = StringField('Start Time')
-
