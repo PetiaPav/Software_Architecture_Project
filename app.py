@@ -1,9 +1,9 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from model.Tdg import Tdg
-from model.Forms import RegisterForm, AppointmentForm
+from model.Forms import PatientForm, DoctorForm, NurseForm, AppointmentForm
 from passlib.hash import sha256_crypt
 from functools import wraps
-
+from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
 
 app = Flask(__name__)
 tdg = Tdg(app)
@@ -19,48 +19,116 @@ def about():
     return render_template('about.html')
 
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    # TODO either rename this and login, or create separate tabs on the respective pages.
-    form = RegisterForm(request.form)
-    if request.method == 'POST' and form.validate():
-        email = form.email.data
-        password=sha256_crypt.hash(str(form.password.data))
+@app.route('/register/patient', methods=['GET','POST'])
+def register_patient():
+    form = get_registration_form("patient", request.form)
+
+    if request.method == 'GET':
+        return render_template('includes/_patient_form.html', form=form)
+
+    elif request.method == 'POST' and form.validate():
+        # Common user attributes
         first_name = form.first_name.data
-        last_name = form.first_name.data
+        last_name = form.last_name.data
+        password = sha256_crypt.hash(str(form.password.data))
+
+        # Patient attributes
+        email = form.email.data
         health_card = form.health_card.data
         phone_number = form.phone_number.data
         birthday = form.birthday.data
         gender = form.gender.data
         physical_address = form.physical_address.data
+
         tdg.insert_patient(email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address)
         flash('You are now registered and can log in!', 'success')
         return redirect(url_for('login'))
+
+    flash('Server encountered error - Please try again later', 'error')
     return render_template('register.html', form=form)
 
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    # TODO as above.
+@app.route('/register/doctor', methods=['GET', 'POST'])
+def register_doctor():
+    form = get_registration_form("doctor", request.form)
+
+    if request.method == 'GET':
+        return render_template('includes/_doctor_form.html', form=form)
+
+    elif request.method == 'POST' and form.validate():
+        # Common user attributes
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        password = sha256_crypt.hash(str(form.password.data))
+
+        # Doctor attributes
+        permit_number = form.permit_number.data
+        specialty = form.specialty.data
+        city = form.city.data
+
+        tdg.insert_doctor(first_name, last_name, password, permit_number, specialty, city)
+        flash('You are now registered and can log in!', 'success')
+        return redirect(url_for('login'))
+
+    flash('Server encountered error - Please try again later', 'error')
+    return render_template('register.html', form=form)
+
+
+@app.route('/register/nurse', methods=['GET', 'POST'])
+def register_nurse():
+    form = get_registration_form("nurse", request.form)
+
+    if request.method == 'GET':
+        return render_template('includes/_nurse_form.html', form=form)
+
+    elif request.method == 'POST' and form.validate():
+        # Common user attributes
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        password = sha256_crypt.hash(str(form.password.data))
+
+        # Nurse attributes
+        access_id = form.access_id.data
+
+        tdg.insert_nurse(first_name, last_name, password, access_id)
+        flash('You are now registered and can log in!', 'success')
+        return redirect(url_for('login'))
+
+    flash('Server encountered error - Please try again later', 'error')
+    return render_template('register.html', form=form)
+
+
+@app.route('/login/<user_type>', methods=['GET', 'POST'])
+def login_user(user_type):
+    form = None
+    if user_type == 'patient':
+        form = LoginPatientAuthenticator(request.form)
+    elif user_type == 'doctor':
+        form = LoginDoctorAuthenticator(request.form)
+    elif user_type == 'nurse':
+        form = LoginNurseAuthenticator(request.form)
+
     if request.method == 'POST':
-        form = RegisterForm(request.form)
-        email = form.email.data
-        password_candidate = form.password.data
-        user = tdg.get_patient_by_email(email)
-        if user:
-            if sha256_crypt.verify(password_candidate, user['password']):
-                session['logged_in'] = True
-                session['email'] = user['email']
-                session['first_name'] = user['first_name']
-                session['id'] = user['id']
-                session['type'] = 'patient'
-                flash('You are now logged in', 'success')
-                return redirect(url_for('patient_dashboard'))
-            else:
-                flash('Wrong password', 'danger')
-        else:
-            flash('Incorrect username', 'danger')
-    return render_template('login.html')
+        if form is not None and form.validate():
+            if form.authenticate_user(tdg):
+                return redirect(url_for('dashboard'))
+
+    return render_template('login.html', form=form, user_type=user_type)
+
+
+@app.route('/login')
+def login():
+    return render_template('login_choice.html')
+
+
+def get_registration_form(user_type, form):
+    if user_type == "patient":
+        return PatientForm(form)
+    elif user_type == 'doctor':
+        return DoctorForm(form)
+    elif user_type == 'nurse':
+        return NurseForm(form)
+    return None
 
 
 def is_logged_in(f):
@@ -86,6 +154,13 @@ def logout():
 @is_logged_in
 def patient_dashboard():
     return render_template('patient_dashboard.html')
+
+
+@app.route('/dashboard')
+@is_logged_in
+def dashboard():
+    user_type = session['user_type']
+    return render_template('dashboard.html', user_type=user_type)
 
 
 @app.route('/add_appointment', methods=['GET', 'POST'])
