@@ -5,7 +5,11 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
+            {% if session.logged_in %}
+            <a class="nav-item nav-link" href="/dashboard">Home</a>
+            {% else %}
             <a class="nav-item nav-link" href="/">Home</a>
+            {% endif %}
             <a class="nav-item nav-link" href="/about">About</a>
             {% if session.logged_in %}
             <a class="nav-item nav-link" href="/logout">Logout</a>

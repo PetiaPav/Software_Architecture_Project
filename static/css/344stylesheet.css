@@ -58,7 +58,7 @@ legend.account-border {
 
 .parallax {
     /* The image used */
-    background-image: url('/static/img/uberhealth2.jpg');
+    background-image: url('/static/img/uberhealth3.jpg');
   
     /* Full height */
     height: 100%; 
@@ -70,7 +70,7 @@ legend.account-border {
     background-size: cover;
   }
 
-  /*FOOTER START///////////////////*/
+  /* Footer */
 
 .footer {
     padding: 50px 0 20px 0;
@@ -79,3 +79,88 @@ legend.account-border {
 }
 
 .footer .title{text-align: left;color:#fff;font-size:25px;}
+
+.footer-push {
+    min-height: 80vh;
+}
+
+
+/* Option button settings */
+.blank-icon {
+    color: #e5e5e5;
+    margin-left: 10px;
+    font-size: 30px;
+    padding: 5px;
+}
+
+.option-button {
+    border-width: 5px;
+    border-style: solid;
+    border-radius: 50px;
+    color: #e5e5e5;
+    vertical-align: middle;
+    font-size: 30px;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    opacity: 0.8;
+    transition: 0.3s;
+}
+
+
+/* Option button Colors */
+.option-button-view {
+    border-color: green;
+    background-color: green;
+
+}
+
+.option-button-create {
+    border-color: blue;
+    background-color: blue;
+}
+
+.option-button-personal {
+    border-color: darkgoldenrod;
+    background-color: darkgoldenrod;
+}
+
+.option-button-update {
+    border-color: brown;
+    background-color: brown;
+}
+
+.unfade:hover {
+    opacity: 1;
+}
+
+/* Dashboard section */
+.dashboard-profile {
+    background-color: #003ea3;
+    border-bottom-style: solid;
+    border-bottom-width: 3px;
+    border-bottom-color: #001942;
+}
+
+.profile-picture {
+    background-color: #e5e5e5;
+    border-radius: 150px;
+    height: 128px;
+    width: 128px;
+    padding: 20px;
+}
+
+.welcome-msg {
+    color: #e5e5e5;
+    font-size: 24px;
+}
+
+.upcoming-msg {
+    color: #e5e5e5;
+    font-size: 14px;
+}
+
+.upcoming-appointments {
+    background-color: red;
+    padding: 3px;
+    border-radius: 100px;
+    font-size: 14px;
+}
