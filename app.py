@@ -1,9 +1,9 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
 from model.Tdg import Tdg
-from model.Forms import PatientForm, DoctorForm, NurseForm, AppointmentForm, LoginDoctorForm, LoginNurseForm, LoginPatientForm
+from model.Forms import PatientForm, DoctorForm, NurseForm, AppointmentForm
 from passlib.hash import sha256_crypt
 from functools import wraps
-
+from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
 
 app = Flask(__name__)
 tdg = Tdg(app)
@@ -102,11 +102,11 @@ def register_nurse():
 def login_user(user_type):
     form = None
     if user_type == 'patient':
-        form = LoginPatientForm(request.form)
+        form = LoginPatientAuthenticator(request.form)
     elif user_type == 'doctor':
-        form = LoginDoctorForm(request.form)
+        form = LoginDoctorAuthenticator(request.form)
     elif user_type == 'nurse':
-        form = LoginNurseForm(request.form)
+        form = LoginNurseAuthenticator(request.form)
 
     if request.method == 'POST':
         if form is not None and form.validate():
