@@ -70,3 +70,12 @@ legend.account-border {
     background-size: cover;
   }
 
+  /*FOOTER START///////////////////*/
+
+.footer {
+    padding: 50px 0 20px 0;
+    background-color: #35404f;
+    color: #878c94;
+}
+
+.footer .title{text-align: left;color:#fff;font-size:25px;}
