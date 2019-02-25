@@ -19,16 +19,14 @@ def about():
     return render_template('about.html')
 
 
-@app.route('/register', methods=['GET'])
-def register():
-    form = PatientForm(request.form)
-    return render_template('register.html', form=form)
-
-
-@app.route('/register/patient', methods=['POST'])
+@app.route('/register/patient', methods=['GET','POST'])
 def register_patient():
     form = get_registration_form("patient", request.form)
-    if request.method == 'POST' and form.validate():
+
+    if request.method == 'GET':
+        return render_template('includes/_patient_form.html', form=form)
+
+    elif request.method == 'POST' and form.validate():
         # Common user attributes
         first_name = form.first_name.data
         last_name = form.last_name.data
@@ -50,10 +48,14 @@ def register_patient():
     return render_template('register.html', form=form)
 
 
-@app.route('/register/doctor', methods=['POST'])
+@app.route('/register/doctor', methods=['GET', 'POST'])
 def register_doctor():
     form = get_registration_form("doctor", request.form)
-    if request.method == 'POST' and form.validate():
+
+    if request.method == 'GET':
+        return render_template('includes/_doctor_form.html', form=form)
+
+    elif request.method == 'POST' and form.validate():
         # Common user attributes
         first_name = form.first_name.data
         last_name = form.last_name.data
@@ -72,10 +74,14 @@ def register_doctor():
     return render_template('register.html', form=form)
 
 
-@app.route('/register/nurse', methods=['POST'])
+@app.route('/register/nurse', methods=['GET', 'POST'])
 def register_nurse():
     form = get_registration_form("nurse", request.form)
-    if request.method == 'POST' and form.validate():
+
+    if request.method == 'GET':
+        return render_template('includes/_nurse_form.html', form=form)
+
+    elif request.method == 'POST' and form.validate():
         # Common user attributes
         first_name = form.first_name.data
         last_name = form.last_name.data

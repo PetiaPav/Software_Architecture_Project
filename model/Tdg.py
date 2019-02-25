@@ -51,7 +51,7 @@ class Tdg:
                     (first_name, last_name, password))
         last_inserted_id = cur.lastrowid
 
-        cur.execute("INSERT INTO DOCTORS(id, user_fk, access_id) VALUES(NULL, %s, %s)", (last_inserted_id, access_id))
+        cur.execute("INSERT INTO NURSES(id, user_fk, access_id) VALUES(NULL, %s, %s)", (last_inserted_id, access_id))
 
         cur.close()
         connection.commit()
