@@ -5,18 +5,6 @@ class User:
         self.last_name = last_name
         self.password = password
 
-    def is_authenticated(self):
-        None
-
-    def is_active(self):
-        None
-
-    def is_anonymous(self):
-        None
-
-    def get_id(self):
-        None
-
 
 class Patient(User):
     def __init__(self, id, first_name, last_name, password, health_card, birthday, gender, phone, physical_address, email, cart):

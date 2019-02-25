@@ -1,6 +1,5 @@
 from wtforms import Form, StringField, DateField, SelectField, TextAreaField, PasswordField, validators
-
-def valid_access_id (form, field):
+from flask import session, flash
 
 
 class RegisterForm(Form):
@@ -19,19 +18,33 @@ class RegisterForm(Form):
 
 
 class LoginForm(Form):
-    password = PasswordField('Password', [Length(min=6)])
+    password = PasswordField('Password', [validators.Length(min=6)])
 
 
 class LoginDoctorForm(LoginForm):
-    physician_permit_number = StringField('Physician Permit Number', Length=7)
+    physician_permit_number = StringField('Physician Permit Number', [validators.Length(min=7)])
 
 
 class LoginNurseForm(LoginForm):
-    access_id = StringField('Access ID', Length=8, valid_access_id)
+    access_id = StringField('Access ID', [validators.Length(min=8)])
 
 
 class LoginPatientForm(LoginForm):
-    email = StringField('Email', InputRequired())
+    email = StringField('Email', [validators.InputRequired(), validators.Length(min=5)])
+
+    def authenticate_user(self, tdg):
+        user = tdg.get_patient_by_email(self.email.data)
+        if user:
+            if user.password == self.password.data:
+                session['logged_in'] = True
+                session['user_type'] = 'patient'
+                session['first_name'] = user.first_name
+                return True
+            else:
+                flash('Incorrect password', 'danger')
+        else:
+            flash('No user registered with that email address', 'danger')
+        return False
 
 
 class AppointmentForm(Form):
