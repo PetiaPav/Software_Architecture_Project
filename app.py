@@ -3,6 +3,7 @@ from model.Tdg import Tdg
 from model.Forms import RegisterForm, AppointmentForm
 from passlib.hash import sha256_crypt
 from functools import wraps
+import DateTime
 
 app = Flask(__name__)
 tdg = Tdg(app)
@@ -119,15 +120,22 @@ def calendar_doctor():
 @app.route('/data', methods=["GET", "POST"])
 def return_data():
     if request.method == 'GET':
-        # Used for specifying range of events to get from db (instead of getting entire table)
-        start_date = request.args.get('start', '')
-        end_date = request.args.get('end', '')
-
         with open("events.json", "r") as input_data:
             return input_data.read()
 
     if request.method == 'POST':
-        return url_for('selected_appointment', id=request.json['id'])
+        start_date = request.json['startDate']
+        end_date = request.json['endDate']
+        print(start_date)
+        print(end_date)
+
+        # Must return any real object
+        return start_date
+
+
+@app.route('/event', methods=["POST"])
+def show_event_details():
+    return url_for('selected_appointment', id=request.json['id'])
 
 
 @app.route('/selected_appointment/<id>')

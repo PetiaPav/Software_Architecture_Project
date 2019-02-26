@@ -1,5 +1,7 @@
 // this runs after the page has been initialized
 $(document).ready(function() {
+    var startOfWeek;
+    var endOfWeek;
 
     $('#calendar').fullCalendar({
         // Define fullcalendar license key
@@ -37,13 +39,32 @@ $(document).ready(function() {
 
         allDay: true,
 
-        // Retrieve events using /data route
-        events: { url: 'data' },
+        eventSources: [
+            {
+                events: function(start, end, timezone, callback) {
+                    startOfWeek = start;
+                    endOfWeek = end;
+
+                     $.ajax({
+                        url: 'data',
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({startDate: start, endDate: end}),
+                        success : function(res){
+                            callback(this)
+                        }
+                    });
+                }
+            },
+            {
+                url: 'data',
+            }
+         ],
 
         // onClick of an event
 		eventClick: function(eventObj) {
             $.ajax({
-                url: 'data',
+                url: 'event',
                 type: 'POST',
                 contentType: "application/json; charset=utf-8",
                 data: JSON.stringify({id: eventObj.id}),
