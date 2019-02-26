@@ -53,6 +53,29 @@ legend.account-border {
     margin: 25px 0 15px;
 }
 
+.banner-text {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.page-title {
+    font-size: 50pt;
+    text-align: center;
+    color: white;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+.page-subtitle {
+    position: relative;
+    float: left;
+    font-size: 25pt;
+    font-style: italic;
+    color: white;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
 
 /* Parallax CSS */
 
@@ -68,6 +91,7 @@ legend.account-border {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    margin: 0;
   }
 
   /* Footer */
