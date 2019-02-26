@@ -1,2 +1,3 @@
-def test_test():
-    assert True
+def test_example(client):
+    response = client.get("/")
+    assert response.status_code == 200
