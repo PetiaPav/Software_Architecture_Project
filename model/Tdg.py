@@ -102,3 +102,29 @@ class Tdg:
         cur.close()
         doctor_data.update(user_data)
         return doctor_data
+
+    def get_all_patients(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM PATIENTS")
+        patients = []
+        users = []
+        for row in cur.fetchall():
+            patients.append(row)
+        if patients is None:
+            return False
+        cur.close()
+        return patients
+
+    def get_all_users(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        users = []
+        cur.execute("SELECT * FROM USERS")
+        for row in cur.fetchall():
+            users.append(row)
+        if users is None:
+            return False
+        cur.close()
+        return users
+

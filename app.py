@@ -160,6 +160,10 @@ def patient_dashboard():
 @is_logged_in
 def dashboard():
     user_type = session['user_type']
+    if user_type == "nurse":
+        get_all_patients = tdg.get_all_patients()
+        get_all_users = tdg.get_all_users()
+        return render_template('nurse_dashboard.html', all_patients = get_all_patients, all_users = get_all_users)
     return render_template('dashboard.html', user_type=user_type)
 
 
