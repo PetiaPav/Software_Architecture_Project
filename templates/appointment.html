@@ -3,6 +3,52 @@
 {% block title %}Selected Appointment{% endblock %}
 
 {% block body %}
-    <h1>Clinic name</h1>
-<h2>{{eventid}}</h2>
+<br/>
+<div class="container">
+  <h1>Appointment details</h1>
+  <br/>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Clinic name</th>
+          <th scope="col">Fill in clinic name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Event ID</th>
+          <td>{{eventid}}</td>
+        </tr>
+        <tr>
+          <th scope="row">Doctor</th>
+          <td>Doctor name</td>
+        </tr>
+        <tr>
+          <th scope="row">Type of appointment</th>
+          <td>Specialty</td>
+        </tr><tr>
+          <th scope="row">Start time</th>
+          <td>Appointment start time</td>
+        </tr><tr>
+          <th scope="row">End time</th>
+          <td>Appointment end time</td>
+        </tr>
+      </tbody>
+    </table>
+
+  <br/>
+
+  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+    Book appointment
+  </button>
+  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="goBack()">
+    Cancel
+  </button>
+
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+</div>
 {% endblock %}
