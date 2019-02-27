@@ -108,13 +108,36 @@ class Tdg:
         cur = connection.cursor()
         cur.execute("SELECT * FROM PATIENTS")
         patients = []
-        users = []
         for row in cur.fetchall():
             patients.append(row)
         if patients is None:
             return False
         cur.close()
         return patients
+
+    def get_all_nurses(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM NURSES")
+        nurses = []
+        for row in cur.fetchall():
+            nurses.append(row)
+        if nurses is None:
+            return False
+        cur.close()
+        return nurses
+
+    def get_all_doctors(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM DOCTORS")
+        doctors = []
+        for row in cur.fetchall():
+            doctors.append(row)
+        if doctors is None:
+            return False
+        cur.close()
+        return doctors
 
     def get_all_users(self):
         connection = self.mysql.connect()

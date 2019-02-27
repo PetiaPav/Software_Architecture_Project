@@ -1,0 +1,46 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<script >
+    $(document).ready( function () {
+        $('#myTable').DataTable();
+    } );
+</script>
+
+<div class="container">
+<h1>Doctor registry</h1>
+<hr>
+    <a class="btn btn-success" href="/add_appointment">Add Appointment</a>
+    <br/>
+    <br/>
+    <table id="myTable" class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Permit number</th>
+            <th scope="col">Specialty</th>
+            <th scope="col">City</th>
+            <th scope="col">Modify</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for x in all_doctors %}
+        <tr>
+             {% for y in all_users %}
+                {% if x.user_fk == y.id %}
+                    <td>{{y.first_name}}</td>
+                    <td>{{y.last_name}}</td>
+                {% endif %}
+             {% endfor %}
+            <td>{{x.permit_number}}</td>
+            <td>{{x.specialty}}</td>
+            <td>{{x.city}}</td>
+            <td><input class="btn btn-primary" type="submit" value="Modify" href="/dashboard/doctor"></td>
+        </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

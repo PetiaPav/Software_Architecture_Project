@@ -160,17 +160,28 @@ def patient_dashboard():
 @is_logged_in
 def dashboard():
     user_type = session['user_type']
-    if user_type == "nurse":
-        get_all_patients = tdg.get_all_patients()
-        get_all_users = tdg.get_all_users()
-        return render_template('nurse_dashboard.html', all_patients = get_all_patients, all_users = get_all_users)
     return render_template('dashboard.html', user_type=user_type)
 
-# @app.route('/dashboard/<id>')
-# @is_logged_in
-# def dashboardPatient():
-#     user_type = session['user_type']
-#     return render_template('patient_detail_page.html', user_type=user_type)
+@app.route('/dashboard/patient_registry')
+@is_logged_in
+def patient_registry():
+    get_all_patients = tdg.get_all_patients()
+    get_all_users = tdg.get_all_users()
+    return render_template('includes/_patient_registry.html', all_patients = get_all_patients, all_users = get_all_users)
+
+@app.route('/dashboard/nurse_registry')
+@is_logged_in
+def nurse_registry():
+    get_all_nurses = tdg.get_all_nurses()
+    get_all_users = tdg.get_all_users()
+    return render_template('includes/_nurse_registry.html', all_nurses = get_all_nurses, all_users = get_all_users)
+
+@app.route('/dashboard/doctor_registry')
+@is_logged_in
+def doctor_registry():
+    get_all_doctors = tdg.get_all_doctors()
+    get_all_users = tdg.get_all_users()
+    return render_template('includes/_doctor_registry.html', all_doctors = get_all_doctors, all_users = get_all_users)
 
 
 @app.route('/add_appointment', methods=['GET', 'POST'])
