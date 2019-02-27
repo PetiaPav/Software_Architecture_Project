@@ -1,0 +1,62 @@
+-- ROOM SLOTS
+CREATE TABLE ROOM_SLOTS (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  clinic_id int(11) DEFAULT NULL,
+  room_id int(11) DEFAULT NULL,
+  walk_in tinyint(4) DEFAULT '0',
+  booked tinyint(4) DEFAULT '0',
+  doctor_id int(11) DEFAULT NULL,
+  patient_id int(11) DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY fk_patient_id_idx (patient_id),
+  KEY fk_doctor_id_idx (doctor_id),
+  CONSTRAINT fk_doctor_id FOREIGN KEY (doctor_id) REFERENCES DOCTORS (id) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT fk_patient_id FOREIGN KEY (patient_id) REFERENCES PATIENTS (id) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=13610 DEFAULT CHARSET=latin1
+
+-- USERS
+CREATE TABLE USERS (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  first_name varchar(100) NOT NULL,
+  last_name varchar(100) NOT NULL,
+  password varchar(100) NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=latin1
+
+-- PATIENTS
+CREATE TABLE PATIENTS (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  user_fk int(11) NOT NULL,
+  email varchar(100) NOT NULL,
+  health_card varchar(14) NOT NULL,
+  phone_number varchar(15) NOT NULL,
+  birthday date NOT NULL,
+  gender varchar(15) NOT NULL,
+  physical_address varchar(100) NOT NULL,
+  PRIMARY KEY (id),
+  KEY PATIENTS_USERS_FK (user_fk),
+  CONSTRAINT PATIENTS_USERS_FK FOREIGN KEY (user_fk) REFERENCES USERS (id) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=latin1
+
+-- NURSES
+CREATE TABLE NURSES (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  user_fk int(11) NOT NULL,
+  access_id varchar(8) NOT NULL,
+  PRIMARY KEY (id),
+  KEY NURSES_USERS_FK (user_fk),
+  CONSTRAINT NURSES_USERS_FK FOREIGN KEY (user_fk) REFERENCES USERS (id) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1
+
+-- DOCTORS
+CREATE TABLE DOCTORS (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  user_fk int(11) NOT NULL,
+  permit_number int(7) NOT NULL,
+  specialty varchar(100) NOT NULL,
+  city varchar(100) NOT NULL,
+  PRIMARY KEY (id),
+  KEY DOCTORS_USERS_FK (user_fk),
+  CONSTRAINT DOCTORS_USERS_FK FOREIGN KEY (user_fk) REFERENCES USERS (id) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1
+
