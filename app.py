@@ -143,11 +143,6 @@ def create_app():
         flash('You are now logged out!', 'success')
         return redirect(url_for('home'))
 
-    @app.route('/patient_dashboard')
-    @is_logged_in
-    def patient_dashboard():
-        return render_template('patient_dashboard.html')
-
     @app.route('/dashboard')
     @is_logged_in
     def dashboard():
@@ -170,6 +165,43 @@ def create_app():
             flash('Appointment created!', 'success')
             return redirect(url_for('patient_dashboard'))
         return render_template('add_appointment.html', form=form)
+
+    @app.route('/calendar')
+    @is_logged_in
+    def calendar_example():
+        return render_template('calendar.html')
+
+    @app.route('/calendar_doctor')
+    @is_logged_in
+    def calendar_doctor():
+        print("LOADING CALENDAR PAGE")
+        return render_template('calendar_doctor.html')
+
+    @app.route('/data', methods=["GET", "POST"])
+    @is_logged_in
+    def return_data():
+        if request.method == 'GET':
+            with open("test_events.json", "r") as input_data:
+                return input_data.read()
+
+        if request.method == 'POST':
+            start_date = request.json['startDate']
+            end_date = request.json['endDate']
+            print(start_date)
+            print(end_date)
+
+            # Must return any real object
+            return start_date
+
+    @app.route('/event', methods=["POST"])
+    @is_logged_in
+    def show_event_details():
+        return url_for('selected_appointment', id=request.json['id'])
+
+    @app.route('/selected_appointment/<id>')
+    @is_logged_in
+    def selected_appointment(id):
+        return render_template('appointment.html', eventid=id)
 
     return app
 

@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block title %} Doctor Example Calendar {% endblock %}
+
+{% block head %} 
+    <link rel='stylesheet' href='../static/css/fullcalendar.css'/>
+    <link rel='stylesheet' href='../static/css/fullcalendardoctor.css'/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.2.0/fullcalendar.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.2.0/fullcalendar.print.css" media='print' />
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    <script src='../static/js/fullcalendardoctor.js'></script>
+{% endblock %}
+
+{% block body %}
+    <div id='wrap'>
+		<div id='external-events'>
+			<h4>Draggable Appointments</h4>
+            <div class='walk-in'>Walk-in</div>
+			<div class='annual'>Annual</div>
+			<p>
+				<input type='checkbox' id='drop-remove' />
+				<label for='drop-remove'>remove after drop</label>
+			</p>
+		</div>
+		<div id='calendar'></div>
+	</div>
+{% endblock %}
