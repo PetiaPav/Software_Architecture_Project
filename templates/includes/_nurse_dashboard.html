@@ -1,63 +1,69 @@
-<div class="dashboard-profile">
-    <br>
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-2">
-            <img class="profile-picture" src="/static/img/silouhette.png">
-        </div>
-        <div class="col-md-9">
-            <span class="welcome-msg"> Hello {{ session.first_name }}, Welcome to UberSanté! </span>
-            <br>
-            <br>
-            <br>
+<div class="jumbotron dashboard-profile">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-2">
+                <img class="profile-picture" src="/static/img/silouhette.png">
+            </div>
+            <div class="col-md-9">
+                <h2 class="welcome-msg"> Hello {{ session.first_name }}, Welcome to UberSanté! </h2>
+            </div>
         </div>
     </div>
-    <br>
 </div>
-<br>
+<br />
 <div class="container">
     <h1>Nurse Dashboard</h1>
-    <hr>
+    <hr />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <a href="#">
+                <div class="option-button option-button-view unfade">
+                    <h4>
+                        <span class="glyphicon glyphicon-file blank-icon"></span>
+                        <span> View Client Registry </span>
+                    </h4>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-5">
+            <a href="#">
+                <div class="option-button option-button-update unfade">
+                    <h4>
+                        <span class="glyphicon glyphicon-open-file blank-icon"></span>
+                        <span> View Doctor Registry </span>
+                    </h4>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <a href="#">
+                <div class="option-button option-button-create unfade">
+                    <h4>
+                        <span class="glyphicon glyphicon-pencil blank-icon"></span>
+                        <span> View Nurse Registry </span>
+                    </h4>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-5">
+            <a href="#">
+                <div class="option-button option-button-personal unfade">
+                    <h4>
+                        <span class="glyphicon glyphicon-info-sign blank-icon"></span>
+                        <span> Update Personal Info </span>
+                    </h4>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
 </div>
-<div class="row">
-    <div class="col-md-1"></div>
-    <div class="col-md-5">
-        <a href="#">
-            <div class="option-button option-button-view unfade">
-                <span class="glyphicon glyphicon-file blank-icon"></span>
-                <span> View Client Registry </span>
-            </div>
-        </a>
-    </div>
-    <div class="col-md-5">
-        <a href="#">
-            <div class="option-button option-button-update unfade">
-                <span class="glyphicon glyphicon-open-file blank-icon"></span>
-                <span> View Doctor Registry </span>
-            </div>
-        </a>
-    </div>
-    <div class="col-md-1"></div>
-</div>
-<br>
-<div class="row">
-    <div class="col-md-1"></div>
-    <div class="col-md-5">
-        <a href="#">
-            <div class="option-button option-button-create unfade">
-                <span class="glyphicon glyphicon-pencil blank-icon"></span>
-                <span> View Nurse Registry </span>
-            </div>
-        </a>
-    </div>
-    <div class="col-md-5">
-        <a href="#">
-            <div class="option-button option-button-personal unfade">
-                <span class="glyphicon glyphicon-info-sign blank-icon"></span>
-                <span> Update Personal Info </span>
-            </div>
-        </a>
-    </div>
-    <div class="col-md-1"></div>
-</div>
+
 <div class="footer-push"></div>

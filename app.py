@@ -143,11 +143,6 @@ def create_app():
         flash('You are now logged out!', 'success')
         return redirect(url_for('home'))
 
-    @app.route('/patient_dashboard')
-    @is_logged_in
-    def patient_dashboard():
-        return render_template('patient_dashboard.html')
-
     @app.route('/dashboard')
     @is_logged_in
     def dashboard():
@@ -186,7 +181,7 @@ def create_app():
     @is_logged_in
     def return_data():
         if request.method == 'GET':
-            with open("events.json", "r") as input_data:
+            with open("test_events.json", "r") as input_data:
                 return input_data.read()
 
         if request.method == 'POST':

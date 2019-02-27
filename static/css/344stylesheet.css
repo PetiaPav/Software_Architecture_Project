@@ -6,9 +6,7 @@ body, html {
     margin: 0 !important;
 }
 
-
 .cover {
-
     height:1000px;
     background-color:#eff5ff;
 }
@@ -111,7 +109,6 @@ legend.account-border {
     min-height: 80vh;
 }
 
-
 /* Option button settings */
 .blank-icon {
     color: #e5e5e5;
@@ -132,12 +129,10 @@ legend.account-border {
     transition: 0.3s;
 }
 
-
 /* Option button Colors */
 .option-button-view {
     border-color: green;
     background-color: green;
-
 }
 
 .option-button-create {
@@ -161,7 +156,7 @@ legend.account-border {
 
 /* Dashboard section */
 .dashboard-profile {
-    background-color: #003ea3;
+    background-color: #003ea3 !important;
     border-bottom-style: solid;
     border-bottom-width: 3px;
     border-bottom-color: #001942;
