@@ -2,9 +2,14 @@
 
 {% block body %}
 
-<h1>{{user_type}} Dashboard</h1>
-<h3>Welcome {{session.first_name}}</h3>
-<hr>
-<a class="btn btn-success" href="/add_appointment">Add Appointment</a>
+{% if user_type == 'patient' %}
+    {% include 'includes/_patient_dashboard.html' %}
+{% endif %}
+{% if user_type == 'doctor' %}
+    {% include 'includes/_doctor_dashboard.html' %}
+{% endif %}
+{% if user_type == 'nurse' %}
+    {% include 'includes/_nurse_dashboard.html' %}
+{% endif %}
 
 {% endblock %}

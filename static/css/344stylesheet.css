@@ -1,0 +1,193 @@
+body, html {
+    height: 100%;
+  }
+
+.navbar {
+    margin: 0 !important;
+}
+
+
+.cover {
+
+    height:1000px;
+    background-color:#eff5ff;
+}
+
+
+#login-title {
+    font-size: 36px;
+    text-align: center;
+}
+
+fieldset.account-border {
+    border: 1px groove #ddd !important;
+    padding: 0 1.4em 1.4em 1.4em !important;
+    margin: 0 0 1.5em 0 !important;
+    width: inherit;
+    border-radius: 4px;
+    -webkit-box-shadow:  0px 0px 0px 0px #000;
+            box-shadow:  0px 0px 0px 0px #000;
+}
+
+legend.account-border {
+    font-size: 1.2em !important;
+    font-weight: bold !important;
+    text-align: left !important;
+    width: auto;
+    padding:0 10px;
+    border-bottom:none;
+}
+
+/* Account CSS */
+
+.account-box {
+    text-align: center;
+    padding: 20px;
+    transition: .5s;
+    margin-bottom: 30px;
+    border: 1px solid #e8e8e8;
+}
+.account-box:hover {
+   
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.account-box h4 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 25px 0 15px;
+}
+
+.banner-text {
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.page-title {
+    font-size: 50pt;
+    text-align: center;
+    color: white;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+.page-subtitle {
+    position: relative;
+    float: left;
+    font-size: 25pt;
+    font-style: italic;
+    color: white;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+/* Parallax CSS */
+
+.parallax {
+    /* The image used */
+    background-image: url('/static/img/uberhealth3.jpg');
+  
+    /* Full height */
+    height: 100%; 
+  
+    /* Create the parallax scrolling effect */
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+
+  /* Footer */
+
+.footer {
+    padding: 50px 0 20px 0;
+    background-color: #35404f;
+    color: #878c94;
+}
+
+.footer .title{text-align: left;color:#fff;font-size:25px;}
+
+.footer-push {
+    min-height: 80vh;
+}
+
+
+/* Option button settings */
+.blank-icon {
+    color: #e5e5e5;
+    margin-left: 10px;
+    font-size: 30px;
+    padding: 5px;
+}
+
+.option-button {
+    border-width: 5px;
+    border-style: solid;
+    border-radius: 50px;
+    color: #e5e5e5;
+    vertical-align: middle;
+    font-size: 30px;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    opacity: 0.8;
+    transition: 0.3s;
+}
+
+
+/* Option button Colors */
+.option-button-view {
+    border-color: green;
+    background-color: green;
+
+}
+
+.option-button-create {
+    border-color: blue;
+    background-color: blue;
+}
+
+.option-button-personal {
+    border-color: darkgoldenrod;
+    background-color: darkgoldenrod;
+}
+
+.option-button-update {
+    border-color: brown;
+    background-color: brown;
+}
+
+.unfade:hover {
+    opacity: 1;
+}
+
+/* Dashboard section */
+.dashboard-profile {
+    background-color: #003ea3;
+    border-bottom-style: solid;
+    border-bottom-width: 3px;
+    border-bottom-color: #001942;
+}
+
+.profile-picture {
+    background-color: #e5e5e5;
+    border-radius: 150px;
+    height: 128px;
+    width: 128px;
+    padding: 20px;
+}
+
+.welcome-msg {
+    color: #e5e5e5;
+    font-size: 24px;
+}
+
+.upcoming-msg {
+    color: #e5e5e5;
+    font-size: 14px;
+}
+
+.upcoming-appointments {
+    background-color: red;
+    padding: 3px;
+    border-radius: 100px;
+    font-size: 14px;
+}
