@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <title>SOEN344 Team Project</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
-</head>
-<body>
-    {% include 'includes/_navbar.html' %}
-    {% include 'includes/_messages.html' %}
-    <div class="container">{% block body %}{% endblock %}</div>
-</body>
+    <head>
+        <meta charset="utf-8">
+        <title>{% block title %}{% endblock %} SOEN344 Team Project</title>
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/css/344stylesheet.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+        <script src="../static/js/jquery331.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+        <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+        {% block head %}{% endblock %}
+    </head>
+    <body>
+        {% include 'includes/_navbar.html' %}
+        {% include 'includes/_messages.html' %}
+        {% block body %}{% endblock %}
+        {% include 'includes/_footer.html' %}
+    </body>
 </html>

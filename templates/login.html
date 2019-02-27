@@ -3,26 +3,26 @@
 {% block body %}
 
 {% from "includes/_form_helpers.html" import render_field %}
+<div class="container login-container">
+    <h1>{{user_type.upper()}} LOG IN</h1>
+    <form method="POST" action="/login/{{user_type}}" target="_parent">
+        <div class="form-group">
+            {% if user_type == 'patient' %}
+                {{render_field(form.email, class_="form-control", placeholder="bob@gmail.com")}}
+            {% elif user_type == 'doctor' %}
+                {{render_field(form.physician_permit_number, class_="form-control", placeholder="Physician Permit Number")}}
+            {% elif user_type == 'nurse' %}
+                {{render_field(form.access_id, class_="form-control", placeholder="Access ID")}}
+            {% endif %}
+        </div>
+        <div class="form-group">
+                {{render_field(form.password, class_="form-control", placeholder="Password")}}
+        </div>
+        <div class="form-group">
+            <input type="submit" class="btnSubmit" value="Login" />
+        </div>
+    </form>
+</div>
 
-    <div class="container login-container">
-        <h1>{{user_type.upper()}} LOG IN</h1>
-            <form method="POST" action="/login/{{user_type}}" target="_parent">
-                <div class="form-group">
-                    {% if user_type == 'patient' %}
-                        {{render_field(form.email, class_="form-control", placeholder="bob@gmail.com")}}
-                    {% elif user_type == 'doctor' %}
-                        {{render_field(form.physician_permit_number, class_="form-control", placeholder="Physician Permit Number")}}
-                    {% elif user_type == 'nurse' %}
-                        {{render_field(form.access_id, class_="form-control", placeholder="Access ID")}}
-                    {% endif %}
-                </div>
-                <div class="form-group">
-                        {{render_field(form.password, class_="form-control", placeholder="Password")}}
-                </div>
-                <div class="form-group">
-                    <input type="submit" class="btnSubmit" value="Login" />
-                </div>
-            </form>
-    </div>
-
+<div class="footer-push"></div>
 {% endblock %}

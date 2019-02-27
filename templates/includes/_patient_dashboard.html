@@ -1,0 +1,71 @@
+<div class="jumbotron dashboard-profile">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-2">
+                <img class="profile-picture" src="/static/img/silouhette.png">
+            </div>
+            <div class="col-md-9">
+                <h2 class="welcome-msg"> Hello {{ session.first_name }}, Welcome to UberSanté! </h2>
+                <h3 class="upcoming-msg">You have <span class="upcoming-appointments">8</span> upcoming appointments.</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+<div class="container">
+    <h1>Patient Dashboard</h1>
+    <hr />
+    <div class="row">
+    <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <a href="#">
+                <div class="option-button option-button-view unfade">
+                    <h4>
+                        <span class="glyphicon glyphicon-file blank-icon"></span>
+                        <span> View My Appointments </span>
+                    </h4>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-5">
+            <a href="#">
+                <div class="option-button option-button-update unfade">
+                    <h4>
+                        <span class="glyphicon glyphicon-open-file blank-icon"></span>
+                        <span> Update My Appointments </span>
+                    </h4>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <a href="#">
+                <div class="option-button option-button-create unfade">
+                    <h4>
+                        <span class="glyphicon glyphicon-pencil blank-icon"></span>
+                        <span> Create New Appointment </span>
+                    </h4>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-5">
+            <a href="#">
+                <div class="option-button option-button-personal unfade">
+                    <h4>
+                        <span class="glyphicon glyphicon-info-sign blank-icon"></span>
+                        <span> Update Personal Info </span>
+                    </h4>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+</div>
+
+<div class="footer-push"></div>
