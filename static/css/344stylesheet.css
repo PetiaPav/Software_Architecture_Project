@@ -2,6 +2,10 @@ body, html {
     height: 100%;
   }
 
+.navbar {
+    margin: 0 !important;
+}
+
 
 .cover {
 
@@ -91,7 +95,6 @@ legend.account-border {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    margin: 0;
   }
 
   /* Footer */
