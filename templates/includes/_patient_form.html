@@ -1,0 +1,41 @@
+{% extends 'register.html' %}
+{% block form %}
+{% from "includes/_form_helpers.html" import render_field %}
+    <form method="POST" action="/register/patient">
+        <div class="form-group">
+            {{render_field(form.email, class_="form-control", placeholder="example: alice@bob.com")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.password, class_="form-control", placeholder="Enter password")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.confirm, class_="form-control", placeholder="Confirm password")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.first_name, class_="form-control", placeholder="example: Alice")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.last_name, class_="form-control", placeholder="example: Abernathy")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.health_card, class_="form-control", placeholder="example: ABCD 1234 5678")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.phone_number, class_="form-control", placeholder="example: (514) 555-1234")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.birthday, class_="form-control", placeholder="example: 01-01-1980")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.gender, class_="form-control")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.physical_address, class_="form-control", placeholder="example 123 Main Street, Montreal, Quebec, M1NU1T")}}
+        </div>
+        <div class="form-group">
+            <input type="submit" class="btnSubmit" value="Register" />
+        </div>
+    </form>
+</div>
+{% endblock %}
+

@@ -5,18 +5,31 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
+
+            {% if session.logged_in %}
+            <a class="nav-item nav-link" href="/dashboard">Home</a>
+            {% else %}
             <a class="nav-item nav-link" href="/">Home</a>
+            {% endif %}
+
             <a class="nav-item nav-link" href="/about">About</a>
+
             {% if session.logged_in %}
             <a class="nav-item nav-link" href="/logout">Logout</a>
+            {% else %}
+            <a class="nav-item nav-link" href="/login">Login</a>
+            <a class="nav-item nav-link" href="/register/patient">Register</a>
+            {% endif %}
+
+
             {% if session.type == 'patient' %}
             <a class="nav-item nav-link" href="/patient_dashboard">Dashboard</a>
             {% endif %}
-            {% else %}
-            <a class="nav-item nav-link" href="/login">Login</a>
-            <a class="nav-item nav-link" href="/register">Register</a>
+
+            {% if session.logged_in %}
             <a class="nav-item nav-link" href="/calendar">Make an appointment</a>
             {% endif %}
+
         </div>
     </div>
 </nav>
