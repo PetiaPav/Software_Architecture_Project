@@ -166,6 +166,12 @@ def dashboard():
         return render_template('nurse_dashboard.html', all_patients = get_all_patients, all_users = get_all_users)
     return render_template('dashboard.html', user_type=user_type)
 
+# @app.route('/dashboard/<id>')
+# @is_logged_in
+# def dashboardPatient():
+#     user_type = session['user_type']
+#     return render_template('patient_detail_page.html', user_type=user_type)
+
 
 @app.route('/add_appointment', methods=['GET', 'POST'])
 @is_logged_in

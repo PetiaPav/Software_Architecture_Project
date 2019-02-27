@@ -1,6 +1,12 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+<script >
+    $(document).ready( function () {
+        $('#myTable').DataTable();
+    } );
+</script>
+
 <div class="container">
 <h1>Nurse Dashboard!!!</h1>
 <h3>Welcome {{session.first_name}}</h3>
@@ -8,7 +14,7 @@
     <a class="btn btn-success" href="/add_appointment">Add Appointment</a>
     <br/>
     <br/>
-    <table class="table">
+    <table id="myTable" class="table">
         <thead class="thead-dark">
         <tr>
             <!--<th scope="col">#</th>-->
@@ -16,16 +22,16 @@
             <th scope="col">Last Name</th>
             <th scope="col">Email</th>
             <th scope="col">Health card</th>
-            <th scope="col">Phone number</th>
-            <th scope="col">Birthday</th>
-            <th scope="col">Gender</th>
-            <th scope="col">Physical Address</th>
+            <!--<th scope="col">Phone number</th>-->
+            <!--<th scope="col">Birthday</th>-->
+            <!--<th scope="col">Gender</th>-->
+            <!--<th scope="col">Physical Address</th>-->
+            <th scope="col">Modify</th>
         </tr>
         </thead>
         <tbody>
         {% for x in all_patients %}
         <tr>
-            <!--<td>{{x.id}}</td>-->
              {% for y in all_users %}
                 {% if x.user_fk == y.id %}
                     <td>{{y.first_name}}</td>
@@ -34,10 +40,11 @@
             {% endfor %}
             <td>{{x.email}}</td>
             <td>{{x.health_card}}</td>
-            <td>{{x.phone_number}}</td>
-            <td>{{x.birthday}}</td>
-            <td>{{x.gender}}</td>
-            <td>{{x.physical_address}}</td>
+            <!--<td>{{x.phone_number}}</td>-->
+            <!--<td>{{x.birthday}}</td>-->
+            <!--<td>{{x.gender}}</td>-->
+            <!--<td>{{x.physical_address}}</td>-->
+            <td><input class="btn btn-primary" type="submit" value="Modify" href="/dashboard/patient"></td>
         </tr>
     {% endfor %}
         </tbody>
