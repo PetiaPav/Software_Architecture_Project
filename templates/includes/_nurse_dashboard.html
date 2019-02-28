@@ -1,20 +1,17 @@
-<div class="dashboard-profile">
-    <br>
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-2">
-            <img class="profile-picture" src="/static/img/silouhette.png">
-        </div>
-        <div class="col-md-9">
-            <span class="welcome-msg"> Hello {{ session.first_name }}, Welcome to UberSanté! </span>
-            <br>
-            <br>
-            <br>
+<div class="jumbotron dashboard-profile">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-2">
+                <img class="profile-picture" src="/static/img/silouhette.png">
+            </div>
+            <div class="col-md-9">
+                <h2 class="welcome-msg"> Hello {{ session.first_name }}, Welcome to UberSanté! </h2>
+            </div>
         </div>
     </div>
-    <br>
 </div>
-<br>
+<br />
 <div class="container">
     <h1>Nurse Dashboard</h1>
     <hr>

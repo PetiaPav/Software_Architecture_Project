@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %} Example Calendar {% endblock %}
+
+{% block head %} 
+    <link rel='stylesheet' href='../static/css/fullcalendar.css'/>
+	<script src='../static/js/moment.js'></script>
+	<script src='../static/js/fullcalendar.js'></script>
+	<script src='../static/js/fullcalendaroptions.js'></script>
+{% endblock %}
+
+{% block body %}
+	<br />
+	<div class="container">
+		<div id='calendar'></div>
+	</div>
+{% endblock %}
