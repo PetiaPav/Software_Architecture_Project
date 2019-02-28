@@ -4,11 +4,13 @@ from model.Forms import PatientForm, DoctorForm, NurseForm, AppointmentForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
+from model.UserMapper import UserMapper
 
 
 def create_app():
     app = Flask(__name__)
     tdg = Tdg(app)
+    user_mapper = UserMapper(app)
     app.secret_key = 'secret123'
     app.debug=True
 
@@ -165,44 +167,35 @@ def create_app():
             flash('Appointment created!', 'success')
             return redirect(url_for('patient_dashboard'))
         return render_template('add_appointment.html', form=form)
-@app.route('/dashboard/patient_registry')
-@is_logged_in
-def patient_registry():
-    get_all_patients = tdg.get_all_patients()
-    get_all_users = tdg.get_all_users()
-    return render_template('includes/_patient_registry.html', all_patients = get_all_patients, all_users = get_all_users)
 
-@app.route('/dashboard/nurse_registry')
-@is_logged_in
-def nurse_registry():
-    get_all_nurses = tdg.get_all_nurses()
-    get_all_users = tdg.get_all_users()
-    return render_template('includes/_nurse_registry.html', all_nurses = get_all_nurses, all_users = get_all_users)
-
-@app.route('/dashboard/doctor_registry')
-@is_logged_in
-def doctor_registry():
-    get_all_doctors = tdg.get_all_doctors()
-    get_all_users = tdg.get_all_users()
-    return render_template('includes/_doctor_registry.html', all_doctors = get_all_doctors, all_users = get_all_users)
+    @app.route('/dashboard/patient_registry')
+    @is_logged_in
+    def patient_registry():
+        get_all_patients = tdg.get_all_patients()
+        get_all_users = tdg.get_all_users()
+        return render_template('includes/_patient_registry.html', all_patients = get_all_patients, all_users = get_all_users)
 
 
-@app.route('/add_appointment', methods=['GET', 'POST'])
-@is_logged_in
-def add_appointment():
-    form = AppointmentForm(request.form)
-    #TODO ids as fks
-    if request.method == 'POST' and form.validate():
-        patient_id = session['id']
-        doctor_id = form.doctor_id.data
-        clinic_id = 1
-        room = form.room.data
-        start_time = form.start_time.data
-        end_time = form.end_time.data
-        tdg.insert_appointment(patient_id, doctor_id, clinic_id, room, start_time, end_time)
-        flash('Appointment created!', 'success')
-        return redirect(url_for('patient_dashboard'))
-    return render_template('add_appointment.html', form=form)
+    @app.route('/dashboard/nurse_registry')
+    @is_logged_in
+    def nurse_registry():
+        get_all_nurses = tdg.get_all_nurses()
+        get_all_users = tdg.get_all_users()
+        return render_template('includes/_nurse_registry.html', all_nurses = get_all_nurses, all_users = get_all_users)
+
+
+    @app.route('/dashboard/doctor_registry')
+    @is_logged_in
+    def doctor_registry():
+        get_all_doctors = tdg.get_all_doctors()
+        get_all_users = tdg.get_all_users()
+        return render_template('includes/_doctor_registry.html', all_doctors = get_all_doctors, all_users = get_all_users)
+
+    @app.route('/dashboard/patient_registry/<id>', methods=['GET'])
+    @is_logged_in
+    def patient_detailed_page(id):
+        get_patient = user_mapper.get_patient_by_id(id)
+        return render_template('includes/_patient_detail_page.html', patient = get_patient)
 
     @app.route('/calendar')
     @is_logged_in

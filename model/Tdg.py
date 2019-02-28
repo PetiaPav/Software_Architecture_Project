@@ -151,3 +151,27 @@ class Tdg:
         cur.close()
         return users
 
+    def get_patient_by_id(self, id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        result = cur.execute("SELECT * FROM PATIENTS WHERE id =%s", [id])
+        patient_data = cur.fetchone()
+        cur.close()
+        if result is None:
+            return False
+        else:
+            return patient_data
+
+    def get_user_by_id(self, id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        result = cur.execute("SELECT * FROM USERS WHERE id =%s", [id])
+        user_data = cur.fetchone()
+        cur.close()
+        if result is None:
+            return False
+        else:
+            return user_data
+
+
+
