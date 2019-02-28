@@ -20,7 +20,7 @@ def create_app():
     def about():
         return render_template('about.html')
 
-    @app.route('/register/patient', methods=['GET','POST'])
+    @app.route('/register/patient', methods=['GET', 'POST'])
     def register_patient():
         form = get_registration_form("patient", request.form)
 
@@ -45,8 +45,7 @@ def create_app():
             flash('You are now registered and can log in!', 'success')
             return redirect(url_for('login'))
 
-        flash('Server encountered error - Please try again later', 'error')
-        return render_template('register.html', form=form)
+        return render_template('includes/_patient_form.html', form=form)
 
     @app.route('/register/doctor', methods=['GET', 'POST'])
     def register_doctor():

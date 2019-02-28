@@ -19,8 +19,8 @@ class PatientForm(UserForm):
     ])
 
     health_card = StringField('Health Card', [
-        validators.DataRequired()
-        # TODO: Add validator for checking that health card is of the form 'LOUX08032317'
+        validators.DataRequired(),
+        validators.Regexp(regex="[A-Z]{4}\\d{8}")
     ])
     phone_number = StringField('Phone Number')
     birthday = DateField('Birth Date', format='%m/%d/%y')
@@ -29,10 +29,11 @@ class PatientForm(UserForm):
 
 
 class DoctorForm(UserForm):
-    permit_number = IntegerField('Permit Number', [
-        validators.DataRequired()
-        # TODO: Add validator for ensuring permit number is 7 digits
-    ])
+    permit_number = IntegerField('Permit Number',
+                                 [validators.DataRequired(),
+                                  validators.NumberRange(min=0, max=9999999,
+                                                         message="A permit number must only have 7 digits.")
+                                  ])
 
     specialty = StringField('Specialty')
     city = StringField('City')
@@ -40,8 +41,8 @@ class DoctorForm(UserForm):
 
 class NurseForm(UserForm):
     access_id = StringField('Access id', [
-        validators.DataRequired()
-        # TODO: Add validator for ensuring that access id is 3 letters followed by 5 digits (e.g. DOL96315)
+        validators.DataRequired(),
+        validators.Regexp(regex="[A-Z]{3}\\d{5}")
     ])
 
 
