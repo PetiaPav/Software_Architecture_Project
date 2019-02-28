@@ -14,7 +14,7 @@ class Scheduler:
 
             slot_index = 0
 
-            while slot_index < 36:
+            while slot_index < clinic.slots_per_day:
                 # cycle through rooms of the clinic for an available room
                 for room in range(0, len(clinic.rooms)):
                     if Scheduler.__room_is_not_booked(clinic.rooms[room], week_index, day_index, slot_index, walk_in):
