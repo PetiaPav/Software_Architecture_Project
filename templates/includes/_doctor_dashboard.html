@@ -6,7 +6,7 @@
                 <img class="profile-picture" src="/static/img/silouhette.png">
             </div>
             <div class="col-md-9">
-                <h2 class="welcome-msg"> Hello {{ session.first_name }}, Welcome to UberSanté! </h2>
+                <h2 class="welcome-msg"> Hello Dr. {{ session.first_name }}, Welcome to UberSanté! </h2>
                 <h3 class="upcoming-msg">You have <span class="upcoming-appointments">8</span> upcoming appointments with patients</h3>
             </div>
         </div>
@@ -24,7 +24,7 @@
                 <div class="option-button option-button-view unfade">
                     <h4>
                         <span class="glyphicon glyphicon-file blank-icon"></span>
-                        <span> View My Patient Apointments </span>
+                        <span> View My Patient Appointments </span>
                     </h4>
                 </div>
             </a>
@@ -34,7 +34,7 @@
                 <div class="option-button option-button-update unfade">
                     <h4>
                         <span class="glyphicon glyphicon-open-file blank-icon"></span>
-                        <span> Complete/Update Schedule </span>
+                        <span><a href="/calendar_doctor">Complete/Update Schedule</a></span>
                     </h4>
                 </div>
             </a>
