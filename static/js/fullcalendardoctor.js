@@ -6,13 +6,14 @@ $(document).ready(function() {
         $(this).data('event', {
             title: $.trim($(this).text()), // use the element's text as the event title
             stick: true, // maintain when user navigates (see docs on the renderEvent method)
-            duration: '00:20:00'
+            duration: '00:20:00',
+            color: '#257e4a',  //defining the color of the draggeable object
         });
         // make the event draggable using jQuery UI
         $(this).draggable({
             zIndex: 999,
             revert: true,      // will cause the event to go back to its
-            revertDuration: 0  //  original position after the drag
+            revertDuration: 0, //  original position after the drag
         });
     });
 
@@ -21,13 +22,14 @@ $(document).ready(function() {
         $(this).data('event', {
             title: $.trim($(this).text()), // use the element's text as the event title
             stick: true, // maintain when user navigates (see docs on the renderEvent method)
-            duration: '01:00:00'
+            duration: '01:00:00',
+            color: '#257e4a' //defining the color of the draggeable object
         });
         // make the event draggable using jQuery UI
         $(this).draggable({
             zIndex: 999,
             revert: true,      // will cause the event to go back to its
-            revertDuration: 0  //  original position after the drag
+            revertDuration: 0, //  original position after the drag
         });
     });
 
@@ -48,8 +50,8 @@ $(document).ready(function() {
         eventLimit: true, // allow "more" link when too many events
 
         // Limit hours visible per day
-        minTime: "07:30:00",
-        maxTime: "21:00:00",
+        minTime: "08:00:00",
+        maxTime: "20:00:00",
 
         // Height of calendar
         contentHeight: 1000,
@@ -84,18 +86,11 @@ $(document).ready(function() {
             });
 		},
 
-        editable: false,
+        editable: false, //assured that the events are not extendible
         eventStartEditable  : true,
         eventOverlap: false,
         droppable: true, // this allows things to be dropped onto the calendar
-        drop: function() {
-            //$(this).remove();
+        allDaySlot: false,
 
-            // is the "remove after drop" checkbox checked?
-            if ($('#drop-remove').is(':checked')) {
-                // if so, remove the element from the "Draggable Events" list
-                $(this).remove();
-            }
-        },
     });
 });
