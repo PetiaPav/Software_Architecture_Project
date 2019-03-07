@@ -7,12 +7,12 @@ from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthent
 from model.UserMapper import UserMapper
 
 
-def create_app():
+def create_app(debug=False):
     app = Flask(__name__)
     tdg = Tdg(app)
     user_mapper = UserMapper(app)
     app.secret_key = 'secret123'
-    app.debug=True
+    app.debug=debug
 
     @app.route('/')
     def home():
@@ -236,3 +236,6 @@ def create_app():
 
     return app
 
+if __name__ == "__main__":
+    app = create_app(debug=True)
+    app.run()
