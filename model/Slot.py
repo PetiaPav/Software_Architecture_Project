@@ -1,5 +1,6 @@
 class Slot:
     def __init__(self):
+        self.id = None
         # boolean to indicate whether the slot is being used as part of an hourly slot or as a 20 min slot 
         self.walk_in = None
 
