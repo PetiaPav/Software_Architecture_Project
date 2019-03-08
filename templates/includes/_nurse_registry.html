@@ -25,12 +25,8 @@
         <tbody>
         {% for x in all_nurses %}
         <tr>
-             {% for y in all_users %}
-                {% if x.user_fk == y.id %}
-                    <td>{{y.first_name}}</td>
-                    <td>{{y.last_name}}</td>
-                {% endif %}
-            {% endfor %}
+            <td>{{x.first_name}}</td>
+            <td>{{x.last_name}}</td>
             <td>{{x.access_id}}</td>
             <td><input class="btn btn-primary" type="submit" value="Modify" href="/dashboard/nurse"></td>
         </tr>

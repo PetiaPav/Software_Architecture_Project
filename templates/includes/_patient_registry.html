@@ -26,12 +26,8 @@
         <tbody>
         {% for x in all_patients %}
             <tr>
-                 {% for y in all_users %}
-                    {% if x.user_fk == y.id %}
-                        <td>{{y.first_name}}</td>
-                        <td>{{y.last_name}}</td>
-                    {% endif %}
-                 {% endfor %}
+                <td>{{x.first_name}}</td>
+                <td>{{x.last_name}}</td>
                 <td>{{x.email}}</td>
                 <td>{{x.health_card}}</td>
                 <td><a class="btn btn-primary" value="Modify" href="/dashboard/patient_registry/{{x.id}}">Modify</a></td>

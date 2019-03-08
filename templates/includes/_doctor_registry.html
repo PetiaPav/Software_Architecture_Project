@@ -27,12 +27,8 @@
         <tbody>
         {% for x in all_doctors %}
         <tr>
-             {% for y in all_users %}
-                {% if x.user_fk == y.id %}
-                    <td>{{y.first_name}}</td>
-                    <td>{{y.last_name}}</td>
-                {% endif %}
-             {% endfor %}
+            <td>{{x.first_name}}</td>
+            <td>{{x.last_name}}</td>
             <td>{{x.permit_number}}</td>
             <td>{{x.specialty}}</td>
             <td>{{x.city}}</td>

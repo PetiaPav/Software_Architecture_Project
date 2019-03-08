@@ -163,25 +163,22 @@ def create_app(debug=False):
     @app.route('/dashboard/patient_registry')
     @is_logged_in
     def patient_registry():
-        get_all_patients = tdg.get_all_patients()
-        get_all_users = tdg.get_all_users()
-        return render_template('includes/_patient_registry.html', all_patients = get_all_patients, all_users = get_all_users)
+        get_all_patients = tdg.all_patients()
+        return render_template('includes/_patient_registry.html', all_patients = get_all_patients)
 
 
     @app.route('/dashboard/nurse_registry')
     @is_logged_in
     def nurse_registry():
-        get_all_nurses = tdg.get_all_nurses()
-        get_all_users = tdg.get_all_users()
-        return render_template('includes/_nurse_registry.html', all_nurses = get_all_nurses, all_users = get_all_users)
+        get_all_nurses = tdg.all_nurses()
+        return render_template('includes/_nurse_registry.html', all_nurses = get_all_nurses)
 
 
     @app.route('/dashboard/doctor_registry')
     @is_logged_in
     def doctor_registry():
-        get_all_doctors = tdg.get_all_doctors()
-        get_all_users = tdg.get_all_users()
-        return render_template('includes/_doctor_registry.html', all_doctors = get_all_doctors, all_users = get_all_users)
+        get_all_doctors = tdg.all_doctors()
+        return render_template('includes/_doctor_registry.html', all_doctors = get_all_doctors)
 
     @app.route('/dashboard/patient_registry/<id>', methods=['GET'])
     @is_logged_in
