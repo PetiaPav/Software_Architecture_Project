@@ -13,7 +13,7 @@ def create_app(debug=False):
     app = Flask(__name__)
     tdg = Tdg(app)
     user_registry = UserRegistry(tdg)
-    clinic_registry = ClinicRegistry(tdg, user_registry.doctor.catalog)
+    clinic_registry = ClinicRegistry(tdg, user_registry.doctor.get_all())
     appointment_registry = AppointmentRegistry(clinic_registry)
     app.secret_key = 'secret123'
     app.debug = debug
@@ -163,27 +163,25 @@ def create_app(debug=False):
     @app.route('/dashboard/patient_registry')
     @is_logged_in
     def patient_registry():
-        get_all_patients = tdg.all_patients()
-        return render_template('includes/_patient_registry.html', all_patients = get_all_patients)
-
+        all_patients = user_registry.patient.get_all()
+        return render_template('includes/_patient_registry.html', all_patients=all_patients)
 
     @app.route('/dashboard/nurse_registry')
     @is_logged_in
     def nurse_registry():
-        get_all_nurses = tdg.all_nurses()
-        return render_template('includes/_nurse_registry.html', all_nurses = get_all_nurses)
-
+        all_nurses = user_registry.nurse.get_all()
+        return render_template('includes/_nurse_registry.html', all_nurses=all_nurses)
 
     @app.route('/dashboard/doctor_registry')
     @is_logged_in
     def doctor_registry():
-        get_all_doctors = tdg.all_doctors()
-        return render_template('includes/_doctor_registry.html', all_doctors = get_all_doctors)
+        all_doctors = user_registry.doctor.get_all()
+        return render_template('includes/_doctor_registry.html', all_doctors=all_doctors)
 
     @app.route('/dashboard/patient_registry/<id>', methods=['GET'])
     @is_logged_in
     def patient_detailed_page(id):
-        get_patient = user_registry.get_patient_by_id(id)
+        get_patient = user_registry.patient.get_by_id(id)
         return render_template('includes/_patient_detail_page.html', patient = get_patient)
 
     @app.route('/calendar')

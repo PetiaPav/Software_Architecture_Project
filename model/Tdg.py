@@ -136,18 +136,18 @@ class Tdg:
         cur.close()
         doctor_data.update(user_data)
         return doctor_data
-
-    def get_all_doctors(self):
-        connection = self.mysql.connect()
-        cur = connection.cursor()
-        cur.execute("SELECT * FROM DOCTORS")
-        doctors = []
-        for row in cur.fetchall():
-            doctors.append(row)
-        if doctors is None:
-            return False
-        cur.close()
-        return doctors
+    #
+    # def get_all_doctors(self):
+    #     connection = self.mysql.connect()
+    #     cur = connection.cursor()
+    #     cur.execute("SELECT * FROM DOCTORS")
+    #     doctors = []
+    #     for row in cur.fetchall():
+    #         doctors.append(row)
+    #     if doctors is None:
+    #         return False
+    #     cur.close()
+    #     return doctors
 
     def get_all_users(self):
         connection = self.mysql.connect()
