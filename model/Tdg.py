@@ -82,6 +82,26 @@ class Tdg:
         nurse_data.update(user_data)
         return nurse_data
 
+    def get_all_patients(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM PATIENTS LEFT JOIN USERS USR ON (PATIENTS.user_fk = USR.id)")
+        all_patients = []
+        for patient in cur:
+            all_patients.append(patient)
+        cur.close()
+        return all_patients
+
+    def get_all_nurses(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM NURSES LEFT JOIN USERS USR ON (NURSES.user_fk = USR.id)")
+        all_nurses = []
+        for nurse in cur:
+            all_nurses.append(nurse)
+        cur.close()
+        return all_nurses
+
     def get_all_doctors(self):
         connection = self.mysql.connect()
         cur = connection.cursor()
@@ -91,6 +111,18 @@ class Tdg:
             doctors.append(doctor)
         cur.close()
         return doctors
+
+    def get_patient_by_id(self, id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        result = cur.execute("SELECT * FROM PATIENTS LEFT JOIN USERS USR ON (PATIENTS.user_fk = USR.id WHERE id =%s",
+                             [id])
+        patient_data = cur.fetchone()
+        cur.close()
+        if result is None:
+            return False
+        else:
+            return patient_data
 
     def get_doctor_by_permit_number(self, permit_number):
         connection = self.mysql.connect()
@@ -104,6 +136,41 @@ class Tdg:
         cur.close()
         doctor_data.update(user_data)
         return doctor_data
+    #
+    # def get_all_doctors(self):
+    #     connection = self.mysql.connect()
+    #     cur = connection.cursor()
+    #     cur.execute("SELECT * FROM DOCTORS")
+    #     doctors = []
+    #     for row in cur.fetchall():
+    #         doctors.append(row)
+    #     if doctors is None:
+    #         return False
+    #     cur.close()
+    #     return doctors
+
+    def get_all_users(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        users = []
+        cur.execute("SELECT * FROM USERS")
+        for row in cur.fetchall():
+            users.append(row)
+        if users is None:
+            return False
+        cur.close()
+        return users
+
+    def get_user_by_id(self, id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        result = cur.execute("SELECT * FROM USERS WHERE id =%s", [id])
+        user_data = cur.fetchone()
+        cur.close()
+        if result is None:
+            return False
+        else:
+            return user_data
 
     def get_clinics(self):
         connection = self.mysql.connect()
