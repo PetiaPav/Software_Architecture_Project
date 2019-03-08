@@ -6,7 +6,7 @@ from model.User import DoctorMapper, PatientMapper
 class UserRegistry:
     def __init__(self, tdg):
         self.tdg = tdg
-        self.doctorMapper = DoctorMapper(tdg)
+        self.doctor = DoctorMapper(tdg)
         self.patientMapper = PatientMapper(tdg)
 
     def get_patient_by_id(self, patient_id):

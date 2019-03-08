@@ -85,7 +85,7 @@ class Tdg:
     def get_all_patients(self):
         connection = self.mysql.connect()
         cur = connection.cursor()
-        cur.execute("SELECT * FROM PATIENTS LEFT JOIN USERS USR ON (PATIENTS.user_fk = USR.id")
+        cur.execute("SELECT * FROM PATIENTS LEFT JOIN USERS USR ON (PATIENTS.user_fk = USR.id)")
         all_patients = []
         for patient in cur:
             all_patients.append(patient)
@@ -95,7 +95,7 @@ class Tdg:
     def get_all_nurses(self):
         connection = self.mysql.connect()
         cur = connection.cursor()
-        cur.execute("SELECT * FROM NURSES LEFT JOIN USERS USR ON (NURSES.user_fk = USR.id")
+        cur.execute("SELECT * FROM NURSES LEFT JOIN USERS USR ON (NURSES.user_fk = USR.id)")
         all_nurses = []
         for nurse in cur:
             all_nurses.append(nurse)
@@ -137,19 +137,17 @@ class Tdg:
         doctor_data.update(user_data)
         return doctor_data
 
-
-
-    # def get_all_doctors(self):
-    #     connection = self.mysql.connect()
-    #     cur = connection.cursor()
-    #     cur.execute("SELECT * FROM DOCTORS")
-    #     doctors = []
-    #     for row in cur.fetchall():
-    #         doctors.append(row)
-    #     if doctors is None:
-    #         return False
-    #     cur.close()
-    #     return doctors
+    def get_all_doctors(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM DOCTORS")
+        doctors = []
+        for row in cur.fetchall():
+            doctors.append(row)
+        if doctors is None:
+            return False
+        cur.close()
+        return doctors
 
     def get_all_users(self):
         connection = self.mysql.connect()

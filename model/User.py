@@ -52,6 +52,7 @@ class PatientMapper:
         self.catalog_dict = {}
         self.populate()
 
+    # id, first_name, last_name, password, health_card, birthday, gender, phone, physical_address, email, cart
     def populate(self):
         patient_dict = self.tdg.get_all_patients()
         for patient in patient_dict:
@@ -63,15 +64,15 @@ class PatientMapper:
                 patient['health_card'],
                 patient['birthday'],
                 patient['gender'],
-                patient['phone'],
+                patient['phone_number'],
                 patient['physical_address'],
                 patient['email'],
-                patient['cart']
+                None
             )
             self.catalog_dict[patient['id']] = patient_obj
 
     def get_by_id(self, patient_id):
-        return self.catalog_dict[patient_id]
+        return self.catalog_dict[int(patient_id)]
 
 
 
