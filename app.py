@@ -142,6 +142,16 @@ def create_app(debug=False):
                 return redirect(url_for('login'))
         return wrap
 
+    def nurse_login_required(f):
+        @wraps(f)
+        def wrap(*args, **kwargs):
+            if session['user_type'] != 'nurse':
+                flash('Unauthorized, please log in as a nurse', 'danger')
+                return redirect(url_for('login'))
+            else:
+                return f(*args, **kwargs)
+        return wrap
+
     @app.route('/logout')
     @is_logged_in
     def logout():
@@ -162,24 +172,28 @@ def create_app(debug=False):
 
     @app.route('/dashboard/patient_registry')
     @is_logged_in
+    @nurse_login_required
     def patient_registry():
         all_patients = user_registry.patient.get_all()
         return render_template('includes/_patient_registry.html', all_patients=all_patients)
 
     @app.route('/dashboard/nurse_registry')
     @is_logged_in
+    @nurse_login_required
     def nurse_registry():
         all_nurses = user_registry.nurse.get_all()
         return render_template('includes/_nurse_registry.html', all_nurses=all_nurses)
 
     @app.route('/dashboard/doctor_registry')
     @is_logged_in
+    @nurse_login_required
     def doctor_registry():
         all_doctors = user_registry.doctor.get_all()
         return render_template('includes/_doctor_registry.html', all_doctors=all_doctors)
 
     @app.route('/dashboard/patient_registry/<id>', methods=['GET'])
     @is_logged_in
+    @nurse_login_required
     def patient_detailed_page(id):
         get_patient = user_registry.patient.get_by_id(id)
         return render_template('includes/_patient_detail_page.html', patient = get_patient)

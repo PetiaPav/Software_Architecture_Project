@@ -35,6 +35,8 @@ class LoginNurseAuthenticator(LoginAuthenticator):
                 session['logged_in'] = True
                 session['user_type'] = 'nurse'
                 session['first_name'] = user['first_name']
+                session['id'] = user['id']
+                session['access_id'] = self.access_id.data
                 return True
             else:
                 flash('Incorrect password', 'danger')
