@@ -56,14 +56,6 @@ class Tdg:
         cur.close()
         connection.commit()
 
-    def insert_appointment(self, patient_id, doctor_id, clinic_id, room, start_time, end_time):
-        connection = self.mysql.connect()
-        cur = connection.cursor()
-        cur.execute("""INSERT INTO APPOINTMENTS(id, patient_id, doctor_id, clinic_id, room, start_time, end_time) VALUES(NULL, %s, %s, %s, %s, %s, %s)""",
-                    (patient_id, doctor_id, clinic_id, room, start_time, end_time))
-        cur.close()
-        connection.commit()
-
     def get_patient_by_email(self, email):
         connection = self.mysql.connect()
         cur = connection.cursor()
@@ -90,6 +82,16 @@ class Tdg:
         nurse_data.update(user_data)
         return nurse_data
 
+    def get_all_doctors(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM DOCTORS LEFT JOIN USERS USR ON (DOCTORS.user_fk = USR.id)")
+        doctors = []
+        for doctor in cur:
+            doctors.append(doctor)
+        cur.close()
+        return doctors
+
     def get_doctor_by_permit_number(self, permit_number):
         connection = self.mysql.connect()
         cur = connection.cursor()
@@ -102,3 +104,46 @@ class Tdg:
         cur.close()
         doctor_data.update(user_data)
         return doctor_data
+
+    def get_clinics(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM CLINICS")
+        clinics = []
+        for clinic in cur:
+            clinics.append(clinic)
+        cur.close()
+        return clinics
+
+    def get_all_doctor_clinic_assignments(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM DOCTOR_CLINIC_ASSIGNMENT")
+        clinic_doctor_assignments = []
+        for clinic_doctor_assignment in cur:
+            clinic_doctor_assignments.append(clinic_doctor_assignment)
+        cur.close()
+        return clinic_doctor_assignments
+
+    def get_rooms_by_clinic_id(self, clinic_id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        room_exists = True
+        room_id = 1
+        rooms = []
+        while room_exists is True:
+            cur.execute("SELECT * FROM ROOM_SLOTS WHERE clinic_id=%s AND room_id=%s", [clinic_id, room_id])
+            row = cur.fetchone()
+            if row is None:
+                room_exists = False
+            else:
+                room = []
+                while row is not None:
+                    room.append(row)
+                    row = cur.fetchone()
+
+                room_id += 1
+                rooms.append(room)
+
+        cur.close()
+        return rooms

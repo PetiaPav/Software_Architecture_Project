@@ -3,16 +3,20 @@ from enum import Enum
 
 
 class Clinic:
-    def __init__(self, list_of_doctors, number_of_rooms, business_hours):
-        self.doctors = list_of_doctors
-        self.rooms = []
-        self.business_hours = business_hours
-        # we are multiplying the total hours open by 3 because there are 3 20 minute slots per hour.
-        slots_per_day = (business_hours.closing_hour - business_hours.opening_hour) * 3
 
-        # once the database is implemented, the structure would be populated from the database
-        for x in range(0, number_of_rooms):
-            self.rooms.append(Room(slots_per_day))
+    SLOT_DURATION = 20
+
+    def __init__(self, id, list_of_doctors, list_of_rooms, business_hours):
+        self.id = id
+        self.doctors = list_of_doctors
+        self.rooms = list_of_rooms
+        self.business_hours = business_hours
+        # we are multiplying the total hours open by 3 because there are 3 20-minute slots per hour.
+        self.slots_per_day = Clinic.get_slots_per_day(business_hours.opening_hour, business_hours.closing_hour, Clinic.SLOT_DURATION)
+
+    @staticmethod
+    def get_slots_per_day(start_time, end_time, slot_duration):
+        return (end_time - start_time) * (int(60/slot_duration))
 
 
 class Room:
