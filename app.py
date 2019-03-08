@@ -6,11 +6,11 @@ from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
 
 
-def create_app():
+def create_app(debug=False):
     app = Flask(__name__)
     tdg = Tdg(app)
     app.secret_key = 'secret123'
-    app.debug=True
+    app.debug=debug
 
     @app.route('/')
     def home():
@@ -204,3 +204,6 @@ def create_app():
 
     return app
 
+if __name__ == "__main__":
+    app = create_app(debug=True)
+    app.run()
