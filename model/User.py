@@ -32,3 +32,46 @@ class Doctor(User):
         self.city = city
         self.availability = availability
         self.appointments = appointments
+
+
+class DoctorMapper:
+    def __init__(self, tdg):
+        self.tdg = tdg
+        self.catalog = []
+        self.populate()
+
+    def populate(self):
+        doctor_dict = self.tdg.get_all_doctors()
+        for doctor in doctor_dict:
+            self.catalog.append(Doctor(doctor['id'], doctor['first_name'], doctor['last_name'], doctor['password'], doctor['permit_number'], doctor['specialty'], doctor['city'], None, None))
+
+
+class PatientMapper:
+    def __init__(self, tdg):
+        self.tdg = tdg
+        self.catalog_dict = {}
+        self.populate()
+
+    def populate(self):
+        patient_dict = self.tdg.get_all_patients()
+        for patient in patient_dict:
+            patient_obj = Patient(
+                patient['id'],
+                patient['first_name'],
+                patient['last_name'],
+                patient['password'],
+                patient['health_card'],
+                patient['birthday'],
+                patient['gender'],
+                patient['phone'],
+                patient['physical_address'],
+                patient['email'],
+                patient['cart']
+            )
+            self.catalog_dict[patient['id']] = patient_obj
+
+    def get_by_id(self, patient_id):
+        return self.catalog_dict[patient_id]
+
+
+

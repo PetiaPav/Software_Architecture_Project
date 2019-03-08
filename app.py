@@ -4,15 +4,19 @@ from model.Forms import PatientForm, DoctorForm, NurseForm, AppointmentForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
-from model.UserMapper import UserMapper
+from model.ClinicRegistry import ClinicRegistry
+from model.UserRegistry import UserRegistry
+from model.AppointmentRegistry import AppointmentRegistry
 
 
-def create_app():
+def create_app(debug=False):
     app = Flask(__name__)
     tdg = Tdg(app)
-    user_mapper = UserMapper(app)
+    user_registry = UserRegistry(tdg)
+    clinic_registry = ClinicRegistry(tdg, user_registry.doctor.catalog)
+    appointment_registry = AppointmentRegistry(clinic_registry)
     app.secret_key = 'secret123'
-    app.debug=True
+    app.debug = debug
 
     @app.route('/')
     def home():
@@ -151,22 +155,10 @@ def create_app():
         user_type = session['user_type']
         return render_template('dashboard.html', user_type=user_type)
 
-    @app.route('/add_appointment', methods=['GET', 'POST'])
+    @app.route('/add_appointment')
     @is_logged_in
     def add_appointment():
-        form = AppointmentForm(request.form)
-        #TODO ids as fks
-        if request.method == 'POST' and form.validate():
-            patient_id = session['id']
-            doctor_id = form.doctor_id.data
-            clinic_id = 1
-            room = form.room.data
-            start_time = form.start_time.data
-            end_time = form.end_time.data
-            tdg.insert_appointment(patient_id, doctor_id, clinic_id, room, start_time, end_time)
-            flash('Appointment created!', 'success')
-            return redirect(url_for('patient_dashboard'))
-        return render_template('add_appointment.html', form=form)
+        None
 
     @app.route('/dashboard/patient_registry')
     @is_logged_in
@@ -194,7 +186,7 @@ def create_app():
     @app.route('/dashboard/patient_registry/<id>', methods=['GET'])
     @is_logged_in
     def patient_detailed_page(id):
-        get_patient = user_mapper.get_patient_by_id(id)
+        get_patient = user_registry.get_patient_by_id(id)
         return render_template('includes/_patient_detail_page.html', patient = get_patient)
 
     @app.route('/calendar')
@@ -236,3 +228,7 @@ def create_app():
 
     return app
 
+
+if __name__ == "__main__":
+    app = create_app(debug=True)
+    app.run()
