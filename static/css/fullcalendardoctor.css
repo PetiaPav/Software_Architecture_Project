@@ -63,10 +63,12 @@ body {
 
 .annual, .annual:hover{
     color: #fff;
+    cursor: pointer;
 }
 
 .walk-in, .walk-in:hover{
     color: #fff;
+    cursor: pointer;
 }
 
 .annual, .annual-event-dot {
@@ -107,4 +109,68 @@ div.walk-in {
 
 div.annual {
     text-align: center;
+}
+  
+  /* Modal */
+
+.modal-header {
+    padding: 2px 16px;
+    background-color: #DFDFDF;
+    color: black;
+    justify-content: center;
+    align-content: center;
+}
+
+.modal-body, .modal-footer {
+    padding: 2px 16px;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 0;
+    border: 1px solid #888;
+    width: 20%;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+    position: absolute;
+    float:left;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Modal buttons */
+.btn {
+    border: none;
+    color: white;
+    padding: 2px 16px;
+    width: 100px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.keep-button {
+    background-color: white;
+    color: black;
+    border: 2px solid #1fc435;
+  }
+  
+.keep-button:hover {
+    background-color: #1fc435;
+}
+
+.remove-button {
+    background-color: white;
+    color: black;
+    border: 2px solid #f33131;
+    align-self: center;
+  }
+  
+.remove-button:hover {
+    background-color: #f33131;
 }

@@ -7,13 +7,13 @@ $(document).ready(function() {
             title: $.trim($(this).text()), // use the element's text as the event title
             stick: true, // maintain when user navigates (see docs on the renderEvent method)
             duration: '00:20:00',
-            color: '#257e4a',  //defining the color of the draggeable object
+            color: '#257e4a'  //defining the color of the draggeable object
         });
         // make the event draggable using jQuery UI
         $(this).draggable({
             zIndex: 999,
             revert: true,      // will cause the event to go back to its
-            revertDuration: 0, //  original position after the drag
+            revertDuration: 0  //  original position after the drag
         });
     });
 
@@ -29,7 +29,7 @@ $(document).ready(function() {
         $(this).draggable({
             zIndex: 999,
             revert: true,      // will cause the event to go back to its
-            revertDuration: 0, //  original position after the drag
+            revertDuration: 0  //  original position after the drag
         });
     });
 
@@ -69,28 +69,94 @@ $(document).ready(function() {
 
         allDay: true,
 
-        // Retrieve events using /data route
-        events: { url: 'data' },
+        // Test set of events
+        events: [
+            {
+              "id": 1,
+              "title": "Walk-in",
+              "start": "2019-03-09T12:00:00",
+              "end": "2019-03-09T12:20:00"
+            },
+            {
+              "id": 2,
+              "title": "Walk-in",
+              "start": "2019-03-09T16:20:00",
+              "end": "2019-03-09T16:40:00"
+            },
+            {
+              "id": 3,
+              "title": "Annual",
+              "start": "2019-03-09T19:00:00",
+              "end": "2019-03-09T20:00:00"
+            },
+            {
+              "id": 4,
+              "title": "Walk-in",
+              "start": "2019-03-08T19:20:00",
+              "end": "2019-03-08T19:40:00"
+            }],
+            
+        //Code for future
+        //[
+        //     { 
+        //         url: 'bookedAppointments',
+        //         color: 'orange',
+        //         textColor: 'black'  
+        //     },
+        //     {
+        //         url: 'docAvailabilities',
+        //         color: 'blue',
+        //         textColor: 'black'
+        //     }
+        // ],
+        
 
         // onClick of an event
-		eventClick: function(eventObj) {
-            $.ajax({
-                url: 'data',
-                type: 'POST',
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                data: JSON.stringify({title: eventObj.title, start: eventObj.start}),
-                success : function(res){
-                    console.log("Response received")
-                }
-            });
-		},
+		// eventClick: function(eventObj) {
+        //     $.ajax({
+        //         url: 'data',
+        //         type: 'POST',
+        //         contentType: "application/json; charset=utf-8",
+        //         dataType: 'json',
+        //         data: JSON.stringify({title: eventObj.title, start: eventObj.start}),
+        //         success : function(res){
+        //             console.log("Response received")
+        //         }
+        //     });
+		// },
 
         editable: false, //assured that the events are not extendible
         eventStartEditable  : true,
         eventOverlap: false,
         droppable: true, // this allows things to be dropped onto the calendar
         allDaySlot: false,
+
+        //Open modal when an event is clicked and handle remove event functionality
+        //TO BE CONTINUED/FIXED, Remembers previous event id's
+        eventClick: function (eventObj){
+            //Set information to be displayed
+            $('#appointment-type').html(eventObj.title);
+            $("#startTime").html(moment(eventObj.start).format('MMM Do h:mm A'));
+            $("#endTime").html(moment(eventObj.end).format('MMM Do h:mm A'));
+                
+            //Open modal 
+            var myDialog = $("#event-modal").dialog({
+                modal: true, 
+                title: eventObj.title, 
+                width:350
+            });
+
+            // To keep availability simply close the modal
+            $('.keep-button').click(function() {
+                $(myDialog).dialog('close');
+            });
+
+            // To remove the availability and close the modal
+            $('.remove-button').click( function(){
+                $('#calendar').fullCalendar('removeEvents', eventObj._id);
+                $(myDialog).dialog('close');
+            });
+        }
 
     });
 });

@@ -7,6 +7,7 @@
     <link rel='stylesheet' href='../static/css/fullcalendardoctor.css'/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.2.0/fullcalendar.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.2.0/fullcalendar.print.css" media='print' />
+    
     <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
@@ -18,6 +19,8 @@
 {% block body %}
     <br/>
     <div class='container'>
+
+        <!-- Draggable Appointments -->
         <div id='wrapper'>
             <div id='external-events'>
                 <h4>Draggable Appointments</h4>
@@ -30,6 +33,27 @@
             <button class='button save-changes'>Save Changes</button>
         </div>
         <br/>
+
+        <!-- Calendar -->
 		<div id='calendar'></div>
-	</div>
+    </div>
+
+    <!-- Event Modal -->
+    <div id='event-modal' class='modal'>
+        <div class='modal-content'>
+            <div class='modal-header'>
+                <h4><span id='appointment-type'></span></h4>
+            </div>
+            <div class='modal-body'>
+                <p><span id='date'></span></p>
+                <p>Start Time: <span id='startTime'></span></p>
+                <p>End Time: <span id='endTime'></span></p>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn keep-button'>Keep</button>
+                <button type='button' class='btn remove-button'>Remove</button>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
