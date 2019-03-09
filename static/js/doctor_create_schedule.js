@@ -37,15 +37,13 @@ $(document).ready(function() {
         // Define fullcalendar license key
         schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
 
-        // Define header properties and buttons
-        header: {
-				left: 'prev,next today',
-				center: 'title',
-				right: 'agendaWeek,agendaDay'
-			},
+        // Have an empty header
+        header: false,
 
         // Default view upon opening calendar is weekly view
         defaultView: 'agendaWeek',
+        
+        columnHeaderFormat: 'dddd',
 
         eventLimit: true, // allow "more" link when too many events
 
@@ -59,7 +57,7 @@ $(document).ready(function() {
 
         // Grey out non-business hours
         businessHours: {
-            dow: [ 0, 1, 2, 3, 4, 5, 6],   // Days of the week - Sunday to Saturday
+            dow: [0, 1, 2, 3, 4, 5, 6],   // Days of the week - Sunday to Saturday
             start: "08:00:00",
             end: "20:00:00"
         },
@@ -70,39 +68,24 @@ $(document).ready(function() {
         allDay: true,
 
         // Test set of events
-        events: 
-            { 
-                url: 'doctor_booked'
-                // color: 'orange',
-                // textColor: 'black'  
-            }
-            // {
-            //     url: 'doctor_schedule',
-            //     color: 'blue',
-            //     textColor: 'black'
-            // }
-        ,
-        
-
-        // onClick of an event
-		// eventClick: function(eventObj) {
-        //     $.ajax({
-        //         url: 'data',
-        //         type: 'POST',
-        //         contentType: "application/json; charset=utf-8",
-        //         dataType: 'json',
-        //         data: JSON.stringify({title: eventObj.title, start: eventObj.start}),
-        //         success : function(res){
-        //             console.log("Response received")
-        //         }
-        //     });
-		// },
+        events: {},
 
         editable: false, //assured that the events are not extendible
         eventStartEditable  : true,
         eventOverlap: false,
         droppable: true, // this allows things to be dropped onto the calendar
         allDaySlot: false,
+
+        //Making the week generic with no dates
+        viewRender: function() {
+            $('.fc-day-header.fc-sun').html('Sunday');
+            $('.fc-day-header.fc-mon').html('Monday');
+            $('.fc-day-header.fc-tue').html('Tuesday');
+            $('.fc-day-header.fc-wed').html('Wednesday');
+            $('.fc-day-header.fc-thu').html('Thursday');
+            $('.fc-day-header.fc-fri').html('Friday');
+            $('.fc-day-header.fc-sat').html('Saturday');
+        },
 
         //Open modal when an event is clicked and handle remove event functionality
         //TO BE CONTINUED/FIXED, Remembers previous event id's
@@ -129,7 +112,7 @@ $(document).ready(function() {
                 $('#calendar').fullCalendar('removeEvents', eventObj._id);
                 $(myDialog).dialog('close');
             });
-        }
+        },
 
     });
 });

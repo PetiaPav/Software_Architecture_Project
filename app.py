@@ -174,7 +174,13 @@ def create_app():
     @app.route('/calendar_doctor')
     @is_logged_in
     def calendar_doctor():
-        print("LOADING CALENDAR PAGE")
+        print('LOADING CALENDAR PAGE')
+        return render_template('calendar_doctor.html')
+
+    @app.route('/create_schedule')
+    @is_logged_in
+    def doctor_create_schedule():
+        print('LOADING CALENDAR PAGE')
         return render_template('calendar_doctor.html')
 
     @app.route('/data', methods=["GET", "POST"])
@@ -202,6 +208,39 @@ def create_app():
     @is_logged_in
     def selected_appointment(id):
         return render_template('appointment.html', eventid=id)
+
+
+    @app.route('/doctor_schedule', methods=["GET", "POST"])
+    @is_logged_in
+    def return_doctor_schedule():
+        if request.method == 'GET':
+            with open("generic_schedule.json", "r") as input_data:
+                return input_data.read()
+
+        if request.method == 'POST':
+            start_date = request.json['startDate']
+            end_date = request.json['endDate']
+            print(start_date)
+            print(end_date)
+
+            # Must return any real object
+            return start_date
+
+    @app.route('/doctor_booked', methods=["GET", "POST"])
+    @is_logged_in
+    def return_doctor_booked_schedule():
+        if request.method == 'GET':
+            with open("booked_schedule.json", "r") as input_data:
+                return input_data.read()
+
+        if request.method == 'POST':
+            start_date = request.json['startDate']
+            end_date = request.json['endDate']
+            print(start_date)
+            print(end_date)
+
+            # Must return any real object
+            return start_date
 
     return app
 
