@@ -12,6 +12,8 @@ class ClinicRegistry:
         clinic_dict = self.tdg.get_clinics()
         for clinic in clinic_dict:
             clinic_id = clinic['id']
+            clinic_name = clinic['name']
+            clinic_physical_address = clinic['physical_address']
             clinic_start_time = clinic['start_time']
             clinic_end_time = clinic['end_time']
             clinic_slots_per_day = Clinic.get_slots_per_day(clinic_start_time, clinic_end_time, Clinic.SLOT_DURATION)
@@ -46,4 +48,11 @@ class ClinicRegistry:
                 list_of_rooms.append(current_room)
             # currently no database entries for this information
             business_hours = BusinessHours(BusinessDays.SEVEN_DAYS, 8, 20)
-            self.clinics.append(Clinic(clinic_id, list_of_doctors, list_of_rooms, business_hours))
+            self.clinics.append(Clinic(clinic_id, clinic_name, clinic_physical_address, list_of_doctors, list_of_rooms, business_hours))
+
+    def get_by_id(self, id):
+        for clinic in self.clinics:
+            if id == clinic.id:
+                return clinic
+        return None
+                

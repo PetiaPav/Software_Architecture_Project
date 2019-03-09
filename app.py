@@ -10,7 +10,7 @@ from model.ClinicRegistry import ClinicRegistry
 from model.UserRegistry import UserRegistry
 from model.AppointmentRegistry import AppointmentRegistry
 from model.Scheduler import Scheduler
-
+from datetime import datetime
 
 def create_app(debug=False):
     app = Flask(__name__)
@@ -168,10 +168,26 @@ def create_app(debug=False):
         user_type = session['user_type']
         return render_template('dashboard.html', user_type=user_type)
 
-    @app.route('/add_appointment')
+    @app.route('/select_clinic')
     @is_logged_in
     def add_appointment():
-        None
+        return render_template('includes/_select_clinic.html', clinics = clinic_registry.clinics)
+
+    @app.route('/select_clinic/<id>')
+    @is_logged_in
+    def select_appointment_type(id):
+        session['selected_clinic'] = id
+        return render_template('includes/_appointment_type.html', clinics = clinic_registry.clinics)
+
+    @app.route('/view_calendar/<type>')
+    @is_logged_in
+    def view_calendar(type):
+        if type == "annual":
+            session['has_selected_walk_in'] = False
+        else:
+            session['has_selected_walk_in'] = True
+
+        return render_template('calendar.html')
 
     @app.route('/dashboard/patient_info')
     @is_logged_in
@@ -232,9 +248,6 @@ def create_app(debug=False):
     @is_logged_in
     @nurse_login_required
     def modify_nurse(id):
-        # if id is None:
-        #     selected_nurse = user_registry.nurse.get_by_access_id(session["access_id"])
-        # else:
         selected_nurse = user_registry.nurse.get_by_id(id)
         form = Forms.get_form_data("nurse", selected_nurse, request)
         return render_template('includes/_edit_nurse_form.html', form=form)
@@ -261,18 +274,12 @@ def create_app(debug=False):
     @app.route('/data', methods=["GET", "POST"])
     @is_logged_in
     def return_data():
+        clinic = clinic_registry.clinics.get_by_id(session['selected_clinic'])
         if request.method == 'GET':
-            with open("test_events.json", "r") as input_data:
-                return input_data.read()
+            return Scheduler.availability_finder(clinic, datetime.utcnow(), session['has_selected_walk_in'])
 
         if request.method == 'POST':
-            start_date = request.json['startDate']
-            end_date = request.json['endDate']
-            print(start_date)
-            print(end_date)
-
-            # Must return any real object
-            return start_date
+            return Scheduler.availability_finder(clinic, request.json['startDate'], session['has_selected_walk_in'])
 
     @app.route('/event', methods=["POST"])
     @is_logged_in
