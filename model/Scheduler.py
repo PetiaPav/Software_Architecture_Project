@@ -59,9 +59,9 @@ class Scheduler:
             if Scheduler.__room_is_not_booked(clinic.rooms[room], week_index, day_index, slot_index, walk_in):
                 # find an available doctor with randomness to avoid over booking any doctor
                 for doctor in random.sample(range(len(clinic.doctors)), len(clinic.doctors)):
-                    if Scheduler.__doctor_is_available(clinic[doctor].get_week_availability(week_index), day_index, slot_index, walk_in):
+                    if Scheduler.__doctor_is_available(clinic.doctors[doctor].get_week_availability(week_index), day_index, slot_index, walk_in):
                         if Scheduler.__doctor_is_not_booked(clinic.rooms, clinic.doctors[doctor], week_index, day_index, slot_index, walk_in):
-                            return Scheduler.__mark_as_booked(clinic.rooms[room].schedule.week[week_index].day[day_index], slot_index, doctor.id, patient_id, walk_in)
+                            return Scheduler.__mark_as_booked(clinic.rooms[room].schedule.week[week_index].day[day_index], slot_index, clinic.doctors[doctor].id, patient_id, walk_in)
         return None
 
     @staticmethod

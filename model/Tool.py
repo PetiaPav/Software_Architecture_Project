@@ -181,7 +181,6 @@ class Tools:
     @staticmethod
     def get_slot_index_from_time(time_24h):
         for key in time_dict:
-            print("vals: " + time_dict[key])
             if time_dict[key] == time_24h:
                 return int(key)
         return None
@@ -200,6 +199,13 @@ class Tools:
     @staticmethod
     def get_slot_id_from_week_day_slot(week_index, day_index, slot_index):
         return week_index*Tools.SLOTS_PER_DAY*7 + day_index*Tools.SLOTS_PER_DAY + slot_index
+
+    @staticmethod
+    def int_to_bool(value):
+        if value == 0:
+            return False
+        else:
+            return True
 
     @staticmethod
     def json_from_available_slots(available_slots, walk_in):

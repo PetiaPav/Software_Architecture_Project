@@ -115,7 +115,7 @@ class Tdg:
     def get_doctor_availabilities(self, doctor_id):
         connection = self.mysql.connect()
         cur = connection.cursor()
-        cur.execute("SELECT * FROM DOCTOR_AVAILIBILITIES WHERE doctor_id=%s", [doctor_id])
+        cur.execute("SELECT * FROM DOCTOR_AVAILABILITIES WHERE doctor_id=%s", [doctor_id])
         doctor_availabilities = []
         for availabilities in cur:
             doctor_availabilities.append(availabilities)
@@ -125,7 +125,7 @@ class Tdg:
     def get_doctor_availabilities_special(self, doctor_id):
         connection = self.mysql.connect()
         cur = connection.cursor()
-        cur.execute("SELECT * FROM DOCTOR_AVAILIBILITIES_SPECIAL WHERE doctor_id=%s", [doctor_id])
+        cur.execute("SELECT * FROM DOCTOR_AVAILABILITIES_SPECIAL WHERE doctor_id=%s", [doctor_id])
         doctor_availabilities_special = []
         for availabilities_special in cur:
             doctor_availabilities_special.append(availabilities_special)

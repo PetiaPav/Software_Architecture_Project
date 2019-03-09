@@ -1,4 +1,5 @@
 from model.Year import Week, SlotType
+from model.Tool import Tools
 import copy
 
 
@@ -37,7 +38,7 @@ class Doctor(User):
         self.availability = availability
         self.availability_special = availability_special
 
-    def get_week_availabiliy(self, week_index):
+    def get_week_availability(self, week_index):
         specific_week = copy.deepcopy(self.availability)
         for special in self.availability_special:
             if special.week_index == week_index:
@@ -72,8 +73,8 @@ class DoctorMapper:
             for row in doctor_availabilities:
                 current_slot = availability.day[row['day_index']].slot[row['slot_index']]
                 current_slot.available = True
-                current_slot.walk_in = row['walk_in']
-                if row['walk_in'] is False:
+                current_slot.walk_in = Tools.int_to_bool(row['walk_in'])
+                if row['walk_in'] == 0:
                     for inner_slot_index in range(row['slot_index'] + 1, row['slot_index'] + 3):
                         extra_slot = availability.day[row['day_index']].slot[inner_slot_index]
                         extra_slot.available = True
