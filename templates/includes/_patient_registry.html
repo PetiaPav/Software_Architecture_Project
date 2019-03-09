@@ -10,7 +10,6 @@
 <div class="container">
     <h1>Client registry</h1>
     <hr>
-    <a class="btn btn-success" href="/add_appointment">Add Appointment</a>
     <br/>
     <br/>
     <table id="myTable" class="table">
@@ -20,7 +19,7 @@
             <th scope="col">Last Name</th>
             <th scope="col">Email</th>
             <th scope="col">Health card</th>
-            <th scope="col">Modify</th>
+            <th scope="col">View details</th>
         </tr>
         </thead>
         <tbody>
@@ -30,7 +29,7 @@
                 <td>{{x.last_name}}</td>
                 <td>{{x.email}}</td>
                 <td>{{x.health_card}}</td>
-                <td><a class="btn btn-primary" value="Modify" href="/dashboard/patient_registry/{{x.id}}">Modify</a></td>
+                <td><a class="btn btn-primary" value="Modify" href="/dashboard/patient_registry/{{x.id}}">More Details</a></td>
             </tr>
         {% endfor %}
         </tbody>

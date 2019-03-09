@@ -212,3 +212,9 @@ class Tdg:
             return room_slots
         else:
             return None
+
+    def update_patient(self, id, first_name, last_name, health_card, birthday, gender, phone_number, physical_address, email):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("UPDATE PATIENTS LEFT JOIN USERS ON PATIENTS.user_fk = USERS.id SET first_name = %s, last_name = %s, health_card = %s, birthday = %s, gender = %s, phone_number = %s, physical_address = %s, email = %s WHERE PATIENTS.id = %s", (first_name, last_name, health_card, birthday, gender, phone_number, physical_address, email, id))
+        cur.close()

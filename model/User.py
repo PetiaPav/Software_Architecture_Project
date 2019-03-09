@@ -1,6 +1,8 @@
+
 from model.Year import Week, SlotType
 from model.Tool import Tools
 import copy
+from flask import flash
 
 
 class User:
@@ -12,12 +14,12 @@ class User:
 
 
 class Patient(User):
-    def __init__(self, id, first_name, last_name, password, health_card, birthday, gender, phone, physical_address, email, cart):
+    def __init__(self, id, first_name, last_name, password, health_card, birthday, gender, phone_number, physical_address, email, cart):
         User.__init__(self, id, first_name, last_name, password)
         self.health_card = health_card
         self.birthday = birthday
         self.gender = gender
-        self.phone = phone
+        self.phone_number = phone_number
         self.physical_address = physical_address
         self.email = email
         self.cart = cart
@@ -30,6 +32,7 @@ class Nurse(User):
 
 
 class Doctor(User):
+
     def __init__(self, id, first_name, last_name, password, permit_number, specialty, city, availability, availability_special):
         User.__init__(self, id, first_name, last_name, password)
         self.permit_number = permit_number
@@ -144,6 +147,32 @@ class PatientMapper:
     def get_all(self):
         return list(self.catalog_dict.values())
 
+    def update_patient(self, id, request):
+
+        self.tdg.update_patient(
+            id,
+            request.form['first_name'][0:len(request.form['first_name'])],
+            request.form['last_name'][0:len(request.form['last_name'])],
+            request.form['health_card'][0:len(request.form['health_card'])],
+            request.form['birthday'][0:len(request.form['birthday'])],
+            request.form['gender'][0:len(request.form['gender'])],
+            request.form['phone_number'][0:len(request.form['phone_number'])],
+            request.form['physical_address'][0:len(request.form['physical_address'])],
+            request.form['email'][0:len(request.form['email'])]
+        )
+
+        patient_obj = self.get_by_id(id)
+        if patient_obj is not None:
+            patient_obj.first_name =  request.form['first_name'][0:len(request.form['first_name'])]
+            patient_obj.last_name = request.form['last_name'][0:len(request.form['last_name'])],
+            patient_obj.health_card = request.form['health_card'][0:len(request.form['health_card'])],
+            patient_obj.birthday = request.form['birthday'][0:len(request.form['birthday'])],
+            patient_obj.gender = request.form['gender'][0:len(request.form['gender'])],
+            patient_obj.phone_number = request.form['phone_number'][0:len(request.form['phone_number'])],
+            patient_obj.physical_address = request.form['physical_address'][0:len(request.form['physical_address'])],
+            patient_obj.email = request.form['email'][0:len(request.form['email'])]
+
+        flash(f'The patient account information (id {id}) has been modified.', 'success')
 
 class NurseMapper:
     def __init__(self, tdg):
@@ -169,6 +198,12 @@ class NurseMapper:
 
     def get_all(self):
         return list(self.catalog_dict.values())
+
+    def get_by_access_id(self, access_id):
+        for nurse in self.get_all():
+            if nurse.access_id == access_id:
+                return nurse
+        return None
 
 
 class SpecialAvailability:
