@@ -20,10 +20,11 @@ class Clinic:
 
 
 class Room:
-    def __init__(self, slots_per_day):
-        self.schedule = Year(SlotType.ROOM, slots_per_day)
+    def __init__(self):
+        self.schedule = Year(SlotType.ROOM)
 
 
+# hours must be 24 hr format with leading 0 : 08:00, NOT 8:00
 class BusinessHours:
     def __init__(self, business_days, opening_hour, closing_hour):
         self.business_days = business_days

@@ -14,36 +14,29 @@ class ClinicRegistry:
             clinic_id = clinic['id']
             clinic_start_time = clinic['start_time']
             clinic_end_time = clinic['end_time']
-            clinic_slots_per_day = Clinic.get_slots_per_day(clinic_start_time, clinic_end_time, Clinic.SLOT_DURATION)
 
             dict_of_doctor_clinic_assignments = self.tdg.get_all_doctor_clinic_assignments()
-            dict_of_rooms = self.tdg.get_rooms_by_clinic_id(clinic_id)
+            dict_of_room_slots = self.tdg.get_room_slots_by_clinic_id(clinic_id)
 
             list_of_doctors = []
-            list_of_rooms = []
+            # will be modified when there are multiple rooms
+            list_of_rooms = [Room(), Room(), Room(), Room(), Room()]
 
             for assignment in dict_of_doctor_clinic_assignments:
                 for doctor in doctor_catalog:
                     if assignment['clinic_id'] == clinic_id and doctor.id == assignment['doctor_id']:
                         list_of_doctors.append(doctor)
 
-            for room in dict_of_rooms:
-                current_room = Room(clinic_slots_per_day)
-                slot_id_index = 0
-                for slot in room:
-                    week_index = int(slot_id_index / (clinic_slots_per_day*7))
-                    day_index = int((slot_id_index % (clinic_slots_per_day*7)) / clinic_slots_per_day)
-                    slot_index = (slot_id_index % clinic_slots_per_day) % clinic_slots_per_day
-                    current_slot = current_room.schedule.week[week_index].day[day_index].slot[slot_index]
-                    current_slot.id = slot["id"]
-                    current_slot.slot_id = slot["slot_id"]
-                    current_slot.patient_id = slot["patient_id"]
-                    current_slot.doctor_id = slot["doctor_id"]
-                    current_slot.booked = slot["booked"]
-                    current_slot.walk_in = slot["walk_in"]
+            if dict_of_room_slots is not None:
+                for room_slot in dict_of_room_slots:
+                    current_slot = list_of_rooms[room_slot['room_id']-1].schedule.week[room_slot['week_index']].day[room_slot['day_index']].slot[room_slot['slot_index']]
+                    current_slot.id = room_slot["id"]
+                    current_slot.slot_id = Tools.get_slot_id_from_week_day_slot(week_index, day_index, slot_index)
+                    current_slot.patient_id = room_slot["patient_id"]
+                    current_slot.doctor_id = room_slot["doctor_id"]
+                    current_slot.booked = True
+                    current_slot.walk_in = room_slot["walk_in"]
 
-                    slot_id_index = slot_id_index + 1
-                list_of_rooms.append(current_room)
-            # currently no database entries for this information
-            business_hours = BusinessHours(BusinessDays.SEVEN_DAYS, 8, 20)
+            # currently no database entries for business days
+            business_hours = BusinessHours(BusinessDays.SEVEN_DAYS, clinic_start_time, clinic_end_time)
             self.clinics.append(Clinic(clinic_id, list_of_doctors, list_of_rooms, business_hours))

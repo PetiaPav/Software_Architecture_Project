@@ -112,6 +112,26 @@ class Tdg:
         cur.close()
         return doctors
 
+    def get_doctor_availabilities(self, doctor_id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM DOCTOR_AVAILIBILITIES WHERE doctor_id=%s", [doctor_id])
+        doctor_availabilities = []
+        for availabilities in cur:
+            doctor_availabilities.append(availabilities)
+        cur.close()
+        return doctor_availabilities
+
+    def get_doctor_availabilities_special(self, doctor_id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM DOCTOR_AVAILIBILITIES_SPECIAL WHERE doctor_id=%s", [doctor_id])
+        doctor_availabilities_special = []
+        for availabilities_special in cur:
+            doctor_availabilities_special.append(availabilities_special)
+        cur.close()
+        return doctor_availabilities_special
+
     def get_patient_by_id(self, id):
         connection = self.mysql.connect()
         cur = connection.cursor()
@@ -136,18 +156,6 @@ class Tdg:
         cur.close()
         doctor_data.update(user_data)
         return doctor_data
-    #
-    # def get_all_doctors(self):
-    #     connection = self.mysql.connect()
-    #     cur = connection.cursor()
-    #     cur.execute("SELECT * FROM DOCTORS")
-    #     doctors = []
-    #     for row in cur.fetchall():
-    #         doctors.append(row)
-    #     if doctors is None:
-    #         return False
-    #     cur.close()
-    #     return doctors
 
     def get_all_users(self):
         connection = self.mysql.connect()
@@ -192,25 +200,15 @@ class Tdg:
         cur.close()
         return clinic_doctor_assignments
 
-    def get_rooms_by_clinic_id(self, clinic_id):
+    def get_room_slots_by_clinic_id(self, clinic_id):
         connection = self.mysql.connect()
         cur = connection.cursor()
-        room_exists = True
-        room_id = 1
-        rooms = []
-        while room_exists is True:
-            cur.execute("SELECT * FROM ROOM_SLOTS WHERE clinic_id=%s AND room_id=%s", [clinic_id, room_id])
-            row = cur.fetchone()
-            if row is None:
-                room_exists = False
-            else:
-                room = []
-                while row is not None:
-                    room.append(row)
-                    row = cur.fetchone()
-
-                room_id += 1
-                rooms.append(room)
-
+        cur.execute("SELECT * FROM ROOM_SLOTS WHERE clinic_id=%s", [clinic_id])
+        room_slots = []
+        for room_slot in cur:
+            room_slots.append(room_slot)
         cur.close()
-        return rooms
+        if len(room_slots) > 0:
+            return room_slots
+        else:
+            return None
