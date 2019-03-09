@@ -172,6 +172,12 @@ def create_app(debug=False):
     def add_appointment():
         None
 
+    @app.route('/dashboard/patient_info')
+    @is_logged_in
+    def patient_info():
+        selected_patient = user_registry.patient.get_by_id(session["id"])
+        return render_template('includes/_patient_detail_page.html', patient=selected_patient)
+
     @app.route('/dashboard/patient_registry')
     @is_logged_in
     @nurse_login_required
