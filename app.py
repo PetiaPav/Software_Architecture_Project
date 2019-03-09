@@ -7,6 +7,7 @@ from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthent
 from model.ClinicRegistry import ClinicRegistry
 from model.UserRegistry import UserRegistry
 from model.AppointmentRegistry import AppointmentRegistry
+from model.Scheduler import Scheduler
 
 
 def create_app(debug=False):
@@ -234,6 +235,12 @@ def create_app(debug=False):
     @is_logged_in
     def selected_appointment(id):
         return render_template('appointment.html', eventid=id)
+
+    @app.route('/test_appointment/')
+    def test_appointment():
+        appointment_registry.add_appointment(clinic_registry.clinics[0], "2019-01-27T08:00:00", 1, True)
+        print(appointment_registry.get_appointment_by_id(1))
+        return render_template('home.html')
 
     return app
 

@@ -4,7 +4,7 @@ import random
 
 class Scheduler:
 
-    # expects date_time as string "2019-01-27T8:00:00", any day in the week will work
+    # expects date_time as string "2019-01-27T08:00:00", any day in the week will work
     @staticmethod
     def availability_finder(clinic, date_time, walk_in):
         # initialize an array where we will store tuples of available time slots (week_index, day_index, slot_index)
@@ -78,7 +78,26 @@ class Scheduler:
                 appointment_slot_extended.doctor_id = doctor_id
                 appointment_slot_extended.patient_id = patient_id
                 appointment_slot.walk_in = walk_in
-        return appointment_slot.id
+        # TODO update Database
+        return appointment_slot
+
+    @staticmethod
+    def mark_as_available(clinic, appointment_slot):
+        if appointment_slot.walk_in is False:
+            week_day_index = Tools.get_week_and_day_index_from_date(Tools.get_date_time_from_slot_id(appointment_slot.slot_id, clinic.slots_per_day)[0:10])
+            for slot_index in range(appointment_slot.slot_id, appointment_slot.slot_id + 2):
+                slot_to_clear = clinic.rooms[appointment_slot.room_id].schedule.week[week_day_index[0]].day[week_day_index[1]].slot[slot_index]
+                slot_to_clear.booked = False
+                slot_to_clear.doctor_id = None
+                slot_to_clear.patient_id = None
+                slot_to_clear.walk_in = None
+        else:
+            appointment_slot.booked = False
+            appointment_slot.doctor_id = None
+            appointment_slot.patient_id = None
+            appointment_slot.walk_in = None
+        # TODO update Database
+        return True
 
     @staticmethod
     def __doctor_is_not_booked(clinic_rooms, doctor, week_index, day_index, slot_index, walk_in):
