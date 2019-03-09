@@ -36,6 +36,7 @@ class ClinicRegistry:
                     slot_index = (slot_id_index % clinic_slots_per_day) % clinic_slots_per_day
                     current_slot = current_room.schedule.week[week_index].day[day_index].slot[slot_index]
                     current_slot.id = slot["id"]
+                    current_slot.slot_id = slot["slot_id"]
                     current_slot.patient_id = slot["patient_id"]
                     current_slot.doctor_id = slot["doctor_id"]
                     current_slot.booked = slot["booked"]

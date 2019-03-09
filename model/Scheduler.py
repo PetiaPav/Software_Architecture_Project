@@ -1,12 +1,15 @@
 from model.Tool import Tools
+import random
 
 
 class Scheduler:
 
+    # expects date_time as string "2019-01-27T08:00:00", any day in the week will work
     @staticmethod
-    def availability_finder(clinic, week_index, walk_in):
+    def availability_finder(clinic, date_time, walk_in):
         # initialize an array where we will store tuples of available time slots (week_index, day_index, slot_index)
         available_slots = []
+        week_index = Tools.get_week_index_from_date(date_time)
 
         # cycle through days of the week
         for day_index in range(0, 7):
@@ -43,6 +46,58 @@ class Scheduler:
 
         # now we need to make our availablities into a format valid for fullcalendar
         return Tools.json_from_available_slots(available_slots, walk_in)
+
+    @staticmethod
+    def book_appointement(clinic, date_time, patient_id, walk_in):
+        week_and_day_index = Tools.get_week_and_day_index_from_date(date_time)
+        week_index = week_and_day_index[0]
+        day_index = week_and_day_index[1]
+        slot_index = Tools.get_slot_index_from_time(date_time[11:16])
+
+        # find an empty room with randomness to avoid over booking any room
+        for room in random.sample(range(len(clinic.rooms)), len(clinic.rooms)):
+            if Scheduler.__room_is_not_booked(clinic.rooms[room], week_index, day_index, slot_index, walk_in):
+                # find an available doctor with randomness to avoid over booking any doctor
+                for doctor in random.sample(range(len(clinic.doctors)), len(clinic.doctors)):
+                    if Scheduler.__doctor_is_available(clinic[doctor], day_index, slot_index, walk_in):
+                        if Scheduler.__doctor_is_not_booked(clinic.rooms, clinic.doctors[doctor], week_index, day_index, slot_index, walk_in):
+                            return Scheduler.__mark_as_booked(clinic.rooms[room].schedule.week[week_index].day[day_index], slot_index, doctor.id, patient_id, walk_in)
+        return None
+
+    @staticmethod
+    def __mark_as_booked(day, doctor_id, slot_index, patient_id, walk_in):
+        appointment_slot = day.slot[slot_index]
+        appointment_slot.booked = True
+        appointment_slot.doctor_id = doctor_id
+        appointment_slot.patient_id = patient_id
+        appointment_slot.walk_in = walk_in
+        if walk_in is False:
+            for inner_slot_index in range(slot_index + 1, slot_index + 3):
+                appointment_slot_extended = day.slot[inner_slot_index]
+                appointment_slot_extended.booked = True
+                appointment_slot_extended.doctor_id = doctor_id
+                appointment_slot_extended.patient_id = patient_id
+                appointment_slot.walk_in = walk_in
+        # TODO update Database
+        return appointment_slot
+
+    @staticmethod
+    def mark_as_available(clinic, appointment_slot):
+        if appointment_slot.walk_in is False:
+            week_day_index = Tools.get_week_and_day_index_from_date(Tools.get_date_time_from_slot_id(appointment_slot.slot_id, clinic.slots_per_day)[0:10])
+            for slot_index in range(appointment_slot.slot_id, appointment_slot.slot_id + 2):
+                slot_to_clear = clinic.rooms[appointment_slot.room_id].schedule.week[week_day_index[0]].day[week_day_index[1]].slot[slot_index]
+                slot_to_clear.booked = False
+                slot_to_clear.doctor_id = None
+                slot_to_clear.patient_id = None
+                slot_to_clear.walk_in = None
+        else:
+            appointment_slot.booked = False
+            appointment_slot.doctor_id = None
+            appointment_slot.patient_id = None
+            appointment_slot.walk_in = None
+        # TODO update Database
+        return True
 
     @staticmethod
     def __doctor_is_not_booked(clinic_rooms, doctor, week_index, day_index, slot_index, walk_in):
