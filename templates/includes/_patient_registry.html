@@ -21,16 +21,18 @@
             <th scope="col">Email</th>
             <th scope="col">Health card</th>
             <th scope="col">Modify</th>
+            <th scope="col">Delete</th>
         </tr>
         </thead>
         <tbody>
         {% for x in all_patients %}
-            <tr>
+            <tr onclick="window.location='/dashboard/patient_registry/{{x.id}}'">
                 <td>{{x.first_name}}</td>
                 <td>{{x.last_name}}</td>
                 <td>{{x.email}}</td>
                 <td>{{x.health_card}}</td>
-                <td><a class="btn btn-primary" value="Modify" href="/dashboard/patient_registry/{{x.id}}">Modify</a></td>
+                <td><a class="btn btn-primary" value="Modify" href="/edit/patient/{{x.id}}">Modify</a></td>
+                <td><a class="btn btn-danger" value="Delete">Delete</a></td>
             </tr>
         {% endfor %}
         </tbody>

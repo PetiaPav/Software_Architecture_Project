@@ -7,12 +7,12 @@ class User:
 
 
 class Patient(User):
-    def __init__(self, id, first_name, last_name, password, health_card, birthday, gender, phone, physical_address, email, cart):
+    def __init__(self, id, first_name, last_name, password, health_card, birthday, gender, phone_number, physical_address, email, cart):
         User.__init__(self, id, first_name, last_name, password)
         self.health_card = health_card
         self.birthday = birthday
         self.gender = gender
-        self.phone = phone
+        self.phone_number = phone_number
         self.physical_address = physical_address
         self.email = email
         self.cart = cart
@@ -25,9 +25,9 @@ class Nurse(User):
 
 
 class Doctor(User):
-    def __init__(self, id, first_name, last_name, password, physician_permit_number, specialty, city, availability, appointments):
+    def __init__(self, id, first_name, last_name, password, permit_number, specialty, city, availability, appointments):
         User.__init__(self, id, first_name, last_name, password)
-        self.physician_permit_number = physician_permit_number
+        self.permit_number = permit_number
         self.specialty = specialty
         self.city = city
         self.availability = availability
@@ -119,4 +119,10 @@ class NurseMapper:
 
     def get_all(self):
         return list(self.catalog_dict.values())
+
+    def get_by_access_id(self, access_id):
+        for nurse in self.get_all():
+            if nurse.access_id == access_id:
+                return nurse
+        return None
 

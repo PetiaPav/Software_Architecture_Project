@@ -32,7 +32,7 @@
             <td>{{x.permit_number}}</td>
             <td>{{x.specialty}}</td>
             <td>{{x.city}}</td>
-            <td><input class="btn btn-primary" type="submit" value="Modify" href="/dashboard/doctor"></td>
+            <td><a class="btn btn-primary" value="Modify" href="/edit/doctor/{{x.id}}">Modify</a></td>
         </tr>
     {% endfor %}
         </tbody>

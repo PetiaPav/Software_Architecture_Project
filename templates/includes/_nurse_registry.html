@@ -28,7 +28,7 @@
             <td>{{x.first_name}}</td>
             <td>{{x.last_name}}</td>
             <td>{{x.access_id}}</td>
-            <td><input class="btn btn-primary" type="submit" value="Modify" href="/dashboard/nurse"></td>
+            <td><a class="btn btn-primary" value="Modify" href="/edit/nurse/{{x.id}}">Modify</a></td>
         </tr>
         {% endfor %}
         </tbody>
