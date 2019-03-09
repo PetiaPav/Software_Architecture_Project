@@ -113,13 +113,58 @@ year_2019_dict = {
 
 
 class Tools:
+
     @staticmethod
-    def get_day_from_index(index):
+    def get_day_string_from_day_index(index):
         return week_dict[index]
 
     @staticmethod
-    def get_time_from_index(index):
+    def get_time_string_from_slot_index(index):
         return time_dict[index]
+
+    @staticmethod
+    def get_week_and_day_index_from_date(yyyy_mm_dd):
+        day_index = None
+        for week_index, day_list in eval("year_" + yyyy_mm_dd[0:4] + "_dict").items():
+            for date in day_list:
+                if date == yyyy_mm_dd[5:10]:
+                    day_index = day_list.index(date)
+                    return (week_index, day_index)
+        return None
+
+    # expects date_time format as string: "2019-01-27T08:00:00"
+    @staticmethod
+    def get_week_index_from_date(date_time):
+        for week_index, day_list in eval("year_" + date_time[0:4] + "_dict").items():
+            for date in day_list:
+                if date == date_time[5:10]:
+                    return week_index
+        return None
+
+    @staticmethod
+    def get_slot_index_from_time(time_24h):
+        for key in time_dict:
+            print("vals: " + time_dict[key])
+            if time_dict[key] == time_24h:
+                return int(key)
+        return None
+
+    # expects date_time format as string: "2019-01-27T08:00:00"
+    @staticmethod
+    def get_slot_id_from_date_time(date_time, clinic, room_number):
+        week_day_index_tuple = Tools.get_week_and_day_index_from_date(date_time[0:10])
+        slot_index = Tools.get_slot_index_from_time(date_time[11:16])
+        slots_per_room = clinic.slots_per_day*7*54
+        if week_day_index_tuple is not None and slot_index is not None:
+            return (room_number-1)*slots_per_room + week_day_index_tuple[0]*clinic.slots_per_day*7 + week_day_index_tuple[1]*clinic.slots_per_day + slot_index
+        return None
+
+    @staticmethod
+    def get_date_time_from_slot_id(slot_id, clinic_slots_per_day):
+        week_index = int(slot_id / (clinic_slots_per_day*7))
+        day_index = int((slot_id % (clinic_slots_per_day*7)) / clinic_slots_per_day)
+        slot_index = (slot_id % clinic_slots_per_day) % clinic_slots_per_day
+        return "2019-" + year_2019_dict[week_index][day_index] + "T" + time_dict[slot_index] + ":00"
 
     @staticmethod
     def json_from_available_slots(available_slots, walk_in):
