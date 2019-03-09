@@ -5,7 +5,7 @@
 <div class="container">
     <h2>Edit Patient</h2>
     {% from "includes/_form_helpers.html" import render_field %}
-    <form method="POST" action="/edit/patient">
+    <form method="POST" action="/edit/patient/{{id}}">
         <div class="form-group">
             {{render_field(form.email, class_="form-control", placeholder="example: alice@bob.com")}}
         </div>

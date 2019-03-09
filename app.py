@@ -206,7 +206,12 @@ def create_app(debug=False):
     def modify_patient(id):
         selected_patient = user_registry.patient.get_by_id(id)
         form = Forms.get_form_data("patient", selected_patient, request)
-        return render_template('includes/_edit_patient_form.html', form=form)
+
+        if request.method == "POST" and form.validate():
+            user_registry.patient.update_patient(id, request)
+            return redirect(url_for('patient_registry'))
+        else:
+            return render_template('includes/_edit_patient_form.html', form=form, id=selected_patient.id)
 
     @app.route('/edit/doctor/<id>', methods=['GET', 'POST'])
     @is_logged_in
