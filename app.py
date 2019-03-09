@@ -6,9 +6,9 @@ from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
 
 
-def create_app(debug=False):
+def create_app(db_env="ubersante", debug=False):
     app = Flask(__name__)
-    tdg = Tdg(app)
+    tdg = Tdg(app, db_env)
     app.secret_key = 'secret123'
     app.debug=debug
 
@@ -206,5 +206,5 @@ def create_app(debug=False):
     return app
 
 if __name__ == "__main__":
-    app = create_app(debug=True)
+    app = create_app(db_env="ubersante", debug=True)
     app.run()
