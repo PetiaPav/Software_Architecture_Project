@@ -8,10 +8,10 @@ class LoginAuthenticator(Form):
 
 
 class LoginDoctorAuthenticator(LoginAuthenticator):
-    physician_permit_number = StringField('Physician Permit Number', [validators.Length(min=7)])
+    permit_number = StringField('Physician Permit Number', [validators.Length(min=7)])
 
     def authenticate_user(self, tdg):
-        user = tdg.get_doctor_by_permit_number(self.physician_permit_number.data)
+        user = tdg.get_doctor_by_permit_number(self.permit_number.data)
         if user:
             if sha256_crypt.verify(self.password.data, user["password"]):
                 session['logged_in'] = True
@@ -35,6 +35,8 @@ class LoginNurseAuthenticator(LoginAuthenticator):
                 session['logged_in'] = True
                 session['user_type'] = 'nurse'
                 session['first_name'] = user['first_name']
+                session['id'] = user['id']
+                session['access_id'] = self.access_id.data
                 return True
             else:
                 flash('Incorrect password', 'danger')

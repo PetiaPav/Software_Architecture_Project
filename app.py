@@ -1,16 +1,24 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
+
+from model import Forms
 from model.Tdg import Tdg
 from model.Forms import PatientForm, DoctorForm, NurseForm, AppointmentForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
+from model.ClinicRegistry import ClinicRegistry
+from model.UserRegistry import UserRegistry
+from model.AppointmentRegistry import AppointmentRegistry
 
 
 def create_app(debug=False):
     app = Flask(__name__)
     tdg = Tdg(app)
+    user_registry = UserRegistry(tdg)
+    clinic_registry = ClinicRegistry(tdg, user_registry.doctor.get_all())
+    appointment_registry = AppointmentRegistry(clinic_registry)
     app.secret_key = 'secret123'
-    app.debug=debug
+    app.debug = debug
 
     @app.route('/')
     def home():
@@ -136,6 +144,16 @@ def create_app(debug=False):
                 return redirect(url_for('login'))
         return wrap
 
+    def nurse_login_required(f):
+        @wraps(f)
+        def wrap(*args, **kwargs):
+            if session['user_type'] != 'nurse':
+                flash('Unauthorized, please log in as a nurse', 'danger')
+                return redirect(url_for('login'))
+            else:
+                return f(*args, **kwargs)
+        return wrap
+
     @app.route('/logout')
     @is_logged_in
     def logout():
@@ -149,22 +167,78 @@ def create_app(debug=False):
         user_type = session['user_type']
         return render_template('dashboard.html', user_type=user_type)
 
-    @app.route('/add_appointment', methods=['GET', 'POST'])
+    @app.route('/add_appointment')
     @is_logged_in
     def add_appointment():
-        form = AppointmentForm(request.form)
-        #TODO ids as fks
-        if request.method == 'POST' and form.validate():
-            patient_id = session['id']
-            doctor_id = form.doctor_id.data
-            clinic_id = 1
-            room = form.room.data
-            start_time = form.start_time.data
-            end_time = form.end_time.data
-            tdg.insert_appointment(patient_id, doctor_id, clinic_id, room, start_time, end_time)
-            flash('Appointment created!', 'success')
-            return redirect(url_for('patient_dashboard'))
-        return render_template('add_appointment.html', form=form)
+        None
+
+    @app.route('/dashboard/patient_registry')
+    @is_logged_in
+    @nurse_login_required
+    def patient_registry():
+        all_patients = user_registry.patient.get_all()
+        return render_template('includes/_patient_registry.html', all_patients=all_patients)
+
+    @app.route('/dashboard/nurse_registry')
+    @is_logged_in
+    @nurse_login_required
+    def nurse_registry():
+        all_nurses = user_registry.nurse.get_all()
+        return render_template('includes/_nurse_registry.html', all_nurses=all_nurses)
+
+    @app.route('/dashboard/doctor_registry')
+    @is_logged_in
+    @nurse_login_required
+    def doctor_registry():
+        all_doctors = user_registry.doctor.get_all()
+        return render_template('includes/_doctor_registry.html', all_doctors=all_doctors)
+
+    @app.route('/dashboard/patient_registry/<id>', methods=['GET'])
+    @is_logged_in
+    @nurse_login_required
+    def patient_detailed_page(id):
+        get_patient = user_registry.patient.get_by_id(id)
+        return render_template('includes/_patient_detail_page.html', patient = get_patient)
+
+    @app.route('/edit/patient/<id>', methods=['GET', 'POST'])
+    @is_logged_in
+    @nurse_login_required
+    def modify_patient(id):
+        selected_patient = user_registry.patient.get_by_id(id)
+        form = Forms.get_form_data("patient", selected_patient, request)
+
+        if request.method == "POST" and form.validate():
+            user_registry.patient.update_patient(id, request)
+            return redirect(url_for('patient_registry'))
+        else:
+            return render_template('includes/_edit_patient_form.html', form=form, id=selected_patient.id)
+
+    @app.route('/edit/doctor/<id>', methods=['GET', 'POST'])
+    @is_logged_in
+    @nurse_login_required
+    def modify_doctor(id):
+        selected_doctor = user_registry.doctor.get_by_id(id)
+        form = Forms.get_form_data("doctor", selected_doctor, request)
+        return render_template('includes/_edit_doctor_form.html', form=form)
+
+    @app.route('/edit/nurse/<id>', methods=['GET', 'POST'])
+    @is_logged_in
+    @nurse_login_required
+    def modify_nurse(id):
+        # if id is None:
+        #     selected_nurse = user_registry.nurse.get_by_access_id(session["access_id"])
+        # else:
+        selected_nurse = user_registry.nurse.get_by_id(id)
+        form = Forms.get_form_data("nurse", selected_nurse, request)
+        return render_template('includes/_edit_nurse_form.html', form=form)
+
+    @app.route('/edit/personal_profile', methods=['GET', 'POST'])
+    @is_logged_in
+    @nurse_login_required
+    def modify_personal_profile():
+        selected_nurse = user_registry.nurse.get_by_access_id(session["access_id"])
+        form = Forms.get_form_data("nurse", selected_nurse, request)
+        return render_template('includes/_edit_nurse_form.html', form=form)
 
     @app.route('/calendar')
     @is_logged_in
@@ -204,6 +278,7 @@ def create_app(debug=False):
         return render_template('appointment.html', eventid=id)
 
     return app
+
 
 if __name__ == "__main__":
     app = create_app(debug=True)
