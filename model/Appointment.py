@@ -2,8 +2,6 @@ from model.Tool import Tools
 
 
 class Appointment():
-    # we will decide if this should be variable in the next milestone
-    CLINIC_SLOTS_PER_DAY = 36
 
     def __init__(self, id, clinic_id, appointment_slot):
         self.id = id
@@ -12,4 +10,4 @@ class Appointment():
         # an appointment slot has attributes : id(clinic specific), doctor_id, patient_id, room_id, walk_in, booked 
 
     def get_date_time(self, slot_id):
-        return Tools.get_date_time_from_slot_id(slot_id, Appointment.CLINIC_SLOTS_PER_DAY)
+        return Tools.get_date_time_from_slot_id(slot_id)

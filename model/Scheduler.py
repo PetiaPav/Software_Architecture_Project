@@ -15,16 +15,16 @@ class Scheduler:
         for day_index in range(0, 7):
             # step 1 : find an available room per time slot
 
-            slot_index = 0
+            slot_index = Tools.get_slot_index_from_time(clinic.business_hours.opening_hour)
 
-            while slot_index < clinic.slots_per_day:
+            while slot_index < Tools.get_slot_index_from_time(clinic.business_hours.closing_hour):
                 # cycle through rooms of the clinic for an available room
                 for room in range(0, len(clinic.rooms)):
                     if Scheduler.__room_is_not_booked(clinic.rooms[room], week_index, day_index, slot_index, walk_in):
                         # we found an available room, now lets find an available doctor
                         for doctor in range(0, len(clinic.doctors)):
                             # cycle through doctors to find availability
-                            if Scheduler.__doctor_is_available(clinic.doctors[doctor], day_index, slot_index, walk_in):
+                            if Scheduler.__doctor_is_available(clinic.doctors[doctor].get_week_availability(week_index), day_index, slot_index, walk_in):
                                 # we found a doctor with availability at this time
                                 # we need to make sure the doctor is not booked during this time
                                 if Scheduler.__doctor_is_not_booked(clinic.rooms, clinic.doctors[doctor], week_index, day_index, slot_index, walk_in):
@@ -59,9 +59,9 @@ class Scheduler:
             if Scheduler.__room_is_not_booked(clinic.rooms[room], week_index, day_index, slot_index, walk_in):
                 # find an available doctor with randomness to avoid over booking any doctor
                 for doctor in random.sample(range(len(clinic.doctors)), len(clinic.doctors)):
-                    if Scheduler.__doctor_is_available(clinic[doctor], day_index, slot_index, walk_in):
+                    if Scheduler.__doctor_is_available(clinic.doctors[doctor].get_week_availability(week_index), day_index, slot_index, walk_in):
                         if Scheduler.__doctor_is_not_booked(clinic.rooms, clinic.doctors[doctor], week_index, day_index, slot_index, walk_in):
-                            return Scheduler.__mark_as_booked(clinic.rooms[room].schedule.week[week_index].day[day_index], slot_index, doctor.id, patient_id, walk_in)
+                            return Scheduler.__mark_as_booked(clinic.rooms[room].schedule.week[week_index].day[day_index], slot_index, clinic.doctors[doctor].id, patient_id, walk_in)
         return None
 
     @staticmethod
@@ -84,9 +84,9 @@ class Scheduler:
     @staticmethod
     def mark_as_available(clinic, appointment_slot):
         if appointment_slot.walk_in is False:
-            week_day_index = Tools.get_week_and_day_index_from_date(Tools.get_date_time_from_slot_id(appointment_slot.slot_id, clinic.slots_per_day)[0:10])
-            for slot_index in range(appointment_slot.slot_id, appointment_slot.slot_id + 2):
-                slot_to_clear = clinic.rooms[appointment_slot.room_id].schedule.week[week_day_index[0]].day[week_day_index[1]].slot[slot_index]
+            week_day_index = Tools.get_week_and_day_index_from_date(Tools.get_date_time_from_slot_id(appointment_slot.slot_id)[0:10])
+            for slot_index in range(Tools.get_slot_index_from_slot_id(appointment_slot.slot_id), Tools.get_slot_index_from_slot_id(appointment_slot.slot_id) + 2):
+                slot_to_clear = clinic.rooms[appointment_slot.room_id-1].schedule.week[week_day_index[0]].day[week_day_index[1]].slot[slot_index]
                 slot_to_clear.booked = False
                 slot_to_clear.doctor_id = None
                 slot_to_clear.patient_id = None
@@ -138,19 +138,19 @@ class Scheduler:
         return False
 
     @staticmethod
-    def __doctor_is_available(doctor, day_index, slot_index, walk_in):
+    def __doctor_is_available(doctor_week_availability, day_index, slot_index, walk_in):
         if walk_in is True:
-            if doctor.availability.day[day_index].slot[slot_index].available is True and doctor.availability.day[day_index].slot[slot_index].walk_in is True:
+            if doctor_week_availability.day[day_index].slot[slot_index].available is True and doctor_week_availability.day[day_index].slot[slot_index].walk_in is True:
                 return True
             else:
                 return False
 
         else:
             for inner_slot_index in range(slot_index, slot_index + 3):
-                if doctor.availability.day[day_index].slot[inner_slot_index].available is False or doctor.schedule.day[day_index].slot[inner_slot_index].walk_in is True:
+                if doctor_week_availability.day[day_index].slot[inner_slot_index].available is False or doctor_week_availability.day[day_index].slot[inner_slot_index].walk_in is True:
                     # this doctor is already booked within the interval or it is marked as a walk_in 
                     break
-                elif doctor.availability.day[day_index].slot[inner_slot_index].available is True and inner_slot_index is slot_index + 2 and doctor.schedule.day[day_index].slot[inner_slot_index].walk_in is False:
+                elif doctor_week_availability.day[day_index].slot[inner_slot_index].available is True and inner_slot_index is slot_index + 2 and doctor_week_availability.day[day_index].slot[inner_slot_index].walk_in is False:
                     # we made it to the end of the loop and the doctor is available for a annual check-up
                     return True
             # we exited the loop without finding availability for this doctor, the doctor is not available for this time slot

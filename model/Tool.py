@@ -13,43 +13,79 @@ week_dict = {
 
 
 time_dict = {
-    0: "08:00",
-    1: "08:20",
-    2: "08:40",
-    3: "09:00",
-    4: "09:20",
-    5: "09:40",
-    6: "10:00",
-    7: "10:20",
-    8: "10:40",
-    9: "11:00",
-    10: "11:20",
-    11: "11:40",
-    12: "12:00",
-    13: "12:20",
-    14: "12:40",
-    15: "13:00",
-    16: "13:20",
-    17: "13:40",
-    18: "14:00",
-    19: "14:20",
-    20: "14:40",
-    21: "15:00",
-    22: "15:20",
-    23: "15:40",
-    24: "16:00",
-    25: "16:20",
-    26: "16:40",
-    27: "17:00",
-    28: "17:20",
-    29: "17:40",
-    30: "18:00",
-    31: "18:20",
-    32: "18:40",
-    33: "19:00",
-    34: "19:20",
-    35: "19:40",
-    36: "20:00"
+    0: "00:00",
+    1: "00:20",
+    2: "00:40",
+    3: "01:00",
+    4: "01:20",
+    5: "01:40",
+    6: "02:00",
+    7: "02:20",
+    8: "02:40",
+    9: "03:00",
+    10: "03:20",
+    11: "03:40",
+    12: "04:00",
+    13: "04:20",
+    14: "04:40",
+    15: "05:00",
+    16: "05:20",
+    17: "05:40",
+    18: "06:00",
+    19: "06:20",
+    20: "06:40",
+    21: "07:00",
+    22: "07:20",
+    23: "07:40",
+    24: "08:00",
+    25: "08:20",
+    26: "08:40",
+    27: "09:00",
+    28: "09:20",
+    29: "09:40",
+    30: "10:00",
+    31: "10:20",
+    32: "10:40",
+    33: "11:00",
+    34: "11:20",
+    35: "11:40",
+    36: "12:00",
+    37: "12:20",
+    38: "12:40",
+    39: "13:00",
+    40: "13:20",
+    41: "14:40",
+    42: "14:00",
+    43: "14:20",
+    44: "14:40",
+    45: "15:00",
+    46: "15:20",
+    47: "15:40",
+    48: "16:00",
+    49: "16:20",
+    50: "16:40",
+    51: "17:00",
+    52: "17:20",
+    53: "17:40",
+    54: "18:00",
+    55: "18:20",
+    56: "18:40",
+    57: "19:00",
+    58: "19:20",
+    59: "19:40",
+    60: "20:00",
+    61: "20:20",
+    62: "20:40",
+    63: "21:00",
+    64: "21:20",
+    65: "21:40",
+    66: "22:00",
+    67: "22:20",
+    68: "22:40",
+    69: "23:00",
+    70: "23:20",
+    71: "23:40",
+    72: "00:00"
 }
 
 # TODO write method to generate dict for a given year
@@ -113,6 +149,7 @@ year_2019_dict = {
 
 
 class Tools:
+    SLOTS_PER_DAY = 72
 
     @staticmethod
     def get_day_string_from_day_index(index):
@@ -144,27 +181,31 @@ class Tools:
     @staticmethod
     def get_slot_index_from_time(time_24h):
         for key in time_dict:
-            print("vals: " + time_dict[key])
             if time_dict[key] == time_24h:
                 return int(key)
         return None
 
-    # expects date_time format as string: "2019-01-27T08:00:00"
     @staticmethod
-    def get_slot_id_from_date_time(date_time, clinic, room_number):
-        week_day_index_tuple = Tools.get_week_and_day_index_from_date(date_time[0:10])
-        slot_index = Tools.get_slot_index_from_time(date_time[11:16])
-        slots_per_room = clinic.slots_per_day*7*54
-        if week_day_index_tuple is not None and slot_index is not None:
-            return (room_number-1)*slots_per_room + week_day_index_tuple[0]*clinic.slots_per_day*7 + week_day_index_tuple[1]*clinic.slots_per_day + slot_index
-        return None
+    def get_date_time_from_slot_id(slot_id):
+        week_index = int(slot_id / (Tools.SLOTS_PER_DAY*7))
+        day_index = int((slot_id % (Tools.SLOTS_PER_DAY*7)) / Tools.SLOTS_PER_DAY)
+        slot_index = slot_id % Tools.SLOTS_PER_DAY
+        return "2019-" + year_2019_dict[week_index][day_index] + "T" + time_dict[slot_index] + ":00"
 
     @staticmethod
-    def get_date_time_from_slot_id(slot_id, clinic_slots_per_day):
-        week_index = int(slot_id / (clinic_slots_per_day*7))
-        day_index = int((slot_id % (clinic_slots_per_day*7)) / clinic_slots_per_day)
-        slot_index = (slot_id % clinic_slots_per_day) % clinic_slots_per_day
-        return "2019-" + year_2019_dict[week_index][day_index] + "T" + time_dict[slot_index] + ":00"
+    def get_slot_index_from_slot_id(slot_id):
+        return slot_id % Tools.SLOTS_PER_DAY
+
+    @staticmethod
+    def get_slot_id_from_week_day_slot(week_index, day_index, slot_index):
+        return week_index*Tools.SLOTS_PER_DAY*7 + day_index*Tools.SLOTS_PER_DAY + slot_index
+
+    @staticmethod
+    def int_to_bool(value):
+        if value == 0:
+            return False
+        else:
+            return True
 
     @staticmethod
     def json_from_available_slots(available_slots, walk_in):

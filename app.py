@@ -16,8 +16,11 @@ def create_app(debug=False):
     app = Flask(__name__)
     tdg = Tdg(app)
     user_registry = UserRegistry(tdg)
+    print("loading User Registry . . . ")
     clinic_registry = ClinicRegistry(tdg, user_registry.doctor.get_all())
+    print("loading Clinic Registry . . . ")
     appointment_registry = AppointmentRegistry(clinic_registry)
+    print("loading Appointment Registry . . . ")
     app.secret_key = 'secret123'
     app.debug = debug
 
@@ -293,7 +296,7 @@ def create_app(debug=False):
 
     @app.route('/test_appointment/')
     def test_appointment():
-        appointment_registry.add_appointment(clinic_registry.clinics[0], "2019-01-27T08:00:00", 1, True)
+        print(appointment_registry.add_appointment(clinic_registry.clinics[0], "2019-01-28T09:20:00", 1, True))
         print(appointment_registry.get_appointment_by_id(1))
         return render_template('home.html')
 
