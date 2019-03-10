@@ -9,22 +9,30 @@ class Scheduler:
     def availability_finder(clinic, date_time, walk_in):
         # initialize an array where we will store tuples of available time slots (week_index, day_index, slot_index)
         available_slots = []
+        # desired week
         week_index = Tools.get_week_index_from_date(date_time)
+        # clinic daily start and stop times
+        start_slot = Tools.get_slot_index_from_time(clinic.business_hours.opening_hour)
+        end_slot = Tools.get_slot_index_from_time(clinic.business_hours.closing_hour)
+        # doctor's actual availability for specified week
+        list_of_doctor_week_availabilities = []
+        for doctor in range(0, len(clinic.doctors)):
+            week_availability = clinic.doctors[doctor].get_week_availability(week_index)
+            list_of_doctor_week_availabilities.append(week_availability)
 
         # cycle through days of the week
         for day_index in range(0, 7):
             # step 1 : find an available room per time slot
+            slot_index = start_slot
 
-            slot_index = Tools.get_slot_index_from_time(clinic.business_hours.opening_hour)
-
-            while slot_index < Tools.get_slot_index_from_time(clinic.business_hours.closing_hour):
-                # cycle through rooms of the clinic for an available room
+            while slot_index < end_slot:
+                # cycle through rooms of the clinic for an available room 
                 for room in range(0, len(clinic.rooms)):
                     if Scheduler.__room_is_not_booked(clinic.rooms[room], week_index, day_index, slot_index, walk_in):
                         # we found an available room, now lets find an available doctor
                         for doctor in range(0, len(clinic.doctors)):
                             # cycle through doctors to find availability
-                            if Scheduler.__doctor_is_available(clinic.doctors[doctor].get_week_availability(week_index), day_index, slot_index, walk_in):
+                            if Scheduler.__doctor_is_available(list_of_doctor_week_availabilities[doctor], day_index, slot_index, walk_in):
                                 # we found a doctor with availability at this time
                                 # we need to make sure the doctor is not booked during this time
                                 if Scheduler.__doctor_is_not_booked(clinic.rooms, clinic.doctors[doctor], week_index, day_index, slot_index, walk_in):
