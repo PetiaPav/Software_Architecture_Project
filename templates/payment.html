@@ -1,0 +1,105 @@
+{% extends 'layout.html' %}
+
+{% block head %} 
+    <script type="text/javascript" src="../static/js/jspdf.min.js"></script>
+    <script type="text/javascript" src="../static/js/html2canvas.min.js"></script>
+	<script type="text/javascript" src="../static/js/soen344script.js"></script>
+{% endblock %}
+
+{% block body %}
+
+{% if id == '2' %}
+<!-- Template Used: https://bootsnipp.com/snippets/r1jz -->
+<br>
+<div class="container">
+	<div class="payment-box">
+		<div class="payment-cont">
+            <div class="heading-wrap">
+                <h3 class="heading-top text-center">Select Your Payment Method</h3>	
+            </div>
+            <div class="payment-wrap">
+                <div class="btn-group payment-btn-group btn-group-justified" data-toggle="buttons">
+                    <label class="btn payment-method active">
+                        <div class="method visa"></div>
+                        <input type="radio" name="options" checked="checked"> 
+                    </label>
+                    <label class="btn payment-method">
+                        <div class="method master-card"></div>
+                        <input type="radio" name="options"> 
+                    </label>
+                    <label class="btn payment-method">
+                        <div class="method amex"></div>
+                        <input type="radio" name="options">
+                    </label>
+                        <label class="btn payment-method">
+                        <div class="method vishwa"></div>
+                        <input type="radio" name="options"> 
+                    </label>      
+                </div>        
+            </div>
+        </div>
+	</div>
+</div>
+<div class="container">
+    <div class="payment-box">
+        <div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Payment Details
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <form role="form">
+                    <div class="form-group">
+                        <label for="card-number">
+                            CARD NUMBER</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="card-number" placeholder="Valid Card Number"
+                                required autofocus />
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label for="expity-month">
+                                    EXPIRY DATE
+                                </label>
+                                <br>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="expity-month" placeholder="MM" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="expity-year" placeholder="YY" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 pull-right">
+                            <div class="form-group">
+                                <label for="cv-code">
+                                    CV CODE
+                                </label>
+                                <br>
+                                <input type="password" class="form-control" id="cv-code" placeholder="CV" required />
+                            </div>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+            <br/>
+            <a href="#" id="button-pay" class="btn btn-success btn-lg btn-block" role="button">Pay</a>
+        </div>
+    </div>
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+{% else %}
+{% include 'includes/_invoice.html' %}
+{% endif %}
+{% endblock %}
