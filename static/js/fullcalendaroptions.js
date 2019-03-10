@@ -20,8 +20,8 @@ $(document).ready(function() {
         eventLimit: true, // allow "more" link when too many events
 
         // Limit hours visible per day
-        minTime: "07:30:00",
-        maxTime: "21:00:00",
+        minTime: "08:00:00",
+        maxTime: "20:00:00",
 
         // Height of calendar
         contentHeight: 1000,
@@ -39,27 +39,9 @@ $(document).ready(function() {
 
         allDay: true,
 
-        eventSources: [
-            {
-                events: function(start, end, timezone, callback) {
-                    startOfWeek = start;
-                    endOfWeek = end;
-
-                     $.ajax({
-                        url: 'data',
-                        type: 'POST',
-                        contentType: "application/json; charset=utf-8",
-                        data: JSON.stringify({startDate: start, endDate: end}),
-                        success : function(res){
-                            callback(this)
-                        }
-                    });
-                }
-            },
-            {
-                url: 'data',
-            }
-         ],
+        events: {
+             url: 'data'
+        },
 
         // onClick of an event
 		eventClick: function(eventObj) {
@@ -67,7 +49,11 @@ $(document).ready(function() {
                 url: 'event',
                 type: 'POST',
                 contentType: "application/json; charset=utf-8",
-                data: JSON.stringify({id: eventObj.id}),
+                data: JSON.stringify({
+                    id: eventObj.id,
+                    start: eventObj.start,
+                    end: eventObj.end
+                }),
                 success : function(res){
                     console.log("Response received")
                     console.log("Redirecting to " + res)

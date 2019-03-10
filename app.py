@@ -10,6 +10,7 @@ from model.ClinicRegistry import ClinicRegistry
 from model.UserRegistry import UserRegistry
 from model.AppointmentRegistry import AppointmentRegistry
 from model.Scheduler import Scheduler
+from datetime import datetime
 
 
 def create_app(debug=False):
@@ -172,10 +173,11 @@ def create_app(debug=False):
         user_type = session['user_type']
         return render_template('dashboard.html', user_type=user_type)
 
-    @app.route('/add_appointment')
+    @app.route('/dashboard/patient_info')
     @is_logged_in
-    def add_appointment():
-        None
+    def patient_info():
+        selected_patient = user_registry.patient.get_by_id(session["id"])
+        return render_template('includes/_patient_detail_page.html', patient=selected_patient)
 
     @app.route('/dashboard/patient_registry')
     @is_logged_in
@@ -230,9 +232,6 @@ def create_app(debug=False):
     @is_logged_in
     @nurse_login_required
     def modify_nurse(id):
-        # if id is None:
-        #     selected_nurse = user_registry.nurse.get_by_access_id(session["access_id"])
-        # else:
         selected_nurse = user_registry.nurse.get_by_id(id)
         form = Forms.get_form_data("nurse", selected_nurse, request)
         return render_template('includes/_edit_nurse_form.html', form=form)
@@ -250,7 +249,7 @@ def create_app(debug=False):
     def make_appointment_calendar():
         clinic = clinic_registry.get_by_id(session['selected_clinic'])
 
-        if session['has_selected_walk_in'] == False:
+        if not session['has_selected_walk_in']:
             type = "annual"
         else:
             type = "walk-in"
@@ -288,12 +287,21 @@ def create_app(debug=False):
     @app.route('/event', methods=["POST"])
     @is_logged_in
     def show_event_details():
-        return url_for('selected_appointment', id=request.json['id'])
+        return url_for('selected_appointment', id=request.json['id'], start=request.json['start'])
 
-    @app.route('/selected_appointment/<id>')
+    @app.route('/selected_appointment/<id>/<start>')
     @is_logged_in
-    def selected_appointment(id):
-        return render_template('appointment.html', eventid=id)
+    def selected_appointment(id, start):
+        clinic = clinic_registry.get_by_id(session['selected_clinic'])
+        if not session['has_selected_walk_in']:
+            appointment_type = "Annual"
+        else:
+            appointment_type = "Walk-in"
+
+        selected_datetime = datetime.strptime(start, '%Y-%m-%dT%H:%M:%S')
+        selected_date = selected_datetime.date().isoformat()
+        selected_time = selected_datetime.time().isoformat()
+        return render_template('appointment.html', eventid=id, clinic=clinic, type=appointment_type, date=selected_date, time=selected_time)
 
     return app
 
