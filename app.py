@@ -247,9 +247,8 @@ def create_app(debug=False):
     @is_logged_in
     def make_appointment_calendar():
         clinic = clinic_registry.get_by_id(session['selected_clinic'])
-        type_of_appointment = session['has_selected_walk_in']
 
-        if type_of_appointment is False:
+        if session['has_selected_walk_in'] == False:
             type = "annual"
         else:
             type = "walk-in"
@@ -275,16 +274,12 @@ def create_app(debug=False):
     @app.route('/view_calendar/<type>')
     @is_logged_in
     def view_calendar(type):
-        if type == "annual":
-            session['has_selected_walk_in'] = False
-        else:
-            session['has_selected_walk_in'] = True
-
+        session['has_selected_walk_in'] = (type != "annual")
         return redirect(url_for('make_appointment_calendar'))
 
     @app.route('/data', methods=["GET", "POST"])
     @is_logged_in
-    def return_data():
+    def return_weekly_availabilities():
         clinic = clinic_registry.get_by_id(session['selected_clinic'])
         return Scheduler.availability_finder(clinic, str(request.args.get('start')), session['has_selected_walk_in'])
 
