@@ -10,6 +10,8 @@ from model.ClinicRegistry import ClinicRegistry
 from model.UserRegistry import UserRegistry
 from model.AppointmentRegistry import AppointmentRegistry
 from model.Scheduler import Scheduler
+from datetime import datetime
+from model.Slot import Slot
 
 
 def create_app(debug=False):
@@ -281,6 +283,27 @@ def create_app(debug=False):
     @is_logged_in
     def selected_appointment(id):
         return render_template('appointment.html', eventid=id)
+
+    @app.route('/payment/<id>')
+    @is_logged_in
+    def payment(id):
+        user_type = session['user_type']
+        date = datetime.today().strftime('%Y-%m-%d')
+        user = user_registry.patient.get_by_id(session['patient_id'])
+        # TODO: Replace with clinic id that was used for payment
+        clinic = clinic_registry.clinics[0];
+        # TODO: Replace with actual appointments that were scheduled
+        slot1 = Slot();
+        slot2 = Slot();
+        slot3 = Slot();
+        slot1.walk_in = True
+        slot2.walk_in = False
+        slot3.walk_in = True
+        slots = list()
+        slots.append(slot1)
+        slots.append(slot2)
+        slots.append(slot3)
+        return render_template('payment.html', user_type=user_type, id=id, date=date, user=user, clinic=clinic, slots=slots)
 
     return app
 

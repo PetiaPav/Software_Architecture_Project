@@ -55,6 +55,7 @@ class LoginPatientAuthenticator(LoginAuthenticator):
                 session['logged_in'] = True
                 session['user_type'] = 'patient'
                 session['first_name'] = user['first_name']
+                session['patient_id'] = user['id']
                 return True
             else:
                 flash('Incorrect password', 'danger')
