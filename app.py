@@ -280,7 +280,6 @@ def create_app(debug=False):
         else:
             session['has_selected_walk_in'] = True
 
-        # return render_template('calendar.html')
         return redirect(url_for('make_appointment_calendar'))
 
     @app.route('/data', methods=["GET", "POST"])
@@ -292,12 +291,21 @@ def create_app(debug=False):
     @app.route('/event', methods=["POST"])
     @is_logged_in
     def show_event_details():
-        return url_for('selected_appointment', id=request.json['id'])
+        return url_for('selected_appointment', id=request.json['id'], start=request.json['start'])
 
-    @app.route('/selected_appointment/<id>')
+    @app.route('/selected_appointment/<id>/<start>')
     @is_logged_in
-    def selected_appointment(id):
-        return render_template('appointment.html', eventid=id)
+    def selected_appointment(id, start):
+        clinic = clinic_registry.get_by_id(session['selected_clinic'])
+        if not session['has_selected_walk_in']:
+            appointment_type = "Annual"
+        else:
+            appointment_type = "Walk-in"
+
+        selected_datetime = datetime.strptime(start, '%Y-%m-%dT%H:%M:%S')
+        selected_date = selected_datetime.date().isoformat()
+        selected_time = selected_datetime.time().isoformat()
+        return render_template('appointment.html', eventid=id, clinic=clinic, type=appointment_type, date=selected_date, time=selected_time)
 
     return app
 

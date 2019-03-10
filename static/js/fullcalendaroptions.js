@@ -49,7 +49,11 @@ $(document).ready(function() {
                 url: 'event',
                 type: 'POST',
                 contentType: "application/json; charset=utf-8",
-                data: JSON.stringify({id: eventObj.id}),
+                data: JSON.stringify({
+                    id: eventObj.id,
+                    start: eventObj.start,
+                    end: eventObj.end
+                }),
                 success : function(res){
                     console.log("Response received")
                     console.log("Redirecting to " + res)
