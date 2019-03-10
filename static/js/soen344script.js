@@ -1,6 +1,6 @@
 function print(rows = 1) {
     const filename  = 'ThisIsYourPDFFilename.pdf';
-    let size = (rows * 9) + 80;
+    let size = (rows * 8) + 80;
 
     html2canvas(document.querySelector('#content'), 
                             {scale: 3}

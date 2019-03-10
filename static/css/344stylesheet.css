@@ -256,9 +256,13 @@ legend.account-border {
     margin: 0 auto !important;
 }
 
-#button-pay {
-    width: 50%;
-    margin: 0 auto;
+.button-middle {
+    width: 50% !important;
+    margin: 0 auto !important;
+}
+
+.button-pdf {
+    width: 10% !important;
 }
 
 .panel-title {

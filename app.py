@@ -285,10 +285,12 @@ def create_app(debug=False):
     def selected_appointment(id):
         return render_template('appointment.html', eventid=id)
 
-    @app.route('/payment/<id>')
+    @app.route('/payment', methods=["GET", "POST"])
     @is_logged_in
-    def payment(id):
+    def payment():
         user_type = session['user_type']
+        step = "payment"
+        payment = None
         date = datetime.today().strftime('%Y-%m-%d')
         user = user_registry.patient.get_by_id(session['patient_id'])
         # TODO: Replace with clinic id that was used for payment
@@ -304,10 +306,13 @@ def create_app(debug=False):
         slots.append(slot1)
         slots.append(slot2)
         slots.append(slot3)
-        payment = Payment(slots, 0.05, 0.8)
-        payment.initialize()
+        if request.method == "POST":
+            payment = Payment(slots, 0.05, 0.8)
+            payment.initialize()
+            step = "receipt"
 
-        return render_template('payment.html', user_type=user_type, id=id, date=date, user=user, clinic=clinic, slots=slots, payment=payment)
+
+        return render_template('payment.html', user_type=user_type, date=date, step=step, user=user, clinic=clinic, slots=slots, payment=payment)
 
     return app
 
