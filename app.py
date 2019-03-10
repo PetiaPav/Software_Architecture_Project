@@ -9,13 +9,18 @@ from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthent
 from model.ClinicRegistry import ClinicRegistry
 from model.UserRegistry import UserRegistry
 from model.AppointmentRegistry import AppointmentRegistry
+from model.Scheduler import Scheduler
 
 
 def create_app(debug=False):
+    print("Loading app . . . ")
     app = Flask(__name__)
     tdg = Tdg(app)
+    print("Loading User Registry . . . ")
     user_registry = UserRegistry(tdg)
+    print("Loading Clinic Registry . . . ")
     clinic_registry = ClinicRegistry(tdg, user_registry.doctor.get_all())
+    print("Loading Appointment Registry . . . ")
     appointment_registry = AppointmentRegistry(clinic_registry)
     app.secret_key = 'secret123'
     app.debug = debug

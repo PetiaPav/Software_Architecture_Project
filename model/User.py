@@ -1,3 +1,7 @@
+
+from model.Year import Week, SlotType
+from model.Tool import Tools
+import copy
 from flask import flash
 
 
@@ -28,13 +32,30 @@ class Nurse(User):
 
 
 class Doctor(User):
-    def __init__(self, id, first_name, last_name, password, permit_number, specialty, city, availability, appointments):
+
+    def __init__(self, id, first_name, last_name, password, permit_number, specialty, city, availability, availability_special):
         User.__init__(self, id, first_name, last_name, password)
         self.permit_number = permit_number
         self.specialty = specialty
         self.city = city
         self.availability = availability
-        self.appointments = appointments
+        self.availability_special = availability_special
+
+    def get_week_availability(self, week_index):
+        specific_week = copy.deepcopy(self.availability)
+        for special in self.availability_special:
+            if special.week_index == week_index:
+                specific_week.day[special.day_index].slot[special.slot_index].available = special.available
+                specific_week.day[special.day_index].slot[special.slot_index].walk_in = special.walk_in
+                if special.walk_in is False:
+                    specific_week.day[special.day_index].slot[special.slot_index+1].available = special.available
+                    specific_week.day[special.day_index].slot[special.slot_index+1].walk_in = special.walk_in
+                    specific_week.day[special.day_index].slot[special.slot_index+2].available = special.available
+                    specific_week.day[special.day_index].slot[special.slot_index+2].walk_in = special.walk_in
+        return specific_week
+
+    def get_generic_week_availibility(self):
+        pass
 
 
 class DoctorMapper:
@@ -46,6 +67,35 @@ class DoctorMapper:
     def populate(self):
         doctor_dict = self.tdg.get_all_doctors()
         for doctor in doctor_dict:
+            doctor_availabilities = self.tdg.get_doctor_availabilities(doctor['id'])
+
+            # Build an empty week of availabilities
+            availability = Week(SlotType.DOCTOR)
+
+            # modify the slots that are marked as available in the database
+            for row in doctor_availabilities:
+                current_slot = availability.day[row['day_index']].slot[row['slot_index']]
+                current_slot.available = True
+                current_slot.walk_in = Tools.int_to_bool(row['walk_in'])
+                if row['walk_in'] == 0:
+                    for inner_slot_index in range(row['slot_index'] + 1, row['slot_index'] + 3):
+                        extra_slot = availability.day[row['day_index']].slot[inner_slot_index]
+                        extra_slot.available = True
+                        extra_slot.walk_in = False
+
+            doctor_availabilities_special = self.tdg.get_doctor_availabilities_special(doctor['id'])
+
+            availabilities_special = []
+
+            for row in doctor_availabilities_special:
+                special_availability = SpecialAvailability()
+                special_availability.id = row['id']
+                special_availability.week_index = row['week_index']
+                special_availability.day_index = row['day_index']
+                special_availability.slot_index = row['slot_index']
+                special_availability.available = row['available']
+                availabilities_special.append(special_availability)
+
             doctor_obj = Doctor(
                 doctor['id'],
                 doctor['first_name'],
@@ -54,8 +104,8 @@ class DoctorMapper:
                 doctor['permit_number'],
                 doctor['specialty'],
                 doctor['city'],
-                None,
-                None
+                availability,
+                availabilities_special
             )
 
             self.catalog_dict[doctor['id']] = doctor_obj
@@ -155,3 +205,11 @@ class NurseMapper:
                 return nurse
         return None
 
+
+class SpecialAvailability:
+    def __init__(self):
+        self.id = None
+        self.week_index = None
+        self.day_index = None
+        self.slot_index = None
+        self.available = False
