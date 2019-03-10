@@ -1,4 +1,6 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
+
+from model import Forms
 from model.Tdg import Tdg
 from model.Forms import PatientForm, DoctorForm, NurseForm, AppointmentForm
 from passlib.hash import sha256_crypt
@@ -202,6 +204,46 @@ def create_app(debug=False):
     def patient_detailed_page(id):
         get_patient = user_registry.patient.get_by_id(id)
         return render_template('includes/_patient_detail_page.html', patient = get_patient)
+
+    @app.route('/edit/patient/<id>', methods=['GET', 'POST'])
+    @is_logged_in
+    @nurse_login_required
+    def modify_patient(id):
+        selected_patient = user_registry.patient.get_by_id(id)
+        form = Forms.get_form_data("patient", selected_patient, request)
+
+        if request.method == "POST" and form.validate():
+            user_registry.patient.update_patient(id, request)
+            return redirect(url_for('patient_registry'))
+        else:
+            return render_template('includes/_edit_patient_form.html', form=form, id=selected_patient.id)
+
+    @app.route('/edit/doctor/<id>', methods=['GET', 'POST'])
+    @is_logged_in
+    @nurse_login_required
+    def modify_doctor(id):
+        selected_doctor = user_registry.doctor.get_by_id(id)
+        form = Forms.get_form_data("doctor", selected_doctor, request)
+        return render_template('includes/_edit_doctor_form.html', form=form)
+
+    @app.route('/edit/nurse/<id>', methods=['GET', 'POST'])
+    @is_logged_in
+    @nurse_login_required
+    def modify_nurse(id):
+        # if id is None:
+        #     selected_nurse = user_registry.nurse.get_by_access_id(session["access_id"])
+        # else:
+        selected_nurse = user_registry.nurse.get_by_id(id)
+        form = Forms.get_form_data("nurse", selected_nurse, request)
+        return render_template('includes/_edit_nurse_form.html', form=form)
+
+    @app.route('/edit/personal_profile', methods=['GET', 'POST'])
+    @is_logged_in
+    @nurse_login_required
+    def modify_personal_profile():
+        selected_nurse = user_registry.nurse.get_by_access_id(session["access_id"])
+        form = Forms.get_form_data("nurse", selected_nurse, request)
+        return render_template('includes/_edit_nurse_form.html', form=form)
 
     @app.route('/calendar')
     @is_logged_in

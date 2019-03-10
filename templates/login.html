@@ -10,7 +10,7 @@
             {% if user_type == 'patient' %}
                 {{render_field(form.email, class_="form-control", placeholder="bob@gmail.com")}}
             {% elif user_type == 'doctor' %}
-                {{render_field(form.physician_permit_number, class_="form-control", placeholder="Physician Permit Number")}}
+                {{render_field(form.permit_number, class_="form-control", placeholder="Physician Permit Number")}}
             {% elif user_type == 'nurse' %}
                 {{render_field(form.access_id, class_="form-control", placeholder="Access ID")}}
             {% endif %}
