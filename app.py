@@ -172,27 +172,6 @@ def create_app(debug=False):
         user_type = session['user_type']
         return render_template('dashboard.html', user_type=user_type)
 
-    @app.route('/select_clinic')
-    @is_logged_in
-    def add_appointment():
-        return render_template('includes/_select_clinic.html', clinics = clinic_registry.clinics)
-
-    @app.route('/select_clinic/<id>')
-    @is_logged_in
-    def select_appointment_type(id):
-        session['selected_clinic'] = id
-        return render_template('includes/_appointment_type.html', clinics = clinic_registry.clinics)
-
-    @app.route('/view_calendar/<type>')
-    @is_logged_in
-    def view_calendar(type):
-        if type == "annual":
-            session['has_selected_walk_in'] = False
-        else:
-            session['has_selected_walk_in'] = True
-
-        return render_template('calendar.html')
-
     @app.route('/dashboard/patient_info')
     @is_logged_in
     def patient_info():
@@ -266,7 +245,7 @@ def create_app(debug=False):
 
     @app.route('/calendar')
     @is_logged_in
-    def calendar_example():
+    def make_appointment_calendar():
         return render_template('calendar.html')
 
     @app.route('/calendar_doctor')
@@ -275,15 +254,33 @@ def create_app(debug=False):
         print("LOADING CALENDAR PAGE")
         return render_template('calendar_doctor.html')
 
+    @app.route('/select_clinic')
+    @is_logged_in
+    def add_appointment():
+        return render_template('includes/_select_clinic.html', clinics = clinic_registry.clinics)
+
+    @app.route('/select_clinic/<id>')
+    @is_logged_in
+    def select_appointment_type(id):
+        session['selected_clinic'] = id
+        return render_template('includes/_appointment_type.html', clinics = clinic_registry.clinics)
+
+    @app.route('/view_calendar/<type>')
+    @is_logged_in
+    def view_calendar(type):
+        if type == "annual":
+            session['has_selected_walk_in'] = False
+        else:
+            session['has_selected_walk_in'] = True
+
+        # return render_template('calendar.html')
+        return redirect(url_for('make_appointment_calendar'))
+
     @app.route('/data', methods=["GET", "POST"])
     @is_logged_in
     def return_data():
-        clinic = clinic_registry.clinics.get_by_id(session['selected_clinic'])
-        if request.method == 'GET':
-            return Scheduler.availability_finder(clinic, datetime.utcnow(), session['has_selected_walk_in'])
-
-        if request.method == 'POST':
-            return Scheduler.availability_finder(clinic, request.json['startDate'], session['has_selected_walk_in'])
+        clinic = clinic_registry.get_by_id(session['selected_clinic'])
+        return Scheduler.availability_finder(clinic, str(request.args.get('start')), session['has_selected_walk_in'])
 
     @app.route('/event', methods=["POST"])
     @is_logged_in

@@ -49,6 +49,6 @@ class ClinicRegistry:
 
     def get_by_id(self, id):
         for clinic in self.clinics:
-            if id == clinic.id:
+            if str(id) == str(clinic.id):
                 return clinic
         return None

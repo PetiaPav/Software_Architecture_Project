@@ -39,27 +39,9 @@ $(document).ready(function() {
 
         allDay: true,
 
-        eventSources: [
-            {
-                events: function(start, end, timezone, callback) {
-                    startOfWeek = start;
-                    endOfWeek = end;
-
-                     $.ajax({
-                        url: 'data',
-                        type: 'POST',
-                        contentType: "application/json; charset=utf-8",
-                        data: JSON.stringify({startDate: start, endDate: end}),
-                        success : function(res){
-                            callback(this)
-                        }
-                    });
-                }
-            },
-            {
-                url: 'data',
-            }
-         ],
+        events: {
+             url: 'data'
+        },
 
         // onClick of an event
 		eventClick: function(eventObj) {
