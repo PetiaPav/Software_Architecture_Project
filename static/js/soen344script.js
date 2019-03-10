@@ -1,5 +1,5 @@
 function print(rows = 1) {
-    const filename  = 'ThisIsYourPDFFilename.pdf';
+    const filename  = 'uber-sante-receipt.pdf';
     let size = (rows * 8) + 80;
 
     html2canvas(document.querySelector('#content'), 
