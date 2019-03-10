@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %}Selected Availability{% endblock %}
+{% block title %}Selected Appointment{% endblock %}
 
 {% block body %}
 <br />
@@ -11,32 +11,32 @@
       <thead>
         <tr>
           <th scope="col">Clinic name</th>
-          <th scope="col">{{clinic.name}}</th>
+          <th scope="col">Fill in clinic name</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <th scope="row">Clinic address</th>
-          <td>{{clinic.physical_address}}</td>
+          <td>Address of the clinic</td>
         </tr>
         <tr>
           <th scope="row">Type of appointment</th>
-          <td>{{type}}</td>
+          <td>Specialty</td>
         </tr>
           <tr>
           <th scope="row">Date</th>
-          <td>{{date}}</td>
+          <td>Day to be filled in</td>
         </tr>
         <tr>
           <th scope="row">Start time</th>
-          <td>{{time}}</td>
+          <td>Appointment start time</td>
       </tbody>
     </table>
 
   <br />
 
   <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
-    Add to Cart
+    Book appointment
   </button>
   <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="goBack()">
     Cancel
