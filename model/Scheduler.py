@@ -84,8 +84,8 @@ class Scheduler:
     @staticmethod
     def mark_as_available(clinic, appointment_slot):
         if appointment_slot.walk_in is False:
-            week_day_index = Tools.get_week_and_day_index_from_date(Tools.get_date_time_from_slot_id(appointment_slot.slot_id)[0:10])
-            for slot_index in range(Tools.get_slot_index_from_slot_id(appointment_slot.slot_id), Tools.get_slot_index_from_slot_id(appointment_slot.slot_id) + 2):
+            week_day_index = Tools.get_week_and_day_index_from_date(Tools.get_date_time_from_slot_yearly_index(appointment_slot.slot_yearly_index)[0:10])
+            for slot_index in range(Tools.get_slot_index_from_slot_yearly_index(appointment_slot.slot_yearly_index), Tools.get_slot_index_from_slot_yearly_index(appointment_slot.slot_yearly_index) + 2):
                 slot_to_clear = clinic.rooms[appointment_slot.room_id-1].schedule.week[week_day_index[0]].day[week_day_index[1]].slot[slot_index]
                 slot_to_clear.booked = False
                 slot_to_clear.doctor_id = None

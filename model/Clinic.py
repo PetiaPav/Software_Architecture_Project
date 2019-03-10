@@ -11,12 +11,6 @@ class Clinic:
         self.doctors = list_of_doctors
         self.rooms = list_of_rooms
         self.business_hours = business_hours
-        # we are multiplying the total hours open by 3 because there are 3 20-minute slots per hour.
-        self.slots_per_day = Clinic.get_slots_per_day(business_hours.opening_hour, business_hours.closing_hour, Clinic.SLOT_DURATION)
-
-    @staticmethod
-    def get_slots_per_day(start_time, end_time, slot_duration):
-        return (end_time - start_time) * (int(60/slot_duration))
 
 
 class Room:

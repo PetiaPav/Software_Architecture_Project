@@ -11,14 +11,15 @@ from model.Scheduler import Scheduler
 
 
 def create_app(debug=False):
+    print("Loading app . . . ")
     app = Flask(__name__)
     tdg = Tdg(app)
+    print("Loading User Registry . . . ")
     user_registry = UserRegistry(tdg)
-    print("loading User Registry . . . ")
+    print("Loading Clinic Registry . . . ")
     clinic_registry = ClinicRegistry(tdg, user_registry.doctor.get_all())
-    print("loading Clinic Registry . . . ")
+    print("Loading Appointment Registry . . . ")
     appointment_registry = AppointmentRegistry(clinic_registry)
-    print("loading Appointment Registry . . . ")
     app.secret_key = 'secret123'
     app.debug = debug
 
@@ -238,12 +239,6 @@ def create_app(debug=False):
     @is_logged_in
     def selected_appointment(id):
         return render_template('appointment.html', eventid=id)
-
-    @app.route('/test_appointment/')
-    def test_appointment():
-        print(appointment_registry.add_appointment(clinic_registry.clinics[0], "2019-01-28T09:20:00", 1, True))
-        print(appointment_registry.get_appointment_by_id(1))
-        return render_template('home.html')
 
     return app
 

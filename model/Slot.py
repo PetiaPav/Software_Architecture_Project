@@ -8,7 +8,7 @@ class Slot:
 class RoomSlot(Slot):
     def __init__(self):
         Slot.__init__(self)
-        self.slot_id = None
+        self.slot_yearly_index = None
         # boolean to indicated whether the slot has been marked as booked for an appointment
         self.booked = False
         # integer representing the doctor scheduled for the appointment
