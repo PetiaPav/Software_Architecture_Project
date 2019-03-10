@@ -20,8 +20,8 @@ $(document).ready(function() {
         eventLimit: true, // allow "more" link when too many events
 
         // Limit hours visible per day
-        minTime: "07:30:00",
-        maxTime: "21:00:00",
+        minTime: "08:00:00",
+        maxTime: "20:00:00",
 
         // Height of calendar
         contentHeight: 1000,

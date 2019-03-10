@@ -246,7 +246,14 @@ def create_app(debug=False):
     @app.route('/calendar')
     @is_logged_in
     def make_appointment_calendar():
-        return render_template('calendar.html')
+        clinic = clinic_registry.get_by_id(session['selected_clinic'])
+        type_of_appointment = session['has_selected_walk_in']
+
+        if type_of_appointment is False:
+            type = "annual"
+        else:
+            type = "walk-in"
+        return render_template('calendar.html', clinic = clinic, type_of_appointment = type)
 
     @app.route('/calendar_doctor')
     @is_logged_in
