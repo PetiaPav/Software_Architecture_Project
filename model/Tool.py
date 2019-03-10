@@ -216,6 +216,7 @@ class Tools:
 
     @staticmethod
     def json_from_available_slots(available_slots, walk_in):
+        id_counter = 0
         pydict = []
         # available slots are tuples of (week_index, day_index, slot_index)
         for tup in available_slots:
@@ -224,5 +225,11 @@ class Tools:
                 end_time = "2019-" + year_2019_dict[tup[0]][tup[1]] + "T" + time_dict[tup[2]+1] + ":00"
             else:
                 end_time = "2019-" + year_2019_dict[tup[0]][tup[1]] + time_dict[tup[2]+3] + ":00"
-            pydict.append({"title": 'available', "start": start_time, "end": end_time})
+            pydict.append({
+                "id": id_counter,
+                "title": 'available',
+                "start": start_time,
+                "end": end_time
+            })
+            id_counter += 1
         return json.dumps(pydict)
