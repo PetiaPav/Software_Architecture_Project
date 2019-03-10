@@ -70,19 +70,18 @@ $(document).ready(function() {
         allDay: true,
 
         // Test set of events
-        events: 
-            { 
-                url: 'doctor_booked'
-                // color: 'orange',
-                // textColor: 'black'  
+        eventSources: [
+            {
+                url: 'doctor_booked',
+                color: 'orange',
+                textColor: 'black'
+            },
+            {
+                url: 'doctor_schedule',
+                color: 'blue',
+                textColor: 'black'
             }
-            // {
-            //     url: 'doctor_schedule',
-            //     color: 'blue',
-            //     textColor: 'black'
-            // }
-        ,
-        
+        ],       
 
         // onClick of an event
 		// eventClick: function(eventObj) {

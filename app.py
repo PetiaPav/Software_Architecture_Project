@@ -218,10 +218,12 @@ def create_app():
                 return input_data.read()
 
         if request.method == 'POST':
-            start_date = request.json['startDate']
-            end_date = request.json['endDate']
+            start_date = request.json['start']
+            end_date = request.json['end']
+            title = request.json['title']
             print(start_date)
             print(end_date)
+            print(title)
 
             # Must return any real object
             return start_date

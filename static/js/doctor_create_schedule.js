@@ -67,9 +67,6 @@ $(document).ready(function() {
 
         allDay: true,
 
-        // Test set of events
-        events: {},
-
         editable: false, //assured that the events are not extendible
         eventStartEditable  : true,
         eventOverlap: false,
@@ -113,6 +110,24 @@ $(document).ready(function() {
                 $(myDialog).dialog('close');
             });
         },
+
+        eventRender: function(eventObj, element){
+
+            $('.save-changes').click(function() {
+                var myEvents = $('#calendar').fullCalendar('clientEvents');
+                $.ajax({
+                    url: 'doctor_schedule',
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: JSON.stringify({title: eventObj.title, start: eventObj.start, end: eventObj.end}),
+                    success : function(res){
+                        console.log("Response received")
+                    }
+                });
+                
+            });
+        }
 
     });
 });
