@@ -137,7 +137,7 @@ class PatientMapper:
                 patient['phone_number'],
                 patient['physical_address'],
                 patient['email'],
-                None
+                Cart()
             )
             self.catalog_dict[patient['id']] = patient_obj
 
@@ -213,3 +213,28 @@ class SpecialAvailability:
         self.day_index = None
         self.slot_index = None
         self.available = False
+
+
+class Cart:
+    def __init__(self):
+        self.items = []
+        self.__id_counter = 0  # Internal ID of cart items, analogous to an autoincrementing ID as seen in popular DBs.
+
+    def add(self, clinic, appt_type, start_time):
+        self.items.append(CartItem(self.__id_counter, clinic, appt_type, start_time))
+        self.__id_counter += 1
+
+    def remove(self, item_id):
+        for item in self.items:
+            if item.item_id == item_id:
+                self.items.remove(item)
+                return
+        print('Item request for deletion was not found!')
+
+
+class CartItem:
+    def __init__(self, item_id, clinic, appt_type, start_time):
+        self.item_id = item_id
+        self.clinic = clinic
+        self.appt_type = appt_type
+        self.start_time = start_time

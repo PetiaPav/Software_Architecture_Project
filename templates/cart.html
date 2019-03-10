@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <br />
+    <div class="container">
+        <div class="main-content">
+            <h1>Appointment Cart</h1>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr class="table-primary d-flex">
+                        <th scope="col" class="col-4">Clinic</th>
+                        <th scope="col" class="col-2">Type</th>
+                        <th scope="col" class="col-2">Loc</th>
+                        <th scope="col" class="col-2">Status</th>
+                        <th scope="col" class="col-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+{#                    {% for foo in url_for %}#}
+{#                        <tr>#}
+{#                            {% for foo in config %}#}
+{#                            #}
+{#                            {% endfor %}#}
+{#                        </tr>#}
+{#                    {% endfor %}#}
+                    <tr class="d-flex">
+                        <td class="col-4">Clinique Mtl</td>
+                        <td class="col-2">Walk-in</td>
+                        <td class="col-2">3:00</td>
+                        <td class="table-success col-2">Available</td>
+                        <td class="col-2"><button type="button" class="btn btn-danger">Remove</button></td>
+                    </tr>
+                    <tr class="d-flex">
+                        <td class="col-4">Clinique Mtl</td>
+                        <td class="col-2">Walk-in</td>
+                        <td class="col-2">4:00</td>
+                        <td class="table-warning col-2">Available</td>
+                        <td class="col-2"><button type="button" class="btn btn-danger">Remove</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="footer-push"></div>
+    </div>
+{% endblock %}

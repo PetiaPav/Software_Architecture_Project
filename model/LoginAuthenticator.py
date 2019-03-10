@@ -54,6 +54,7 @@ class LoginPatientAuthenticator(LoginAuthenticator):
             if sha256_crypt.verify(self.password.data, user["password"]):
                 session['logged_in'] = True
                 session['user_type'] = 'patient'
+                session['id'] = user['id']
                 session['first_name'] = user['first_name']
                 return True
             else:

@@ -282,6 +282,13 @@ def create_app(debug=False):
     def selected_appointment(id):
         return render_template('appointment.html', eventid=id)
 
+    @app.route('/cart', methods=["GET", "POST"])
+    @is_logged_in
+    def cart():
+        if request.method == 'GET':
+            return render_template('cart.html', cart=cart)
+        # if request.method == 'POST':
+
     return app
 
 
