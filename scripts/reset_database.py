@@ -15,7 +15,7 @@ fd = open('../sql/db_structure.sql', 'r')
 sqlFile = fd.read()
 fd.close()
 
-fl = open('../SQL/db_data.sql', 'r')
+fl = open('../sql/db_data.sql', 'r')
 sqlFile2 = fl.read()
 fl.close()
 
