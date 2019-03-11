@@ -1,5 +1,17 @@
+//variable declaration
+var myDialog; 
+var current_event_object;
+
 // this runs after the page has been initialized
 $(document).ready(function() {
+    
+    //defining the dialog
+    myDialog = $("#event-modal").dialog({
+        modal: true, 
+        title: "none", 
+        width:350,
+        autoOpen: false
+    });
 
     $('#external-events .walk-in').each(function() {
         // store data so the calendar knows to render an event upon drop
@@ -7,7 +19,8 @@ $(document).ready(function() {
             title: $.trim($(this).text()), // use the element's text as the event title
             stick: true, // maintain when user navigates (see docs on the renderEvent method)
             duration: '00:20:00',
-            color: '#257e4a'  //defining the color of the draggeable object
+            color: '#257e4a',  //defining the color of the draggeable object
+            _id: "walk-in"
         });
         // make the event draggable using jQuery UI
         $(this).draggable({
@@ -23,7 +36,8 @@ $(document).ready(function() {
             title: $.trim($(this).text()), // use the element's text as the event title
             stick: true, // maintain when user navigates (see docs on the renderEvent method)
             duration: '01:00:00',
-            color: '#257e4a' //defining the color of the draggeable object
+            color: '#257e4a', //defining the color of the draggeable object
+            _id: "annual"
         });
         // make the event draggable using jQuery UI
         $(this).draggable({
@@ -42,9 +56,7 @@ $(document).ready(function() {
 
         // Default view upon opening calendar is weekly view
         defaultView: 'agendaWeek',
-        
         columnHeaderFormat: 'dddd',
-
         eventLimit: true, // allow "more" link when too many events
 
         // Limit hours visible per day
@@ -53,7 +65,6 @@ $(document).ready(function() {
 
         // Height of calendar
         contentHeight: 1000,
-
 
         // Grey out non-business hours
         businessHours: {
@@ -64,9 +75,7 @@ $(document).ready(function() {
 
         // Frequency for displaying time slots, in minutes (20 minute partitions)
         slotDuration: "00:20:00",
-
         allDay: true,
-
         editable: false, //assured that the events are not extendible
         eventStartEditable  : true,
         eventOverlap: false,
@@ -85,49 +94,69 @@ $(document).ready(function() {
         },
 
         //Open modal when an event is clicked and handle remove event functionality
-        //TO BE CONTINUED/FIXED, Remembers previous event id's
         eventClick: function (eventObj){
+            if(eventObj._id == "walk-in"){
+                eventObj._id = "w" + get_counter();
+            }else if (eventObj._id == "annual"){
+                eventObj._id = "a" + get_counter();
+            }
+            $('#calendar').fullCalendar('updateEvent', eventObj);
+
             //Set information to be displayed
             $('#appointment-type').html(eventObj.title);
             $("#startTime").html(moment(eventObj.start).format('MMM Do h:mm A'));
             $("#endTime").html(moment(eventObj.end).format('MMM Do h:mm A'));
                 
-            //Open modal 
-            var myDialog = $("#event-modal").dialog({
-                modal: true, 
-                title: eventObj.title, 
-                width:350
-            });
-
-            // To keep availability simply close the modal
-            $('.keep-button').click(function() {
-                $(myDialog).dialog('close');
-            });
-
-            // To remove the availability and close the modal
-            $('.remove-button').click( function(){
-                $('#calendar').fullCalendar('removeEvents', eventObj._id);
-                $(myDialog).dialog('close');
-            });
-        },
-
-        eventRender: function(eventObj, element){
-
-            $('.save-changes').click(function() {
-                var myEvents = $('#calendar').fullCalendar('clientEvents');
-                $.ajax({
-                    url: 'doctor_schedule',
-                    type: 'POST',
-                    contentType: "application/json; charset=utf-8",
-                    dataType: 'json',
-                    data: JSON.stringify({title: eventObj.title, start: eventObj.start, end: eventObj.end}),
-                    success : function(res){
-                        console.log("Response received")
-                    }
-                });
-                
-            });
+            myDialog.dialog('open');
+            current_event_object = eventObj;
+           
         }
-
     });
 });
+
+//method to send information to the back-end in a readable format
+function send_to_backend(){
+    var myEvents = $('#calendar').fullCalendar('clientEvents');
+    console.log(myEvents);
+
+    var new_event;
+    var list_of_events = [];
+
+    var i;
+    for(i = 0; i < myEvents.length; ++i) {
+        new_event = {title: myEvents[i].title, day: myEvents[i].start.format('d'), time: myEvents[i].start.format('HH:mm')};
+        list_of_events.push(new_event);
+        console.log("my events list " + list_of_events[i].title + "; day: " + list_of_events[i].day + "; time: " + list_of_events[i].time);
+    }
+    
+    $.ajax({
+        url: 'doctor_schedule',
+        type: 'POST',
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        data: JSON.stringify(list_of_events),
+        success : function(res){
+            console.log("Response received")
+        }
+    });
+    
+}
+
+//on-click method for Remove modal button
+function remove_event(){
+    console.log("my event id: " + current_event_object);
+    $('#calendar').fullCalendar('removeEvents', current_event_object._id);
+    myDialog.dialog('close');
+}
+
+//on-click method for Keep modal button
+function keep_event() {
+    myDialog.dialog('close');
+}
+
+//counter for unique ids
+counter = 0;
+function get_counter() {
+    counter++;
+    return counter;
+}

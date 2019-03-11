@@ -37,7 +37,7 @@
                 <div class='annual'>Annual</div>
                 <br/>
             </div>
-            <button class='button save-changes'>Save Changes</button>
+            <button class='button save-changes' id="save-changes" onclick="send_to_backend()">Save Changes</button>
         </div>
         <br/>
 
@@ -57,8 +57,8 @@
                 <p>End Time: <span id='endTime'></span></p>
             </div>
             <div class='modal-footer'>
-                <button type='button' class='btn keep-button'>Keep</button>
-                <button type='button' class='btn remove-button'>Remove</button>
+                <button type='button' class='btn keep-button' id="keep-button" onclick="keep_event()">Keep</button>
+                <button type='button' class='btn remove-button' id="remove-button" onclick="remove_event()">Remove</button>
             </div>
         </div>
     </div>
