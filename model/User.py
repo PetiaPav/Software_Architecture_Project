@@ -217,24 +217,27 @@ class SpecialAvailability:
 
 class Cart:
     def __init__(self):
-        self.items = []
+        self.item_dict = {}
         self.__id_counter = 0  # Internal ID of cart items, analogous to an autoincrementing ID as seen in popular DBs.
 
-    def add(self, clinic, appt_type, start_time):
-        self.items.append(CartItem(self.__id_counter, clinic, appt_type, start_time))
+    def add(self, clinic_id, start_time, is_walk_in):
+        self.item_dict[self.__id_counter] = CartItem(self.__id_counter, clinic_id, start_time, is_walk_in)
         self.__id_counter += 1
 
     def remove(self, item_id):
-        for item in self.items:
-            if item.item_id == item_id:
-                self.items.remove(item)
-                return
-        print('Item request for deletion was not found!')
+        try:
+            self.item_dict.pop(item_id)
+            return True
+        except KeyError:
+            return False
+
+    def get_all(self):
+        return list(self.item_dict.values())
 
 
 class CartItem:
-    def __init__(self, item_id, clinic, appt_type, start_time):
+    def __init__(self, item_id, clinic_id, start_time, is_walk_in):
         self.item_id = item_id
-        self.clinic = clinic
-        self.appt_type = appt_type
+        self.clinic_id = clinic_id
         self.start_time = start_time
+        self.is_walk_in = is_walk_in

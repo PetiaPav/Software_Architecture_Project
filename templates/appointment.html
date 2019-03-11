@@ -21,7 +21,7 @@
         </tr>
         <tr>
           <th scope="row">Type of appointment</th>
-          <td>{{type}}</td>
+          <td>{{"Walk-in" if walk_in else "Annual"}}</td>
         </tr>
           <tr>
           <th scope="row">Date</th>
@@ -35,16 +35,25 @@
 
   <br />
 
-  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onClick="addToCart()">
     Add to Cart
   </button>
-  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="goBack()">
+  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="window.history.back()">
     Cancel
   </button>
 
   <script>
-    function goBack() {
-      window.history.back();
+    function addToCart() {
+        $.ajax({
+            url: '/cart',
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                clinic_id: {{clinic.id}},
+                start: "{{datetime}}",
+                walk_in: "{{walk_in}}"
+            })
+        });
     }
   </script>
 </div>

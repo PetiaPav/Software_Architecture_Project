@@ -17,14 +17,14 @@ def create_app(debug=False):
     print("Loading app . . . ")
     app = Flask(__name__)
     tdg = Tdg(app)
+    app.secret_key = 'secret123'
+    app.debug = debug
     print("Loading User Registry . . . ")
     user_registry = UserRegistry(tdg)
     print("Loading Clinic Registry . . . ")
     clinic_registry = ClinicRegistry(tdg, user_registry.doctor.get_all())
     print("Loading Appointment Registry . . . ")
     appointment_registry = AppointmentRegistry(clinic_registry)
-    app.secret_key = 'secret123'
-    app.debug = debug
 
     @app.route('/')
     def home():
@@ -34,7 +34,7 @@ def create_app(debug=False):
     def about():
         return render_template('about.html')
 
-    @app.route('/register/patient', methods=['GET','POST'])
+    @app.route('/register/patient', methods=['GET', 'POST'])
     def register_patient():
         form = get_registration_form("patient", request.form)
 
@@ -301,15 +301,22 @@ def create_app(debug=False):
         selected_datetime = datetime.strptime(start, '%Y-%m-%dT%H:%M:%S')
         selected_date = selected_datetime.date().isoformat()
         selected_time = selected_datetime.time().isoformat()
-        return render_template('appointment.html', eventid=id, clinic=clinic, type=appointment_type, date=selected_date, time=selected_time)
+        return render_template('appointment.html', eventid=id, clinic=clinic, walk_in=session['has_selected_walk_in'], date=selected_date, time=selected_time, datetime=str(selected_datetime))
 
     @app.route('/cart', methods=["GET", "POST"])
     @is_logged_in
     def cart():
+        print(str(request.method))
         if request.method == 'GET':
+            cart = user_registry.patient.get_by_id(session['id']).cart
             return render_template('cart.html', cart=cart)
-        # if request.method == 'POST':
+        elif request.method == 'POST':
+            clinic_id = request.json['clinic_id']
+            start_time = request.json['start']
+            is_walk_in = request.json['walk_in']
 
+            user_registry.patient.get_by_id(session['id']).cart.add(clinic_id, start_time, is_walk_in)
+            return ''
     return app
 
 
