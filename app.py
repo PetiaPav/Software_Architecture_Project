@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
+from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, jsonify
 
 from model import Forms
 from model.Tdg import Tdg
@@ -306,7 +306,6 @@ def create_app(debug=False):
     @app.route('/cart', methods=["GET", "POST"])
     @is_logged_in
     def cart():
-        print(str(request.method))
         if request.method == 'GET':
             cart = user_registry.patient.get_by_id(session['id']).cart
             return render_template('cart.html', cart=cart)
@@ -316,7 +315,9 @@ def create_app(debug=False):
             is_walk_in = request.json['walk_in']
 
             user_registry.patient.get_by_id(session['id']).cart.add(clinic_id, start_time, is_walk_in)
-            return ''
+            result = {'url': url_for('cart')}
+            return jsonify(result)
+
     return app
 
 
