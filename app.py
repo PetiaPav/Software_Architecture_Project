@@ -321,7 +321,7 @@ def create_app(debug=False):
             result = {'url': url_for('cart')}
             return jsonify(result)
 
-    @app.route('/checkout', methods={"POST"})
+    @app.route('/checkout')
     @is_logged_in
     def checkout():
         patient = user_registry.patient.get_by_id(session['id'])  # Get patient from user registry
@@ -332,9 +332,9 @@ def create_app(debug=False):
 
         patient.cart.batch_mark_booked(checkout_result['rejected_items'])  # Mark unavailable items in cart for frontend
 
-        accepted_appts = checkout_result['accepted_appts']  # For use in payment stub
+        session['accepted_appts'] = checkout_result['accepted_appts'] # Until appointments are paid, will remain in session
 
-        result = {'url': url_for('dashboard')}
+        result = {'url': url_for('payment')}
         return jsonify(result)
 
     @app.route('/payment', methods=["GET", "POST"])
@@ -347,18 +347,9 @@ def create_app(debug=False):
         user = user_registry.patient.get_by_id(session['patient_id'])
         # TODO: Replace with clinic id that was used for payment
         clinic = clinic_registry.clinics[0]
-        # TODO: Replace with actual appointments that were scheduled
-        slot1 = Slot()
-        slot2 = Slot()
-        slot3 = Slot()
-        slot1.walk_in = True
-        slot2.walk_in = False
-        slot3.walk_in = True
-        slots = list()
-        slots.append(slot1)
-        slots.append(slot2)
-        slots.append(slot3)
         if request.method == "POST":
+            slots = session['accepted_apts']
+            session.pop('accepted_apts')
             payment = Payment(slots, 0.05, 0.8)
             payment.initialize()
             step = "receipt"
