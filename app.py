@@ -342,9 +342,13 @@ def create_app(debug=False):
 
         patient.cart.batch_mark_booked(checkout_result['rejected_items'])  # Mark unavailable items in cart for frontend
 
-        session['accepted_appts'] = checkout_result['accepted_appts'] # Until appointments are paid, will remain in session
+        session['appts_to_pay'] = checkout_result['accepted_appts'] # Until appointments are paid, will remain in session
 
-        result = {'url': url_for('payment')}
+        url = url_for('payment')
+        if len(checkout_result['rejected_items']) != 0:
+            url = url_for('cart')
+        result = {'url': url}
+
         return jsonify(result)
 
     @app.route('/payment', methods=["GET", "POST"])
@@ -353,17 +357,17 @@ def create_app(debug=False):
         user_type = session['user_type']
         step = "payment"
         payment = None
+        slots = None
         date = datetime.today().strftime('%Y-%m-%d')
-        user = user_registry.patient.get_by_id(session['patient_id'])
+        user = user_registry.patient.get_by_id(session['id'])
         # TODO: Replace with clinic id that was used for payment
         clinic = clinic_registry.clinics[0]
         if request.method == "POST":
-            slots = session['accepted_apts']
-            session.pop('accepted_apts')
+            slots = session['appts_to_pay']
+            session.pop('appts_to_pay')
             payment = Payment(slots, 0.05, 0.8)
             payment.initialize()
             step = "receipt"
-
 
         return render_template('payment.html', user_type=user_type, date=date, step=step, user=user, clinic=clinic, slots=slots, payment=payment)
 
