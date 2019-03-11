@@ -16,6 +16,9 @@ class ClinicRegistry:
             # We should store start_time and end_time as varchar in the db
             clinic_start_time = Tools.int_to_24hr_format(int(clinic['start_time']))
             clinic_end_time = Tools.int_to_24hr_format(int(clinic['end_time']))
+            clinic_name = clinic['name']
+            clinic_physical_address = clinic['physical_address']
+
 
             dict_of_doctor_clinic_assignments = self.tdg.get_all_doctor_clinic_assignments()
             dict_of_room_slots = self.tdg.get_room_slots_by_clinic_id(clinic_id)
@@ -42,4 +45,10 @@ class ClinicRegistry:
 
             # currently no database entries for business days
             business_hours = BusinessHours(BusinessDays.SEVEN_DAYS, clinic_start_time, clinic_end_time)
-            self.clinics.append(Clinic(clinic_id, list_of_doctors, list_of_rooms, business_hours))
+            self.clinics.append(Clinic(clinic_id,clinic_name, clinic_physical_address, list_of_doctors, list_of_rooms, business_hours))
+
+    def get_by_id(self, id):
+        for clinic in self.clinics:
+            if str(id) == str(clinic.id):
+                return clinic
+        return None
