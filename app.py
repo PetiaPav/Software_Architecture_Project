@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
+from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, jsonify
 
 from model import Forms
 from model.Tdg import Tdg
@@ -320,15 +320,12 @@ def create_app(debug=False):
     @is_logged_in
     def return_doctor_schedule():
         if request.method == 'GET':
-            print("request" + (request.args['start'])[0:10])
             return user_registry.doctor.get_schedule_by_week(session['id'], request.args['start'], appointment_registry.get_appointments_by_doctor_id_and_week(session['id'], Tools.get_week_index_from_date(request.args['start'])))
 
         if request.method == 'POST':
-            print(request.json)
             user_registry.doctor.set_availability_from_json(session['id'], request.json)
-
-            # Must return any real object
-            return render_template('calendar_doctor_schedule_view.html')
+            result = {'url': url_for('doctor_view_schedule')}
+            return jsonify(result)
 
     return app
 

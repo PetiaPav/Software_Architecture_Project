@@ -117,7 +117,6 @@ $(document).ready(function() {
 //method to send information to the back-end in a readable format
 function send_to_backend(){
     var myEvents = $('#calendar').fullCalendar('clientEvents');
-    console.log(myEvents);
 
     var new_event;
     var list_of_events = [];
@@ -126,17 +125,16 @@ function send_to_backend(){
     for(i = 0; i < myEvents.length; ++i) {
         new_event = {title: myEvents[i].title, day: myEvents[i].start.format('d'), time: myEvents[i].start.format('HH:mm')};
         list_of_events.push(new_event);
-        console.log("my events list " + list_of_events[i].title + "; day: " + list_of_events[i].day + "; time: " + list_of_events[i].time);
     }
     
     $.ajax({
-        url: 'doctor_schedule',
+        url: '/doctor_schedule',
         type: 'POST',
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
         data: JSON.stringify(list_of_events),
-        success : function(res){
-            console.log("Response received")
+        success : function(data){
+            window.location.href = data['url']
         }
     });
     
@@ -144,7 +142,6 @@ function send_to_backend(){
 
 //on-click method for Remove modal button
 function remove_event(){
-    console.log("my event id: " + current_event_object);
     $('#calendar').fullCalendar('removeEvents', current_event_object._id);
     myDialog.dialog('close');
 }
