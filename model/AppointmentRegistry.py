@@ -80,7 +80,7 @@ class AppointmentRegistry:
             'rejected_items': []
         }
         for item in item_list:
-            appointment = self.add_appointment(patient_id, item.clinic, item.start_time, item.walk_in)
+            appointment = self.add_appointment(patient_id, item.clinic, item.start_time, item.is_walk_in)
             if appointment is not None:
                 result['accepted_appts'].append(appointment)
                 result['accepted_items'].append(item)
