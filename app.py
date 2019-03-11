@@ -321,7 +321,7 @@ def create_app(debug=False):
     def return_doctor_schedule():
         if request.method == 'GET':
             print("request" + (request.args['start'])[0:10])
-            return user_registry.doctor.get_schedule_by_week(session['id'], request.args['start'], AppointmentRegistry.get_appointments_by_doctor_id_and_week(session['id'], Tools.get_week_index_from_date(request.args['start'])))
+            return user_registry.doctor.get_schedule_by_week(session['id'], request.args['start'], appointment_registry.get_appointments_by_doctor_id_and_week(session['id'], Tools.get_week_index_from_date(request.args['start'])))
 
         if request.method == 'POST':
             print(request.json)

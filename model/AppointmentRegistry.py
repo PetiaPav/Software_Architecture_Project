@@ -66,7 +66,8 @@ class AppointmentRegistry:
 
     def get_appointments_by_doctor_id_and_week(self, doctor_id, week_index):
         appointments_by_doctor_and_week = self.get_appointments_by_doctor_id(int(doctor_id))
-        appointments_by_doctor_and_week[:] = [appointment for appointment in appointments_by_doctor_and_week if Tools.get_week_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index) == week_index]
+        if appointments_by_doctor_and_week is not None:
+            appointments_by_doctor_and_week[:] = [appointment for appointment in appointments_by_doctor_and_week if Tools.get_week_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index) == week_index]
         return appointments_by_doctor_and_week
 
     def delete_appointment(self, id):

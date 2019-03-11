@@ -54,7 +54,7 @@ time_dict = {
     38: "12:40",
     39: "13:00",
     40: "13:20",
-    41: "14:40",
+    41: "13:40",
     42: "14:00",
     43: "14:20",
     44: "14:40",
@@ -236,7 +236,7 @@ class Tools:
             if walk_in:
                 end_time = "2019-" + year_2019_dict[tup[0]][tup[1]] + "T" + time_dict[tup[2]+1] + ":00"
             else:
-                end_time = "2019-" + year_2019_dict[tup[0]][tup[1]] + time_dict[tup[2]+3] + ":00"
+                end_time = "2019-" + year_2019_dict[tup[0]][tup[1]] + "T" + time_dict[tup[2]+3] + ":00"
             pydict.append({
                 "id": id_counter,
                 "title": 'available',
@@ -258,7 +258,7 @@ class Tools:
                 end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2]+1] + ":00"
                 event_title = "Walk-in"
             else:
-                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + time_dict[available_slot[2]+3] + ":00"
+                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2]+3] + ":00"
                 event_title = "Annual"
             pydict.append({"title": event_title, "start": start_time, "end": end_time})
         return pydict
@@ -276,7 +276,7 @@ class Tools:
                 event_title = "Walk-in"
                 event_color = "orange"
             else:
-                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + time_dict[available_slot[2]+3] + ":00"
+                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2]+3] + ":00"
                 event_title = "Annual"
                 event_color = "orange"
             pydict.append({"title": event_title, "start": start_time, "end": end_time, "color": event_color})
