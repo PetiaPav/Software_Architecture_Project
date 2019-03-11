@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 
-{% block title %}Selected Appointment{% endblock %}
+{% block title %}Selected Availability{% endblock %}
 
 {% block body %}
 <br />
@@ -11,40 +11,52 @@
       <thead>
         <tr>
           <th scope="col">Clinic name</th>
-          <th scope="col">Fill in clinic name</th>
+          <th scope="col">{{clinic.name}}</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <th scope="row">Clinic address</th>
-          <td>Address of the clinic</td>
+          <td>{{clinic.physical_address}}</td>
         </tr>
         <tr>
           <th scope="row">Type of appointment</th>
-          <td>Specialty</td>
+          <td>{{"Walk-in" if walk_in else "Annual"}}</td>
         </tr>
           <tr>
           <th scope="row">Date</th>
-          <td>Day to be filled in</td>
+          <td>{{date}}</td>
         </tr>
         <tr>
           <th scope="row">Start time</th>
-          <td>Appointment start time</td>
+          <td>{{time}}</td>
       </tbody>
     </table>
 
   <br />
 
-  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
-    Book appointment
+  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onClick="addToCart()">
+    Add to Cart
   </button>
-  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="goBack()">
+  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="window.history.back()">
     Cancel
   </button>
 
   <script>
-    function goBack() {
-      window.history.back();
+    function addToCart() {
+        $.ajax({
+            url: '/cart',
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                clinic_id: {{clinic.id}},
+                start: "{{datetime}}",
+                walk_in: "{{walk_in}}"
+            }),
+            success : function(data){
+                window.location.href = data['url']
+            }
+        });
     }
   </script>
 </div>

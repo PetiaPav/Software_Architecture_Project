@@ -6,8 +6,10 @@ class Clinic:
 
     SLOT_DURATION = 20
 
-    def __init__(self, id, list_of_doctors, list_of_rooms, business_hours, name, physical_address):
+    def __init__(self, id, name, physical_address, list_of_doctors, list_of_rooms, business_hours):
         self.id = id
+        self.name = name
+        self.physical_address = physical_address
         self.doctors = list_of_doctors
         self.rooms = list_of_rooms
         self.business_hours = business_hours

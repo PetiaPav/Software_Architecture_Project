@@ -137,7 +137,7 @@ class PatientMapper:
                 patient['phone_number'],
                 patient['physical_address'],
                 patient['email'],
-                None
+                Cart()
             )
             self.catalog_dict[patient['id']] = patient_obj
 
@@ -213,3 +213,40 @@ class SpecialAvailability:
         self.day_index = None
         self.slot_index = None
         self.available = False
+
+
+class Cart:
+    def __init__(self):
+        self.item_dict = {}
+        self.__id_counter = 0  # Internal ID of cart items, analogous to an autoincrementing ID as seen in popular DBs.
+
+    def add(self, clinic, start_time, is_walk_in):
+        self.item_dict[self.__id_counter] = CartItem(self.__id_counter, clinic, start_time, is_walk_in, False)
+        self.__id_counter += 1
+
+    def remove(self, item_id):
+        try:
+            self.item_dict.pop(item_id)
+            return True
+        except KeyError:
+            return False
+
+    def get_all(self):
+        return list(self.item_dict.values())
+
+    def batch_remove(self, item_list):
+        for item in item_list:
+            self.remove(item.item_id)
+
+    def batch_mark_booked(self, item_list):
+        for item in item_list:
+            item.is_booked = True
+
+
+class CartItem:
+    def __init__(self, item_id, clinic, start_time, is_walk_in, is_booked):
+        self.item_id = item_id
+        self.clinic = clinic
+        self.start_time = start_time
+        self.is_walk_in = is_walk_in
+        self.is_booked = is_booked

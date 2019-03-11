@@ -37,6 +37,8 @@ class LoginNurseAuthenticator(LoginAuthenticator):
                 session['first_name'] = user['first_name']
                 session['id'] = user['id']
                 session['access_id'] = self.access_id.data
+                session['selected_clinic'] = None
+                session['has_selected_walk_in'] = None
                 return True
             else:
                 flash('Incorrect password', 'danger')
@@ -54,8 +56,11 @@ class LoginPatientAuthenticator(LoginAuthenticator):
             if sha256_crypt.verify(self.password.data, user["password"]):
                 session['logged_in'] = True
                 session['user_type'] = 'patient'
+                session['id'] = user['id']
                 session['first_name'] = user['first_name']
-                session['patient_id'] = user['id']
+                session['id'] = user['id']
+                session['selected_clinic'] = None
+                session['has_selected_walk_in'] = None
                 return True
             else:
                 flash('Incorrect password', 'danger')
