@@ -308,7 +308,10 @@ def create_app(debug=False):
     def cart():
         if request.method == 'GET':
             cart = user_registry.patient.get_by_id(session['id']).cart
-            item_dict = cart.item_dict
+            for item in cart.item_dict:
+                print('cart get, is walk in = ' + str(cart.item_dict[item].is_walk_in))
+                print('is booked = ' + str(cart.item_dict[item].is_booked))
+
             return render_template('cart.html', items=cart.item_dict)
         elif request.method == 'POST':
             clinic = clinic_registry.get_by_id(request.json['clinic_id'])
@@ -318,6 +321,13 @@ def create_app(debug=False):
             user_registry.patient.get_by_id(session['id']).cart.add(clinic, start_time, is_walk_in)
             result = {'url': url_for('cart')}
             return jsonify(result)
+
+    @app.route('/cart/remove/<id>', methods=["POST"])
+    @is_logged_in
+    def remove_from_cart(id):
+        cart = user_registry.patient.get_by_id(session['id']).cart
+        result = cart.remove(id)
+        return str(result)
 
     @app.route('/checkout', methods={"POST"})
     @is_logged_in

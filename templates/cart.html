@@ -19,19 +19,15 @@
                     {% for item_id in items %}
                         <tr class="d-flex">
                             <td class="col-4">{{items[item_id].clinic.name}}</td>
-                            <td class="col-2">{{items[item_id].is_walk_in}}</td>
+                            <td class="col-2">{{"Walk-in" if items[item_id].is_walk_in == True else "Annual"}}</td>
                             <td class="col-2">{{items[item_id].start_time}}</td>
-                            <td class="col-2">{{items[item_id].is_booked}}</td>
-                            <td class="col-2"><button type="button" class="btn btn-danger">Remove</button></td>
+                            <td class="col-2 {% if items[item_id].is_booked %}table-danger{% endif %}">
+                                {{"Not Available" if items[item_id].is_booked == True else "Available"}}
+                            </td>
+                            <td class="col-2"><button type="button" class="btn btn-danger"
+                                onclick="remove_item({{item_id}})">Remove</button></td>
                         </tr>
                     {% endfor %}
-                    <tr class="d-flex">
-                        <td class="col-4">Clinique Mtl</td>
-                        <td class="col-2">Walk-in</td>
-                        <td class="col-2">4:00</td>
-
-                        <td class="col-2"><button type="button" class="btn btn-danger">Remove</button></td>
-                    </tr>
                 </tbody>
             </table>
             <button class="btn btn-primary" type="button" onclick="checkout()">Checkout cart</button>
@@ -44,6 +40,14 @@
                         success : function(data){
                             window.location.href = data['url']
                         }
+                    });
+                }
+                function remove_item(id) {
+                    url = '/cart/remove/' + id
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8"
                     });
                 }
             </script>
