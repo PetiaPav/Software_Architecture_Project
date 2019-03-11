@@ -320,33 +320,15 @@ def create_app(debug=False):
     @is_logged_in
     def return_doctor_schedule():
         if request.method == 'GET':
-            with open("generic_schedule.json", "r") as input_data:
-                return input_data.read()
+            print("request" + (request.args['start'])[0:10])
+            return user_registry.doctor.get_schedule_by_week(session['id'], request.args['start'], AppointmentRegistry.get_appointments_by_doctor_id_and_week(session['id'], Tools.get_week_index_from_date(request.args['start'])))
 
         if request.method == 'POST':
             print(request.json)
             user_registry.doctor.set_availability_from_json(session['id'], request.json)
 
             # Must return any real object
-            return render_template('home.html')
-
-    @app.route('/doctor_booked', methods=["GET", "POST"])
-    @is_logged_in
-    def return_doctor_booked_schedule():
-        if request.method == 'GET':
-            print("request" + (request.args['start'])[0:10])
-            return user_registry.doctor.get_schedule_by_week(session['id'], request.args['start'], AppointmentRegistry.get_appointments_by_doctor_id_and_week(session['id'], Tools.get_week_index_from_date(request.args['start'])))
-            # with open("booked_schedule.json", "r") as input_data:
-            #     return input_data.read()
-
-        if request.method == 'POST':
-            start_date = request.json['startDate']
-            end_date = request.json['endDate']
-            print(start_date)
-            print(end_date)
-
-            # Must return any real object
-            return start_date
+            return render_template('calendar_doctor_schedule_view.html')
 
     return app
 

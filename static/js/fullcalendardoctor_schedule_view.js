@@ -39,20 +39,10 @@ $(document).ready(function() {
 
         allDay: true,
 
-        eventSources: [
-            {
-                url: 'doctor_booked',
-                color: 'orange',
-                textColor: 'black',
-                id: 'booked',
-                overlap: false
-            },
-            {
-                url: 'doctor_schedule',
-                id: 'available',
-                overlap: false
-            }
-        ],
+        events: {
+            url: 'doctor_schedule'
+        },
+        
         eventOverlap: false
     });
 });

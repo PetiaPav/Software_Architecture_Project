@@ -1,5 +1,6 @@
 from model.Appointment import Appointment
 from model.Scheduler import Scheduler
+from model.Tool import Tools
 
 
 class AppointmentRegistry:
