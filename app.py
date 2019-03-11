@@ -308,15 +308,32 @@ def create_app(debug=False):
     def cart():
         if request.method == 'GET':
             cart = user_registry.patient.get_by_id(session['id']).cart
-            return render_template('cart.html', cart=cart)
+            item_dict = cart.item_dict
+            return render_template('cart.html', items=cart.item_dict)
         elif request.method == 'POST':
-            clinic_id = request.json['clinic_id']
+            clinic = clinic_registry.get_by_id(request.json['clinic_id'])
             start_time = request.json['start']
             is_walk_in = request.json['walk_in']
 
-            user_registry.patient.get_by_id(session['id']).cart.add(clinic_id, start_time, is_walk_in)
+            user_registry.patient.get_by_id(session['id']).cart.add(clinic, start_time, is_walk_in)
             result = {'url': url_for('cart')}
             return jsonify(result)
+
+    @app.route('/checkout', methods={"POST"})
+    @is_logged_in
+    def checkout():
+        patient = user_registry.patient.get_by_id(session['id'])  # Get patient from user registry
+
+        checkout_result = appointment_registry.checkout_cart(patient.cart.get_all(), patient.id)  # Save checkout result
+
+        patient.cart.batch_remove(checkout_result['accepted_items'])  # Removing successfully added items from cart
+
+        patient.cart.batch_mark_booked(checkout_result['rejected_items'])  # Mark unavailable items in cart for frontend
+
+        accepted_appts = checkout_result['accepted_appts']  # For use in payment stub
+
+        result = {'url': url_for('dashboard')}
+        return jsonify(result)
 
     return app
 
