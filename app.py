@@ -259,19 +259,16 @@ def create_app(debug=False):
     @app.route('/calendar_doctor')
     @is_logged_in
     def calendar_doctor():
-        print('LOADING CALENDAR PAGE')
         return render_template('calendar_doctor.html')
 
     @app.route('/doctor_view_schedule')
     @is_logged_in
     def doctor_view_schedule():
-        print('LOADING CALENDAR PAGE')
         return render_template('calendar_doctor_schedule_view.html')
 
     @app.route('/create_schedule')
     @is_logged_in
     def doctor_create_schedule():
-        print('LOADING CALENDAR PAGE')
         return render_template('calendar_doctor.html')
 
     @app.route('/select_clinic')

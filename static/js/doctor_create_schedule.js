@@ -1,6 +1,7 @@
 //variable declaration
 var myDialog; 
 var current_event_object;
+var counter = 0;
 
 // this runs after the page has been initialized
 $(document).ready(function() {
@@ -151,8 +152,7 @@ function keep_event() {
     myDialog.dialog('close');
 }
 
-//counter for unique ids
-counter = 0;
+//function to return counter for unique ids
 function get_counter() {
     counter++;
     return counter;
