@@ -10,7 +10,7 @@
                     <tr class="table-primary d-flex">
                         <th scope="col" class="col-4">Clinic</th>
                         <th scope="col" class="col-2">Type</th>
-                        <th scope="col" class="col-2">Start Time (local)</th>
+                        <th scope="col" class="col-2">Start Date/Time</th>
                         <th scope="col" class="col-2">Status</th>
                         <th scope="col" class="col-2">Actions</th>
                     </tr>
@@ -30,7 +30,13 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <button class="btn btn-primary" type="button" onclick="checkout()">Checkout cart</button>
+            <button type="button" onclick="checkout()"
+                    {% if items.items()|length == 0 %}
+                    class="btn btn-secondary" disabled
+                    {% else %}
+                    class="btn btn-primary"
+                    {% endif %}>Checkout cart
+            </button>
             <script>
                 function checkout() {
                     $.ajax({
