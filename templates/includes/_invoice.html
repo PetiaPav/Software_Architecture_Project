@@ -1,0 +1,106 @@
+<br>
+<br>
+<br>
+<div id = "wrapper">
+    <div id="content" class="container">
+        <div class="card">
+            <div class="card-header">
+                Invoice
+                <strong>{{date}}</strong> 
+                <span class="float-right"> <strong>Status:</strong> Paid</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+                    <h6 class="mb-3">From:</h6>
+                    <div>
+                        <strong>{{clinic.name}}</strong>
+                    </div>
+                    <div>{{clinic.physical_address}}</div>
+                    </div>
+                    <div class="col-sm-6">
+                    <h6 class="mb-3">To:</h6>
+                    <div>
+                        <strong>{{user.first_name}} {{user.last_name}}</strong>
+                    </div>
+                    <div>HC: {{user.health_card}}</div>
+                    <div>{{user.physical_address}}</div>
+                    <div>Email: {{user.email}}</div>
+                    <div>Phone: {{user.phone_number}}</div>
+                    </div>
+                </div>
+                <div class="table-responsive-sm">
+                    <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="center">#</th>
+                            <th>Item</th>
+                            <th>Description</th>
+                            <th class="right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for is_walk_in in slots %}
+                        <tr>
+                            <td class="center">{{loop.index}}</td>
+                            <td class="left strong">{% if is_walk_in %} Walk In {% else %} Yearly {% endif %}</td>
+                            <td class="left">{% if is_walk_in %} 20-Minute Appointment {% else %} 1-Hour Appointment {% endif %}</td>
+                            <td class="right">{% if is_walk_in %} $100.00 {% else %} $150.00 {% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-sm-5">
+                    </div>
+                    <div class="col-lg-4 col-sm-5 ml-auto">
+                    <table class="table table-clear">
+                        <tbody>
+                            <tr>
+                                <td class="left">
+                                <strong>Subtotal</strong>
+                                </td>
+                                <td class="right">${{payment.sub_total}}</td>
+                            </tr>
+                            <tr>
+                                <td class="left">
+                                <strong>Discount (5%)</strong>
+                                </td>
+                                <td class="right">${{payment.discount_total}}</td>
+                            </tr>
+                            <tr>
+                                <td class="left">
+                                <strong>Insurance (80%)</strong>
+                                </td>
+                                <td class="right">${{payment.insurance_total}}</td>
+                            </tr>
+                            <tr>
+                                <td class="left">
+                                <strong>Total</strong>
+                                </td>
+                                <td class="right">
+                                <strong>${{payment.total}}</strong>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <br>
+    <div class="container">
+        <input class="button-pdf btn btn-success" type="button" value="Save as PDF" onclick="print({{slots|length}});">
+    </div>
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>

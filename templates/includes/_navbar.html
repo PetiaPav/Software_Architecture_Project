@@ -25,6 +25,10 @@
             <a class="nav-item nav-link" href="/select_clinic">Make an appointment</a>
             {% endif %}
 
+            {% if session.appts_to_pay %}
+            <a class="nav-item nav-link float-right" href="/payment">Finish Payment<span class="glyphicon glyphicon-usd"></span></a>
+            {% endif %}     
+
         </div>
     </div>
 </nav>

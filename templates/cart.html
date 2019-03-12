@@ -19,7 +19,7 @@
                     {% for item_id in items %}
                         <tr class="d-flex">
                             <td class="col-4">{{items[item_id].clinic.name}}</td>
-                            <td class="col-2">{{"Walk-in" if items[item_id].is_walk_in == True else "Annual"}}</td>
+                            <td class="col-2">{% if items[item_id].is_walk_in %} Walk-in {% else %} Annual {% endif %}</td>
                             <td class="col-2">{{items[item_id].start_time}}</td>
                             <td class="col-2 {% if items[item_id].is_booked %}table-danger{% endif %}">
                                 {{"Not Available" if items[item_id].is_booked == True else "Available"}}
