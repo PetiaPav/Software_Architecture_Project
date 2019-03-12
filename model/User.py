@@ -89,7 +89,9 @@ class DoctorMapper:
             availabilities_special = []
 
             for row in doctor_availabilities_special:
-                special_availability = SpecialAvailability(row['id'], row['week_index'], row['day_index'], row['slot_index'], row['available'], row['walk_in'])
+                available = True if row['available'] == 1 else False
+                walk_in = True if row['walk_in'] == 1 else False
+                special_availability = SpecialAvailability(row['id'], row['week_index'], row['day_index'], row['slot_index'], available, walk_in)
                 availabilities_special.append(special_availability)
 
             doctor_obj = Doctor(
@@ -132,14 +134,14 @@ class DoctorMapper:
         # update the tdg
         self.tdg.update_doctor_availability(int(doctor_id), list_for_tdg)
 
-    def set_special_availabiliy_from_json(self, doctor_id, json):
+    def set_special_availability_from_json(self, doctor_id, json):
         list_for_tdg = []
         list_of_ids_to_delete = []
         doctor = self.get_by_id(doctor_id)
         for event in json:
             walk_in = True if event['title'] == "Walk-in" else False
             week_index = Tools.get_week_index_from_date(event['time'])
-            day_index = event['day']
+            day_index = int(event['day'])
             slot_index = Tools.get_slot_index_from_time((event['time'])[11:16])
             available = True if event['id'] == 'new-availability' else False
             if event['id'] == 'removed-availability':
