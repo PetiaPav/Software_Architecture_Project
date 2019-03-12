@@ -96,11 +96,6 @@ $(document).ready(function() {
 
         //Open modal when an event is clicked and handle remove event functionality
         eventClick: function (eventObj){
-            if(eventObj._id == "walk-in"){
-                eventObj._id = "w" + get_counter();
-            }else if (eventObj._id == "annual"){
-                eventObj._id = "a" + get_counter();
-            }
             $('#calendar').fullCalendar('updateEvent', eventObj);
 
             //Set information to be displayed
@@ -111,6 +106,14 @@ $(document).ready(function() {
             myDialog.dialog('open');
             current_event_object = eventObj;
            
+        },
+
+        eventRender: function(eventObj){
+            if(eventObj._id == "walk-in"){
+                eventObj._id = "w" + get_counter();
+            }else if (eventObj._id == "annual"){
+                eventObj._id = "a" + get_counter();
+            }
         }
     });
 });

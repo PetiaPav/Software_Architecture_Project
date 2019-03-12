@@ -324,6 +324,14 @@ def create_app(db_env="ubersante", debug=False):
             result = {'url': url_for('doctor_view_schedule')}
             return jsonify(result)
 
+    @app.route('/doctor_update_schedule', methods=["POST"])
+    @is_logged_in
+    def updated_doctor_schedule():
+
+        user_registry.doctor.set_special_availability_from_json(session['id'], request.json)
+        result = {'url': url_for('doctor_view_schedule')}
+        return jsonify(result)
+
     return app
 
 
