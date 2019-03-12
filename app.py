@@ -94,6 +94,9 @@ def create_app(db_env="ubersante", debug=False):
             return render_template('includes/_nurse_form.html', form=form)
 
         elif request.method == 'POST' and form.validate():
+            if user_registry.nurse.get_by_access_id(request.form.access_id.data) is not None:
+                flash ('This Access ID has already been registered.', 'error')
+                return render_template('includes/_nurse_form.html', form=form)
             # Common user attributes
             first_name = form.first_name.data
             last_name = form.last_name.data
