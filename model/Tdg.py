@@ -133,6 +133,15 @@ class Tdg:
         cur.close()
         return doctor_availabilities
 
+    def update_doctor_availabilities_special(self, doctor_id, list_of_special_availabilities):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("DELETE FROM DOCTOR_AVAILABILITIES_SPECIAL WHERE doctor_id=%s", [doctor_id])
+        for avail in list_of_special_availabilities:
+            cur.execute("INSERT INTO DOCTOR_AVAILABILITIES_SPECIAL (id, doctor_id, week_index, day_index, slot_index, walk_in, available) VALUES (NULL, %s, %s, %s, %s, %s, %s)", (avail['doctor_id'], avail['day'], avail['week_index'], avail['day_index'], avail['slot_index'], avail['walk_in'], avail['available']))
+        connection.commit()
+        cur.close()
+
     def get_doctor_availabilities_special(self, doctor_id):
         connection = self.mysql.connect()
         cur = connection.cursor()
