@@ -1,5 +1,6 @@
 from model.Appointment import Appointment
 from model.Scheduler import Scheduler
+from model.Tool import Tools
 
 
 class AppointmentRegistry:
@@ -56,12 +57,18 @@ class AppointmentRegistry:
     def get_appointments_by_doctor_id(self, doctor_id):
         appointments_by_doctor = []
         for appointment in self.catalog:
-            if appointment.appointment_slot.doctor_id == doctor_id:
+            if appointment.appointment_slot.doctor_id == int(doctor_id):
                 appointments_by_doctor.append(appointment)
         if len(appointments_by_doctor) > 0:
             return appointments_by_doctor
         else:
             return None
+
+    def get_appointments_by_doctor_id_and_week(self, doctor_id, week_index):
+        appointments_by_doctor_and_week = self.get_appointments_by_doctor_id(int(doctor_id))
+        if appointments_by_doctor_and_week is not None:
+            appointments_by_doctor_and_week[:] = [appointment for appointment in appointments_by_doctor_and_week if Tools.get_week_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index) == week_index]
+        return appointments_by_doctor_and_week
 
     def delete_appointment(self, id):
         appointment_to_delete = self.get_appointment_by_id(id)

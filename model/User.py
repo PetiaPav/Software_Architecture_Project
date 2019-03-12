@@ -3,6 +3,7 @@ from model.Year import Week, SlotType
 from model.Tool import Tools
 import copy
 from flask import flash
+import json
 
 
 class User:
@@ -116,6 +117,59 @@ class DoctorMapper:
     def get_all(self):
         return list(self.catalog_dict.values())
 
+    def set_availability_from_json(self, doctor_id, json):
+        doctor = self.get_by_id(doctor_id)
+        # reset the current availability in working memory
+        doctor.availability = Week(SlotType.DOCTOR)
+        list_for_tdg = []
+        for event in json:
+            walk_in = True if event['title'] == 'Walk-in' else False
+            slot_index = Tools.get_slot_index_from_time(event['time'])
+            current_slot = doctor.availability.day[int(event['day'])].slot[slot_index]
+            current_slot.available = True
+            current_slot.walk_in = walk_in
+            list_for_tdg.append({'doctor_id': int(doctor_id), 'day': int(event['day']), 'slot_index': slot_index, 'walk_in': walk_in })
+            if walk_in is False:
+                for inner_slot_index in range(slot_index + 1, slot_index + 3):
+                    current_slot = doctor.availability.day[int(event['day'])].slot[inner_slot_index]
+                    current_slot.available = True
+                    current_slot.walk_in = walk_in
+        # update the tdg
+        self.tdg.update_doctor_availability(int(doctor_id), list_for_tdg)
+
+    def get_schedule_by_week(self, doctor_id, date_time, scheduled_appointments):
+        doctor = self.get_by_id(doctor_id)
+        availabilities = []
+        new_scheduled_appointments = []
+        week_index = Tools.get_week_index_from_date(date_time)
+        week_availabilities = doctor.get_week_availability(week_index)
+        if scheduled_appointments is not None:
+            for appointment in scheduled_appointments:
+                day_index = Tools.get_day_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index)
+                slot_index = Tools.get_slot_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index)
+                walk_in = appointment.appointment_slot.walk_in
+                week_availabilities.day[day_index].slot[slot_index].available = False
+                if walk_in is False:
+                    for inner_slot_index in range(slot_index+1, slot_index+2):
+                        week_availabilities.day[day_index].slot[inner_slot_index].available = False
+                new_scheduled_appointments.append(((week_index, day_index, slot_index), walk_in))
+
+        for day in range(0, 7):
+            inner_slot_index = 0
+            while inner_slot_index < 72:
+                current_slot = week_availabilities.day[day].slot[inner_slot_index]
+                if current_slot.available is True:
+                    availabilities.append(((week_index, day, inner_slot_index), current_slot.walk_in))
+                if current_slot.walk_in is False:
+                    inner_slot_index += 2
+                inner_slot_index += 1
+
+        event_source = Tools.json_from_available_slots_doctor_available(availabilities)
+        event_source2 = Tools.json_from_available_slots_doctor_scheduled(new_scheduled_appointments)
+        for item in event_source2:
+            event_source.append(item)
+        return json.dumps(event_source)
+
 
 class PatientMapper:
     def __init__(self, tdg):
@@ -173,6 +227,7 @@ class PatientMapper:
             patient_obj.email = request.form['email'][0:len(request.form['email'])]
 
         flash(f'The patient account information (id {id}) has been modified.', 'success')
+
 
 class NurseMapper:
     def __init__(self, tdg):
