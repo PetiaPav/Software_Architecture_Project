@@ -24,9 +24,10 @@ class AppointmentRegistry:
     def add_appointment(self, clinic, date_time, patient_id, walk_in):
         new_appointment = Scheduler.book_appointement(clinic, date_time, patient_id, walk_in)
         if new_appointment is not None:
-            self.catalog.append(Appointment(AppointmentRegistry.get_new_id(), clinic.id, new_appointment))
-            return True
-        return False
+            new_id = AppointmentRegistry.get_new_id()
+            self.catalog.append(Appointment(new_id, clinic.id, new_appointment))
+            return new_id
+        return None
 
     def get_appointment_by_id(self, appointment_id):
         for appointment in self.catalog:
@@ -76,5 +77,13 @@ class AppointmentRegistry:
             return Scheduler.mark_as_available(self.clinic_registry.clinics[appointment_to_delete.clinic_id], appointment_to_delete.appointment_slot)
         return False
 
-    def modify_appointment(self, id, clinic_number, doctor_id, patient_id, date_time, walk_in):
-        pass
+    def modify_appointment(self, appointment_id, new_date_time, walk_in):
+        existing_appointment = self.get_appointment_by_id(int(appointment_id))
+        if existing_appointment is not None:
+            patient_id = existing_appointment.appointment_slot.patient_id
+            clinic = existing_appointment.clinic_id - 1
+            new_appointment_id = self.add_appointment(self.clinic_registry[clinic], new_date_time, patient_id, walk_in) 
+            if new_appointment_id is not None:
+                self.delete_appointment(int(appointment_id))
+                return new_appointment_id
+        return None
