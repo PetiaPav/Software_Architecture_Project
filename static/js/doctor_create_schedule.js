@@ -1,12 +1,13 @@
 //variable declaration
 var myDialog; 
 var current_event_object;
+var counter = 0;
 
 // this runs after the page has been initialized
 $(document).ready(function() {
-
-     //defining the dialog
-     myDialog = $("#event-modal").dialog({
+    
+    //defining the dialog
+    myDialog = $("#event-modal").dialog({
         modal: true, 
         title: "none", 
         width:350,
@@ -26,8 +27,7 @@ $(document).ready(function() {
         $(this).draggable({
             zIndex: 999,
             revert: true,      // will cause the event to go back to its
-            revertDuration: 0,  //  original position after the drag
-            _id: "annual"
+            revertDuration: 0  //  original position after the drag
         });
     });
 
@@ -37,7 +37,8 @@ $(document).ready(function() {
             title: $.trim($(this).text()), // use the element's text as the event title
             stick: true, // maintain when user navigates (see docs on the renderEvent method)
             duration: '01:00:00',
-            color: '#257e4a' //defining the color of the draggeable object
+            color: '#257e4a', //defining the color of the draggeable object
+            _id: "annual"
         });
         // make the event draggable using jQuery UI
         $(this).draggable({
@@ -51,16 +52,12 @@ $(document).ready(function() {
         // Define fullcalendar license key
         schedulerLicenseKey: 'CC-Attribution-NonCommercial-NoDerivatives',
 
-        // Define header properties and buttons
-        header: {
-				left: 'prev,next today',
-				center: 'title',
-				right: 'agendaWeek,agendaDay'
-			},
+        // Have an empty header
+        header: false,
 
         // Default view upon opening calendar is weekly view
         defaultView: 'agendaWeek',
-
+        columnHeaderFormat: 'dddd',
         eventLimit: true, // allow "more" link when too many events
 
         // Limit hours visible per day
@@ -70,38 +67,32 @@ $(document).ready(function() {
         // Height of calendar
         contentHeight: 1000,
 
-
         // Grey out non-business hours
         businessHours: {
-            dow: [ 0, 1, 2, 3, 4, 5, 6],   // Days of the week - Sunday to Saturday
+            dow: [0, 1, 2, 3, 4, 5, 6],   // Days of the week - Sunday to Saturday
             start: "08:00:00",
             end: "20:00:00"
         },
 
         // Frequency for displaying time slots, in minutes (20 minute partitions)
         slotDuration: "00:20:00",
-
         allDay: true,
-
-        // Test set of events
-        eventSources: [
-            {
-                url: 'doctor_booked',
-                color: 'orange',
-                textColor: 'black'
-            },
-            {
-                url: 'doctor_schedule',
-                color: 'blue',
-                textColor: 'black'
-            }
-        ],       
-
         editable: false, //assured that the events are not extendible
         eventStartEditable  : true,
         eventOverlap: false,
         droppable: true, // this allows things to be dropped onto the calendar
         allDaySlot: false,
+
+        //Making the week generic with no dates
+        viewRender: function() {
+            $('.fc-day-header.fc-sun').html('Sunday');
+            $('.fc-day-header.fc-mon').html('Monday');
+            $('.fc-day-header.fc-tue').html('Tuesday');
+            $('.fc-day-header.fc-wed').html('Wednesday');
+            $('.fc-day-header.fc-thu').html('Thursday');
+            $('.fc-day-header.fc-fri').html('Friday');
+            $('.fc-day-header.fc-sat').html('Saturday');
+        },
 
         //Open modal when an event is clicked and handle remove event functionality
         eventClick: function (eventObj){
@@ -119,15 +110,14 @@ $(document).ready(function() {
                 
             myDialog.dialog('open');
             current_event_object = eventObj;
+           
         }
-
     });
 });
 
 //method to send information to the back-end in a readable format
 function send_to_backend(){
     var myEvents = $('#calendar').fullCalendar('clientEvents');
-    console.log(myEvents);
 
     var new_event;
     var list_of_events = [];
@@ -136,17 +126,16 @@ function send_to_backend(){
     for(i = 0; i < myEvents.length; ++i) {
         new_event = {title: myEvents[i].title, day: myEvents[i].start.format('d'), time: myEvents[i].start.format('HH:mm')};
         list_of_events.push(new_event);
-        console.log("my events list " + list_of_events[i].title + "; day: " + list_of_events[i].day + "; time: " + list_of_events[i].time);
     }
     
     $.ajax({
-        url: 'doctor_schedule',
+        url: '/doctor_schedule',
         type: 'POST',
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
         data: JSON.stringify(list_of_events),
-        success : function(res){
-            console.log("Response received")
+        success : function(data){
+            window.location.href = data['url']
         }
     });
     
@@ -154,7 +143,6 @@ function send_to_backend(){
 
 //on-click method for Remove modal button
 function remove_event(){
-    console.log("my event id: " + current_event_object);
     $('#calendar').fullCalendar('removeEvents', current_event_object._id);
     myDialog.dialog('close');
 }
@@ -164,8 +152,7 @@ function keep_event() {
     myDialog.dialog('close');
 }
 
-//counter for unique ids
-counter = 0;
+//function to return counter for unique ids
 function get_counter() {
     counter++;
     return counter;

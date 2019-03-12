@@ -3,13 +3,13 @@ from pymysql.cursors import DictCursor
 
 
 class Tdg:
-    def __init__(self, app):
+    def __init__(self, app, db_env):
         self.mysql = MySQL(cursorclass=DictCursor)
 
         # Config MySQL
         app.config['MYSQL_DATABASE_USER'] = 'soen344'
         app.config['MYSQL_DATABASE_PASSWORD'] = 'ubersante'
-        app.config['MYSQL_DATABASE_DB'] = 'ubersante'
+        app.config['MYSQL_DATABASE_DB'] = db_env
         app.config['MYSQL_DATABASE_HOST'] = 'mydbinst.ccaem9daeat5.us-east-2.rds.amazonaws.com'
 
         # init MYSQL
@@ -111,6 +111,17 @@ class Tdg:
             doctors.append(doctor)
         cur.close()
         return doctors
+
+    def update_doctor_availability(self, doctor_id, list_of_availabilities):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        # delete all existing availability for this doctor
+        cur.execute("DELETE FROM DOCTOR_AVAILABILITIES WHERE doctor_id=%s", [doctor_id])
+        # populate new availability
+        for avail in list_of_availabilities:
+            cur.execute("INSERT INTO DOCTOR_AVAILABILITIES (id, doctor_id, day_index, slot_index, walk_in) VALUES (NULL, %s, %s, %s, %s)", (avail['doctor_id'], avail['day'], avail['slot_index'], avail['walk_in']))
+        connection.commit()
+        cur.close()
 
     def get_doctor_availabilities(self, doctor_id):
         connection = self.mysql.connect()

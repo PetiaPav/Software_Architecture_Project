@@ -10,14 +10,15 @@ from model.ClinicRegistry import ClinicRegistry
 from model.UserRegistry import UserRegistry
 from model.AppointmentRegistry import AppointmentRegistry
 from model.Scheduler import Scheduler
+from model.Tool import Tools
 from datetime import datetime
 from model.Payment import Payment
 
 
-def create_app(debug=False):
+def create_app(db_env="ubersante", debug=False):
     print("Loading app . . . ")
     app = Flask(__name__)
-    tdg = Tdg(app)
+    tdg = Tdg(app, db_env)
     app.secret_key = 'secret123'
     app.debug = debug
     print("Loading User Registry . . . ")
@@ -259,7 +260,16 @@ def create_app(debug=False):
     @app.route('/calendar_doctor')
     @is_logged_in
     def calendar_doctor():
-        print("LOADING CALENDAR PAGE")
+        return render_template('calendar_doctor.html')
+
+    @app.route('/doctor_view_schedule')
+    @is_logged_in
+    def doctor_view_schedule():
+        return render_template('calendar_doctor_schedule_view.html')
+
+    @app.route('/create_schedule')
+    @is_logged_in
+    def doctor_create_schedule():
         return render_template('calendar_doctor.html')
 
     @app.route('/select_clinic')
@@ -335,11 +345,9 @@ def create_app(debug=False):
     @is_logged_in
     def checkout():  # checkout cart
         patient = user_registry.patient.get_by_id(session['id'])  # Get patient from user registry
-
         checkout_result = appointment_registry.checkout_cart(patient.cart.get_all(), patient.id)  # Save checkout result
 
         patient.cart.batch_remove(checkout_result['accepted_items'])  # Removing successfully added items from cart
-
         patient.cart.batch_mark_booked(checkout_result['rejected_items'])  # Mark unavailable items in cart for frontend
 
         session['appts_to_pay'] = checkout_result['accepted_appts'] # Until appointments are paid, will remain in session
@@ -371,9 +379,20 @@ def create_app(debug=False):
 
         return render_template('payment.html', user_type=user_type, date=date, step=step, user=user, clinic=clinic, slots=slots, payment=payment)
 
+    @app.route('/doctor_schedule', methods=["GET", "POST"])
+    @is_logged_in
+    def return_doctor_schedule():
+        if request.method == 'GET':
+            return user_registry.doctor.get_schedule_by_week(session['id'], request.args['start'], appointment_registry.get_appointments_by_doctor_id_and_week(session['id'], Tools.get_week_index_from_date(request.args['start'])))
+
+        if request.method == 'POST':
+            user_registry.doctor.set_availability_from_json(session['id'], request.json)
+            result = {'url': url_for('doctor_view_schedule')}
+            return jsonify(result)
+
     return app
 
 
 if __name__ == "__main__":
-    app = create_app(debug=True)
+    app = create_app(db_env="ubersante", debug=True)
     app.run()
