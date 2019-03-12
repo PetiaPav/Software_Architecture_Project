@@ -315,8 +315,11 @@ def create_app(debug=False):
             start_time = request.json['start']
             is_walk_in = (request.json['walk_in'] == 'True')
 
-            user_registry.patient.get_by_id(session['id']).cart.add(clinic, start_time, is_walk_in)
-            result = {'url': url_for('cart')}
+            add_item_success = user_registry.patient.get_by_id(session['id']).cart.add(clinic, start_time, is_walk_in)
+            result = {
+                'url': url_for('cart'),
+                'status': str(add_item_success)
+            }
             return jsonify(result)
 
     @app.route('/cart/remove/<id>', methods=["POST"])
