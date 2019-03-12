@@ -2,7 +2,7 @@ from flask import Flask, render_template, flash, redirect, url_for, session, log
 
 from model import Forms
 from model.Tdg import Tdg
-from model.Forms import PatientForm, DoctorForm, NurseForm, AppointmentForm
+from model.Forms import PatientForm, DoctorForm, NurseForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
@@ -60,8 +60,7 @@ def create_app(db_env="ubersante", debug=False):
             flash('You are now registered and can log in!', 'success')
             return redirect(url_for('login'))
 
-        flash('Server encountered error - Please try again later', 'error')
-        return render_template('register.html', form=form)
+        return render_template('includes/_patient_form.html', form=form)
 
     @app.route('/register/doctor', methods=['GET', 'POST'])
     def register_doctor():
@@ -85,8 +84,7 @@ def create_app(db_env="ubersante", debug=False):
             flash('You are now registered and can log in!', 'success')
             return redirect(url_for('login'))
 
-        flash('Server encountered error - Please try again later', 'error')
-        return render_template('register.html', form=form)
+        return render_template('includes/_doctor_form.html', form=form)
 
     @app.route('/register/nurse', methods=['GET', 'POST'])
     def register_nurse():
@@ -108,8 +106,7 @@ def create_app(db_env="ubersante", debug=False):
             flash('You are now registered and can log in!', 'success')
             return redirect(url_for('login'))
 
-        flash('Server encountered error - Please try again later', 'error')
-        return render_template('register.html', form=form)
+        return render_template('includes/_nurse_form.html', form=form)
 
     @app.route('/login/<user_type>', methods=['GET', 'POST'])
     def login_user(user_type):

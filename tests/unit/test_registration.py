@@ -45,7 +45,8 @@ def test_login_nurse(client):
 
 def test_reg_doctor(client):
     data = dict([ ('password', 'q1w2e3'), ('confirm', 'q1w2e3'), ('first_name', 'Peter'),
-                  ('last_name', 'Petrov'), ('permit_number', '1245789')])
+                  ('last_name', 'Petrov'), ('permit_number', '1245789'),
+                  ('specialty', 'GP'), ('city', 'Montreal')])
     rv = client.post('/register/doctor', data=data, follow_redirects=True)
     assert rv.status_code == 200
     assert b'You are now registered and can log in!' in rv.data
