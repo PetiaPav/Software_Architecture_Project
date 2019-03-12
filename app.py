@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
+from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, jsonify
 
 from model import Forms
 from model.Tdg import Tdg
@@ -10,13 +10,14 @@ from model.ClinicRegistry import ClinicRegistry
 from model.UserRegistry import UserRegistry
 from model.AppointmentRegistry import AppointmentRegistry
 from model.Scheduler import Scheduler
+from model.Tool import Tools
 from datetime import datetime
 
 
-def create_app(debug=False):
+def create_app(db_env="ubersante", debug=False):
     print("Loading app . . . ")
     app = Flask(__name__)
-    tdg = Tdg(app)
+    tdg = Tdg(app, db_env)
     print("Loading User Registry . . . ")
     user_registry = UserRegistry(tdg)
     print("Loading Clinic Registry . . . ")
@@ -255,7 +256,16 @@ def create_app(debug=False):
     @app.route('/calendar_doctor')
     @is_logged_in
     def calendar_doctor():
-        print("LOADING CALENDAR PAGE")
+        return render_template('calendar_doctor.html')
+
+    @app.route('/doctor_view_schedule')
+    @is_logged_in
+    def doctor_view_schedule():
+        return render_template('calendar_doctor_schedule_view.html')
+
+    @app.route('/create_schedule')
+    @is_logged_in
+    def doctor_create_schedule():
         return render_template('calendar_doctor.html')
 
     @app.route('/select_clinic')
@@ -300,9 +310,20 @@ def create_app(debug=False):
         selected_time = selected_datetime.time().isoformat()
         return render_template('appointment.html', eventid=id, clinic=clinic, type=appointment_type, date=selected_date, time=selected_time)
 
+    @app.route('/doctor_schedule', methods=["GET", "POST"])
+    @is_logged_in
+    def return_doctor_schedule():
+        if request.method == 'GET':
+            return user_registry.doctor.get_schedule_by_week(session['id'], request.args['start'], appointment_registry.get_appointments_by_doctor_id_and_week(session['id'], Tools.get_week_index_from_date(request.args['start'])))
+
+        if request.method == 'POST':
+            user_registry.doctor.set_availability_from_json(session['id'], request.json)
+            result = {'url': url_for('doctor_view_schedule')}
+            return jsonify(result)
+
     return app
 
 
 if __name__ == "__main__":
-    app = create_app(debug=True)
+    app = create_app(db_env="ubersante", debug=True)
     app.run()
