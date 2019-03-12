@@ -14,10 +14,10 @@ from model.Tool import Tools
 from datetime import datetime
 
 
-def create_app(debug=False):
+def create_app(db_env="ubersante", debug=False):
     print("Loading app . . . ")
     app = Flask(__name__)
-    tdg = Tdg(app)
+    tdg = Tdg(app, db_env)
     print("Loading User Registry . . . ")
     user_registry = UserRegistry(tdg)
     print("Loading Clinic Registry . . . ")
@@ -328,5 +328,5 @@ def create_app(debug=False):
 
 
 if __name__ == "__main__":
-    app = create_app(debug=True)
+    app = create_app(db_env="ubersante", debug=True)
     app.run()
