@@ -11,7 +11,6 @@ from model.UserRegistry import UserRegistry
 from model.AppointmentRegistry import AppointmentRegistry
 from model.Scheduler import Scheduler
 from datetime import datetime
-from model.Slot import Slot
 from model.Payment import Payment
 
 
@@ -310,15 +309,11 @@ def create_app(debug=False):
     def cart():
         if request.method == 'GET':
             cart = user_registry.patient.get_by_id(session['id']).cart
-            for item in cart.item_dict:
-                print('cart get, is walk in = ' + str(cart.item_dict[item].is_walk_in))
-                print('is booked = ' + str(cart.item_dict[item].is_booked))
-
             return render_template('cart.html', items=cart.item_dict)
         elif request.method == 'POST':
             clinic = clinic_registry.get_by_id(request.json['clinic_id'])
             start_time = request.json['start']
-            is_walk_in = request.json['walk_in']
+            is_walk_in = (request.json['walk_in'] == 'True')
 
             user_registry.patient.get_by_id(session['id']).cart.add(clinic, start_time, is_walk_in)
             result = {'url': url_for('cart')}
@@ -327,9 +322,11 @@ def create_app(debug=False):
     @app.route('/cart/remove/<id>', methods=["POST"])
     @is_logged_in
     def remove_from_cart(id):
+        id = int(id)
         cart = user_registry.patient.get_by_id(session['id']).cart
-        result = cart.remove(id)
-        return str(result)
+        cart.remove(id)
+        result = {'url': url_for('cart')}
+        return jsonify(result)
 
     @app.route('/checkout', methods={"POST"})
     @is_logged_in

@@ -16,16 +16,16 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for item_id in items %}
+                    {% for item_id, item in items.items() %}
                         <tr class="d-flex">
-                            <td class="col-4">{{items[item_id].clinic.name}}</td>
-                            <td class="col-2">{% if items[item_id].is_walk_in %} Walk-in {% else %} Annual {% endif %}</td>
-                            <td class="col-2">{{items[item_id].start_time}}</td>
-                            <td class="col-2 {% if items[item_id].is_booked %}table-danger{% endif %}">
-                                {{"Not Available" if items[item_id].is_booked == True else "Available"}}
+                            <td class="col-4">{{item.clinic.name}}</td>
+                            <td class="col-2">{{"Walk-in" if item.is_walk_in else "Annual"}}</td>
+                            <td class="col-2">{{item.start_time}}</td>
+                            <td class="col-2 {% if item.is_booked %}table-danger{% endif %}">
+                                {{"Not Available" if item.is_booked else "Available"}}
                             </td>
                             <td class="col-2"><button type="button" class="btn btn-danger"
-                                onclick="remove_item({{item_id}})">Remove</button></td>
+                                                      onclick="remove_item({{item_id}})">Remove</button></td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -43,11 +43,14 @@
                     });
                 }
                 function remove_item(id) {
-                    url = '/cart/remove/' + id
+                    let url = '/cart/remove/' + id
                     $.ajax({
                         url: url,
                         type: 'POST',
-                        contentType: "application/json; charset=utf-8"
+                        contentType: "application/json; charset=utf-8",
+                        success : function(data){
+                            window.location.href = data['url']
+                        }
                     });
                 }
             </script>
