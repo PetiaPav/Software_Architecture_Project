@@ -24,9 +24,9 @@ class AppointmentRegistry:
     def add_appointment(self, patient_id, clinic, date_time, walk_in):
         new_appointment_slot = Scheduler.book_appointement(clinic, date_time, patient_id, walk_in)
         if new_appointment_slot is not None:
-            appointment = Appointment(AppointmentRegistry.get_new_id(), clinic.id, new_appointment_slot)
-            self.catalog.append(appointment)
-            return appointment
+            appt_id = AppointmentRegistry.get_new_id()
+            self.catalog.append(Appointment(appt_id, clinic.id, new_appointment_slot))
+            return appt_id
         return None
 
     def get_appointment_by_id(self, appointment_id):
@@ -82,15 +82,17 @@ class AppointmentRegistry:
 
     def checkout_cart(self, item_list, patient_id):
         result = {
-            'accepted_appts': [],
+            'accepted_appt_ids': [],
             'accepted_items': [],
+            'accepted_items_is_walk_in': [],
             'rejected_items': []
         }
         for item in item_list:
-            appointment = self.add_appointment(patient_id, item.clinic, item.start_time, item.is_walk_in)
-            if appointment is not None:
-                result['accepted_appts'].append(item.is_walk_in)
+            appt_id = self.add_appointment(patient_id, item.clinic, item.start_time, item.is_walk_in)
+            if appt_id is not None:
+                result['accepted_appt_ids'].append(appt_id)
                 result['accepted_items'].append(item)
+                result['accepted_items_is_walk_in'].append(item.is_walk_in)
             else:
                 result['rejected_items'].append(item)
         return result

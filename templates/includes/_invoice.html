@@ -40,7 +40,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for is_walk_in in slots %}
+                    {% for is_walk_in in payment.slots %}
                         <tr>
                             <td class="center">{{loop.index}}</td>
                             <td class="left strong">{% if is_walk_in %} Walk In {% else %} Yearly {% endif %}</td>
@@ -93,7 +93,7 @@
     <br>
     <br>
     <div class="container">
-        <input class="button-pdf btn btn-success" type="button" value="Save as PDF" onclick="print({{slots|length}});">
+        <input class="button-pdf btn btn-success" type="button" value="Save as PDF" onclick="print({{payment.slots|length}});">
     </div>
 </div>
 <br>

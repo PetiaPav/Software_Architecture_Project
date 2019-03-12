@@ -1,8 +1,13 @@
 class Payment:
-    def __init__(self, slots, discount, insurance):
+    DISCOUNT_RATE = 0.8
+    INSURANCE_RATE = 0.05
+    WALK_IN_COST = 100
+    ANNUAL_COST = 150
+
+    def __init__(self, slots):
         self.slots = slots
-        self.discount = discount
-        self.insurance = insurance
+        self.discount = self.DISCOUNT_RATE
+        self.insurance = self.INSURANCE_RATE
         self.sub_total = 0
         self.discount_total = 0
         self.insurance_total = 0
@@ -12,9 +17,9 @@ class Payment:
         sub_total = 0
         for is_walk_in in self.slots:
             if is_walk_in:
-                sub_total += 100
+                sub_total += self.WALK_IN_COST
             else:
-                sub_total += 150
+                sub_total += self.ANNUAL_COST
         self.sub_total = sub_total
 
     def set_total_discount(self):

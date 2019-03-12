@@ -2,7 +2,7 @@ from flask import Flask, render_template, flash, redirect, url_for, session, log
 
 from model import Forms
 from model.Tdg import Tdg
-from model.Forms import PatientForm, DoctorForm, NurseForm, AppointmentForm
+from model.Forms import PatientForm, DoctorForm, NurseForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
@@ -61,8 +61,7 @@ def create_app(db_env="ubersante", debug=False):
             flash('You are now registered and can log in!', 'success')
             return redirect(url_for('login'))
 
-        flash('Server encountered error - Please try again later', 'error')
-        return render_template('register.html', form=form)
+        return render_template('includes/_patient_form.html', form=form)
 
     @app.route('/register/doctor', methods=['GET', 'POST'])
     def register_doctor():
@@ -86,8 +85,7 @@ def create_app(db_env="ubersante", debug=False):
             flash('You are now registered and can log in!', 'success')
             return redirect(url_for('login'))
 
-        flash('Server encountered error - Please try again later', 'error')
-        return render_template('register.html', form=form)
+        return render_template('includes/_doctor_form.html', form=form)
 
     @app.route('/register/nurse', methods=['GET', 'POST'])
     def register_nurse():
@@ -109,8 +107,7 @@ def create_app(db_env="ubersante", debug=False):
             flash('You are now registered and can log in!', 'success')
             return redirect(url_for('login'))
 
-        flash('Server encountered error - Please try again later', 'error')
-        return render_template('register.html', form=form)
+        return render_template('includes/_nurse_form.html', form=form)
 
     @app.route('/login/<user_type>', methods=['GET', 'POST'])
     def login_user(user_type):
@@ -350,7 +347,7 @@ def create_app(db_env="ubersante", debug=False):
         patient.cart.batch_remove(checkout_result['accepted_items'])  # Removing successfully added items from cart
         patient.cart.batch_mark_booked(checkout_result['rejected_items'])  # Mark unavailable items in cart for frontend
 
-        session['appts_to_pay'] = checkout_result['accepted_appts'] # Until appointments are paid, will remain in session
+        session['items_to_pay'] = checkout_result['accepted_items_is_walk_in'] # Until appointments are paid, will remain in session
 
         url = url_for('payment')
         if len(checkout_result['rejected_items']) != 0:
@@ -365,19 +362,16 @@ def create_app(db_env="ubersante", debug=False):
         user_type = session['user_type']
         step = "payment"
         payment = None
-        slots = None
         date = datetime.today().strftime('%Y-%m-%d')
         user = user_registry.patient.get_by_id(session['id'])
         # TODO: Replace with clinic id that was used for payment
         clinic = clinic_registry.clinics[0]
         if request.method == "POST":
-            slots = session['appts_to_pay']
-            session.pop('appts_to_pay')
-            payment = Payment(slots, 0.05, 0.8)
+            payment = Payment(session['items_to_pay'])
+            session.pop('items_to_pay')
             payment.initialize()
             step = "receipt"
-
-        return render_template('payment.html', user_type=user_type, date=date, step=step, user=user, clinic=clinic, slots=slots, payment=payment)
+        return render_template('payment.html', user_type=user_type, date=date, step=step, user=user, clinic=clinic, payment=payment)
 
     @app.route('/doctor_schedule', methods=["GET", "POST"])
     @is_logged_in
@@ -389,6 +383,14 @@ def create_app(db_env="ubersante", debug=False):
             user_registry.doctor.set_availability_from_json(session['id'], request.json)
             result = {'url': url_for('doctor_view_schedule')}
             return jsonify(result)
+
+    @app.route('/doctor_update_schedule', methods=["POST"])
+    @is_logged_in
+    def updated_doctor_schedule():
+
+        user_registry.doctor.set_special_availability_from_json(session['id'], request.json)
+        result = {'url': url_for('doctor_view_schedule')}
+        return jsonify(result)
 
     return app
 
