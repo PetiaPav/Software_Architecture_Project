@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+
+{% block title %} Doctor Example Calendar {% endblock %}
+
+{% block head %} 
+    <link rel='stylesheet' href='../static/css/fullcalendar.css'/>
+    <link rel='stylesheet' href='../static/css/fullcalendardoctor.css'/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.2.0/fullcalendar.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.2.0/fullcalendar.print.css" media='print' />
+    
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.1.0/fullcalendar.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+    
+    <!-- Use different script for the different pages -->
+    {% if request.path == "/calendar_doctor" %}
+        <script src='../static/js/fullcalendardoctor.js'></script>
+    {% elif request.path == "/create_schedule" %}
+        <script src='../static/js/doctor_create_schedule.js'></script>
+    {% endif %}
+
+{% endblock %}
+
+{% block body %}
+    <br/>
+    <div class='container'>
+
+        <!-- Draggable Appointments -->
+        <div id='wrapper'>
+            <div id='external-events'>
+                <h4>Draggable Appointments</h4>
+                <br/>
+                <div class='walk-in'>Walk-in</div>
+                <br/>
+                <div class='annual'>Annual</div>
+                <br/>
+            </div>
+            <button class='button save-changes' id="save-changes" onclick="send_to_backend()">Save Changes</button>
+        </div>
+        <br/>
+
+        <!-- Calendar -->
+		<div id='calendar'></div>
+    </div>
+
+    <!-- Event Modal -->
+    <div id='event-modal' class='modal'>
+        <div class='modal-content'>
+            <div class='modal-header'>
+                <h4><span id='appointment-type'></span></h4>
+            </div>
+            <div class='modal-body'>
+                <p><span id='date'></span></p>
+                <p>Start Time: <span id='startTime'></span></p>
+                <p>End Time: <span id='endTime'></span></p>
+            </div>
+            <div class='modal-footer'>
+                <button type='button' class='btn keep-button' id="keep-button" onclick="keep_event()">Keep</button>
+                <button type='button' class='btn remove-button' id="remove-button" onclick="remove_event()">Remove</button>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

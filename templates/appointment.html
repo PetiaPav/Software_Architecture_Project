@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block title %}Selected Availability{% endblock %}
+
+{% block body %}
+<br />
+<div class="container">
+  <h1>Appointment details</h1>
+  <br/>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Clinic name</th>
+          <th scope="col">{{clinic.name}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Clinic address</th>
+          <td>{{clinic.physical_address}}</td>
+        </tr>
+        <tr>
+          <th scope="row">Type of appointment</th>
+          <td>{{type}}</td>
+        </tr>
+          <tr>
+          <th scope="row">Date</th>
+          <td>{{date}}</td>
+        </tr>
+        <tr>
+          <th scope="row">Start time</th>
+          <td>{{time}}</td>
+      </tbody>
+    </table>
+
+  <br />
+
+  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+    Add to Cart
+  </button>
+  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="goBack()">
+    Cancel
+  </button>
+
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+</div>
+
+<div class="footer-push"></div>
+{% endblock %}

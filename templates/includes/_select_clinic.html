@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+{% block body %}
+<script >
+    $(document).ready( function () {
+        $('#myTable').DataTable();
+    } );
+</script>
+
+<br />
+<div class="container">
+    <h1>Select a clinic</h1>
+    <table id="myTable" class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Address</th>
+            <th scope="col">Select</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for x in clinics %}
+        <tr>
+            <td>{{x.name}}</td>
+            <td>{{x.physical_address}}</td>
+            <td><a class="btn btn-primary" value="Modify" href="/select_clinic/{{x.id}}">Select</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="footer-push"></div>
+{% endblock %}
