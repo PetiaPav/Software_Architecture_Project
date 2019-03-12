@@ -114,6 +114,12 @@ class DoctorMapper:
     def get_all(self):
         return list(self.catalog_dict.values())
 
+    def get_by_permit_number(self, permit_number):
+        for doctor in self.get_all():
+            if str(doctor.permit_number) == permit_number:
+                return doctor
+        return None
+
     def set_availability_from_json(self, doctor_id, json):
         doctor = self.get_by_id(doctor_id)
         # reset the current availability in working memory
@@ -217,6 +223,12 @@ class PatientMapper:
 
     def get_all(self):
         return list(self.catalog_dict.values())
+
+    def get_by_email(self, email):
+        for patient in self.get_all():
+            if patient.email == email:
+                return patient
+        return None
 
     def update_patient(self, id, request):
 
