@@ -55,7 +55,7 @@ def test_login_doctor(client):
     data = dict([('permit_number', '1245789'), ('password', 'q1w2e3')])
     rv = client.post('/login/doctor', data=data, follow_redirects=True)
     assert rv.status_code == 200
-    assert b'Hello Peter, Welcome' in rv.data
+    assert b'Hello Dr. Peter, Welcome' in rv.data
     assert session['logged_in'] is True
 
     rv2 = client.get('/logout', follow_redirects=True)
