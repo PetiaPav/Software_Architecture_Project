@@ -62,3 +62,19 @@ def test_login_doctor(client):
     assert rv2.status_code == 200
     assert b'You are now logged out!' in rv2.data
     assert 'logged in' not in session
+
+
+def test_incorrect_patient_email(client):
+    data = dict([('email', 'fedor@mail.ru'), ('password', 'q1w2e3')])
+    rv = client.post('/login/patient', data=data, follow_redirects=True)
+    assert rv.status_code == 200
+    assert b'No user registered with that email address' in rv.data
+    assert 'logged in' not in session
+
+
+def test_incorrect_patient_password(client):
+    data = dict([('email', 'ivan@mail.ru'), ('password', 'letmein')])
+    rv = client.post('/login/patient', data=data, follow_redirects=True)
+    assert rv.status_code == 200
+    assert b'Incorrect password' in rv.data
+    assert 'logged in' not in session
