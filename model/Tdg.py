@@ -133,12 +133,13 @@ class Tdg:
         cur.close()
         return doctor_availabilities
 
-    def update_doctor_availabilities_special(self, doctor_id, list_of_special_availabilities):
+    def update_doctor_availabilities_special(self, doctor_id, list_for_tdg, list_of_ids_to_delete):
         connection = self.mysql.connect()
         cur = connection.cursor()
-        cur.execute("DELETE FROM DOCTOR_AVAILABILITIES_SPECIAL WHERE doctor_id=%s", [doctor_id])
-        for avail in list_of_special_availabilities:
-            cur.execute("INSERT INTO DOCTOR_AVAILABILITIES_SPECIAL (id, doctor_id, week_index, day_index, slot_index, walk_in, available) VALUES (NULL, %s, %s, %s, %s, %s, %s)", (avail['doctor_id'], avail['day'], avail['week_index'], avail['day_index'], avail['slot_index'], avail['walk_in'], avail['available']))
+        for id_to_delete in list_of_ids_to_delete:
+            cur.execute("DELETE FROM DOCTOR_AVAILABILITIES_SPECIAL WHERE id=%s", [id_to_delete])
+        for special_availability in list_for_tdg:
+            cur.execute("INSERT INTO DOCTOR_AVAILABILITIES_SPECIAL (id, doctor_id, week_index, day_index, slot_index, walk_in, available) VALUES (NULL, %s, %s, %s, %s, %s, %s)", (special_availability.doctor_id, special_availability.week_index, special_availability.day_index, special_availability.slot_index, special_availability.walk_in, special_availability.available))
         connection.commit()
         cur.close()
 

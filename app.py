@@ -328,7 +328,7 @@ def create_app(debug=False):
     @is_logged_in
     def updated_doctor_schedule():
 
-        user_registry.doctor.set_availability_from_json(session['id'], request.json)
+        user_registry.doctor.set_special_availability_from_json(session['id'], request.json)
         result = {'url': url_for('doctor_view_schedule')}
         return jsonify(result)
 

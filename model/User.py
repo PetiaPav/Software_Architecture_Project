@@ -89,12 +89,7 @@ class DoctorMapper:
             availabilities_special = []
 
             for row in doctor_availabilities_special:
-                special_availability = SpecialAvailability()
-                special_availability.id = row['id']
-                special_availability.week_index = row['week_index']
-                special_availability.day_index = row['day_index']
-                special_availability.slot_index = row['slot_index']
-                special_availability.available = row['available']
+                special_availability = SpecialAvailability(row['id'], row['week_index'], row['day_index'], row['slot_index'], row['available'], row['walk_in'])
                 availabilities_special.append(special_availability)
 
             doctor_obj = Doctor(
@@ -137,6 +132,26 @@ class DoctorMapper:
         # update the tdg
         self.tdg.update_doctor_availability(int(doctor_id), list_for_tdg)
 
+    def set_special_availabiliy_from_json(self, doctor_id, json):
+        list_for_tdg = []
+        list_of_ids_to_delete = []
+        doctor = self.get_by_id(doctor_id)
+        for event in json:
+            walk_in = True if event['title'] == "Walk-in" else False
+            week_index = Tools.get_week_index_from_date(event['time'])
+            day_index = event['day']
+            slot_index = Tools.get_slot_index_from_time((event['time'])[11:16])
+            available = True if event['id'] == 'new-availability' else False
+            if event['id'] == 'removed-availability':
+                for special_availability in doctor.availability_special:
+                    if special_availability.slot_index == slot_index and special_availability.day_index == day_index and special_availability.week_index == week_index:
+                        if special_availability.id is not None: 
+                            list_of_ids_to_delete.append(special_availability.id)
+                        doctor.availability_special.remove(special_availability)
+            doctor.availability_special.append(SpecialAvailability(None, week_index, day_index, slot_index, available, walk_in))
+            list_for_tdg.append(SpecialAvailability("NULL", week_index, day_index, slot_index, available, walk_in))
+        self.tdg.update_doctor_availabilities_special(int(doctor_id), list_for_tdg, list_of_ids_to_delete)
+
     def get_schedule_by_week(self, doctor_id, date_time, scheduled_appointments):
         doctor = self.get_by_id(doctor_id)
         availabilities = []
@@ -150,7 +165,7 @@ class DoctorMapper:
                 walk_in = appointment.appointment_slot.walk_in
                 week_availabilities.day[day_index].slot[slot_index].available = False
                 if walk_in is False:
-                    for inner_slot_index in range(slot_index+1, slot_index+2):
+                    for inner_slot_index in range(slot_index + 1, slot_index + 2):
                         week_availabilities.day[day_index].slot[inner_slot_index].available = False
                 new_scheduled_appointments.append(((week_index, day_index, slot_index), walk_in))
 
@@ -217,7 +232,7 @@ class PatientMapper:
 
         patient_obj = self.get_by_id(id)
         if patient_obj is not None:
-            patient_obj.first_name =  request.form['first_name'][0:len(request.form['first_name'])]
+            patient_obj.first_name = request.form['first_name'][0:len(request.form['first_name'])]
             patient_obj.last_name = request.form['last_name'][0:len(request.form['last_name'])],
             patient_obj.health_card = request.form['health_card'][0:len(request.form['health_card'])],
             patient_obj.birthday = request.form['birthday'][0:len(request.form['birthday'])],
@@ -262,9 +277,10 @@ class NurseMapper:
 
 
 class SpecialAvailability:
-    def __init__(self):
-        self.id = None
-        self.week_index = None
-        self.day_index = None
-        self.slot_index = None
-        self.available = False
+    def __init__(self, id, week_index, day_index, slot_index, available, walk_in):
+        self.id = id
+        self.week_index = week_index
+        self.day_index = day_index
+        self.slot_index = slot_index
+        self.available = available
+        self.walk_in = walk_in

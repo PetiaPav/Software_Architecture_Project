@@ -136,16 +136,16 @@ function send_to_backend(){
 
     //add the newly added events to the schedule
     for(i = 0; i < added_events.length; i++) {
-        new_event = {title: added_events[i].title, day: added_events[i].start.format('d'), time: added_events[i].start.format('HH:mm'), id: 'new-availability'};
+        new_event = {title: added_events[i].title, day: added_events[i].start.format('d'), time: added_events[i].start.format(), id: 'new-availability'};
         list_of_events.push(new_event);
     }
 
     //add the removed events from original schedule
     for(i = 0; i < removed_events.length; ++i) {
-        new_event = {title: removed_events[i].title, day: removed_events[i].start.format('d'), time: removed_events[i].start.format('HH:mm'), id: 'removed-availability'};
+        new_event = {title: removed_events[i].title, day: removed_events[i].start.format('d'), time: removed_events[i].start.format(), id: 'removed-availability'};
         list_of_events.push(new_event);
     }
- 
+
     $.ajax({
         url: 'doctor_update_schedule',
         type: 'POST',

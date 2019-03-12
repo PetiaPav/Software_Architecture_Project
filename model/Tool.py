@@ -194,8 +194,8 @@ class Tools:
 
     @staticmethod
     def get_date_time_from_slot_yearly_index(slot_yearly_index):
-        week_index = int(slot_yearly_index / (Tools.SLOTS_PER_DAY*7))
-        day_index = int((slot_yearly_index % (Tools.SLOTS_PER_DAY*7)) / Tools.SLOTS_PER_DAY)
+        week_index = int(slot_yearly_index / (Tools.SLOTS_PER_DAY * 7))
+        day_index = int((slot_yearly_index % (Tools.SLOTS_PER_DAY * 7)) / Tools.SLOTS_PER_DAY)
         slot_index = slot_yearly_index % Tools.SLOTS_PER_DAY
         return "2019-" + year_2019_dict[week_index][day_index] + "T" + time_dict[slot_index] + ":00"
 
@@ -205,19 +205,15 @@ class Tools:
 
     @staticmethod
     def get_slot_yearly_index_from_week_day_slot(week_index, day_index, slot_index):
-        return week_index*Tools.SLOTS_PER_DAY*7 + day_index*Tools.SLOTS_PER_DAY + slot_index
+        return week_index * Tools.SLOTS_PER_DAY * 7 + day_index * Tools.SLOTS_PER_DAY + slot_index
 
     @staticmethod
     def get_week_index_from_slot_yearly_index(slot_yearly_index):
-        return int(slot_yearly_index / (Tools.SLOTS_PER_DAY*7))
+        return int(slot_yearly_index / (Tools.SLOTS_PER_DAY * 7))
 
     @staticmethod
     def get_day_index_from_slot_yearly_index(slot_yearly_index):
-        return int((slot_yearly_index % (Tools.SLOTS_PER_DAY*7)) / Tools.SLOTS_PER_DAY)
-
-    @staticmethod
-    def get_slot_index_from_slot_yearly_index(slot_yearly_index):
-        return slot_yearly_index % Tools.SLOTS_PER_DAY
+        return int((slot_yearly_index % (Tools.SLOTS_PER_DAY * 7)) / Tools.SLOTS_PER_DAY)
 
     @staticmethod
     def int_to_bool(value):
