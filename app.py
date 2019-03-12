@@ -261,6 +261,23 @@ def create_app(debug=False):
         print("LOADING CALENDAR PAGE")
         return render_template('calendar_doctor.html')
 
+    @app.route('/view_patient_appointments')
+    @is_logged_in
+    def view_patient_appointments():
+        user_type = session['user_type']
+        selected_patient = user_registry.patient.get_by_id(session["id"])
+        return render_template('includes/_view_patient_appointments.html', clinics=clinic_registry.clinics, user_type=user_type, selected_patient=selected_patient)
+
+    @app.route('/view_patient_appointments/<id>')
+    @is_logged_in
+    def view_selected_patient_appointments(id):
+        user_type = session['user_type']
+        if id is not None:
+            selected_patient = user_registry.patient.get_by_id(id)
+        else:
+            selected_patient = user_registry.patient.get_by_id(session["id"])
+        return render_template('includes/_view_patient_appointments.html', clinics=clinic_registry.clinics, user_type=user_type, selected_patient=selected_patient)
+
     @app.route('/select_clinic')
     @is_logged_in
     def add_appointment():
@@ -301,7 +318,10 @@ def create_app(debug=False):
         selected_datetime = datetime.strptime(start, '%Y-%m-%dT%H:%M:%S')
         selected_date = selected_datetime.date().isoformat()
         selected_time = selected_datetime.time().isoformat()
-        return render_template('appointment.html', eventid=id, clinic=clinic, type=appointment_type, date=selected_date, time=selected_time)
+
+        user_type = session['user_type']
+        selected_patient = user_registry.patient.get_by_id(13)
+        return render_template('appointment.html', eventid=id, clinic=clinic, type=appointment_type, date=selected_date, time=selected_time, user_type = user_type, selected_patient = selected_patient)
 
     return app
 

@@ -1,0 +1,50 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<script >
+    $(document).ready( function () {
+        $('#myTable').DataTable();
+    } );
+</script>
+
+<div class="container">
+<h1>Patient appointments</h1>
+<hr>
+    <br/>
+    <br/>
+    <table id="myTable" class="table">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">Clinic name</th>
+            <th scope="col">Clinic address</th>
+            <th scope="col">Type of appointment</th>
+            <th scope="col">Date</th>
+            <th scope="col">Start time</th>
+            <th scope="col">Modify</th>
+            <th scope="col">Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Uber hospital</td>
+                <td>123 maisonneuve</td>
+                <td>Walk-in</td>
+                <td>2019-09-09</td>
+                <td>8am</td>
+                <td><a class="btn btn-primary" value="Modify" href="/calendar">Modify</a></td>
+                <td><a class="btn btn-primary" value="Delete" href="#">Delete</a></td>
+            </tr>
+            <tr>
+                <td>Pointe claire</td>
+                <td>123 Bourassa</td>
+                <td>Walk-in</td>
+                <td>2019-09-09</td>
+                <td>9 am</td>
+                <td><a class="btn btn-primary" value="Modify" href="/calendar">Modify</a></td>
+                <td><a class="btn btn-primary" value="Delete" href="#">Delete</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="footer-push"></div>
+{% endblock %}
