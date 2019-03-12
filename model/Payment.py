@@ -11,7 +11,6 @@ class Payment:
     def set_sub_total(self):
         sub_total = 0
         for is_walk_in in self.slots:
-            print(is_walk_in)
             if is_walk_in:
                 sub_total += 100
             else:

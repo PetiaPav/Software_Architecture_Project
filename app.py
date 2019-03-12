@@ -307,10 +307,10 @@ def create_app(debug=False):
     @app.route('/cart', methods=["GET", "POST"])
     @is_logged_in
     def cart():
-        if request.method == 'GET':
+        if request.method == 'GET':  # view cart
             cart = user_registry.patient.get_by_id(session['id']).cart
             return render_template('cart.html', items=cart.item_dict)
-        elif request.method == 'POST':
+        elif request.method == 'POST':  # add item to cart
             clinic = clinic_registry.get_by_id(request.json['clinic_id'])
             start_time = request.json['start']
             is_walk_in = (request.json['walk_in'] == 'True')
@@ -321,7 +321,7 @@ def create_app(debug=False):
 
     @app.route('/cart/remove/<id>', methods=["POST"])
     @is_logged_in
-    def remove_from_cart(id):
+    def remove_from_cart(id):  # remove item from cart
         id = int(id)
         cart = user_registry.patient.get_by_id(session['id']).cart
         cart.remove(id)
@@ -330,7 +330,7 @@ def create_app(debug=False):
 
     @app.route('/checkout', methods={"POST"})
     @is_logged_in
-    def checkout():
+    def checkout():  # checkout cart
         patient = user_registry.patient.get_by_id(session['id'])  # Get patient from user registry
 
         checkout_result = appointment_registry.checkout_cart(patient.cart.get_all(), patient.id)  # Save checkout result
