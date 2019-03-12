@@ -43,7 +43,7 @@ for command in sqlCommands2:
         if command == '':
             print(command)
             print('Command skipped')
-
+connection.commit()
 c.close()
 print('All tables reset and repopulated')
         

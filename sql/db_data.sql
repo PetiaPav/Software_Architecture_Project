@@ -1,5 +1,5 @@
 -- Clinics
-INSERT INTO CLINICS (id, physical_address,name,start_time,end_time) VALUES (1, '111 Sherbrooke W.', 'Uber Hospital', 8, 20);
+INSERT INTO CLINICS (id, physical_address ,name, start_time, end_time) VALUES (1, '111 Sherbrooke W.', 'Uber Hospital', 8, 20);
 
 -- USERS (All passwords qwe123456)
 INSERT INTO USERS (id, first_name, last_name, password) VALUES (1, 'Benny', 'Bombs', '$5$rounds=535000$9Hn.TKXfmLsr4Riy$IjnYzjlHIfBq4o7kL4kGGxROnTtlttfJ4WLVCqHvydB');
@@ -21,7 +21,7 @@ INSERT INTO DOCTORS (id, user_fk, permit_number, specialty, city) VALUES (2, 4, 
 
 -- Doctor_Clinic_Assignment
 INSERT INTO DOCTOR_CLINIC_ASSIGNMENT (id, clinic_id, doctor_id) VALUES (1, 1, 1);
-INSERT INTO DOCTOR_CLINIC_ASSIGNMENT (id, clinic_id, doctor_id) VALUES (1, 1, 2);
+INSERT INTO DOCTOR_CLINIC_ASSIGNMENT (id, clinic_id, doctor_id) VALUES (2, 1, 2);
 
 -- Doctor Availability
 INSERT INTO DOCTOR_AVAILABILITIES (id, doctor_id, day_index, slot_index, walk_in) VALUES (1, 1, 1, 27, 1);
