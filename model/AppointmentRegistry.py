@@ -6,14 +6,31 @@ from model.Tool import Tools
 class AppointmentRegistry:
     ID_COUNTER = 0
 
-    def __init__(self, clinic_registry):
+    def __init__(self, clinic_registry, user_registry):
         self.catalog = []
         self.clinic_registry = clinic_registry
-        self.populate(clinic_registry)
+        self.populate(clinic_registry, user_registry)
 
-    # TODO
-    def populate(self, clinic_registry):
-        pass
+    def populate(self, clinic_registry, user_registry):
+        for clinic in clinic_registry.clinics:
+            for room in clinic.rooms:
+                for week in range(0, 54):
+                    for day in range(0, 7):
+                        slot_index = 0
+                        current_slot = room.schedule.week[week].day[day].slot[slot_index]
+                        if current_slot.booked is True:
+                            new_appointment_id = self.get_new_id()
+                            # add this appointment to the catalog
+                            self.catalog.append(Appointment(new_appointment_id, clinic.id, current_slot))
+                            # add the id to the patient associated with the appointment
+                            user_registry.patient.catalog_dict[current_slot.patient_id].appointment_ids.append(new_appointment_id)
+                            # add the id to the doctor asscociated with the appointment
+                            user_registry.doctor.catalog_dict[current_slot.doctor_id].appointment_ids.append(new_appointment_id)
+                        if current_slot.walk_in is False:
+                            slot_index += 3
+                        else:
+                            slot_index += 1
+
 
     @staticmethod
     def get_new_id():

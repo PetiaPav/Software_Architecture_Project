@@ -26,7 +26,7 @@ def create_app(db_env="ubersante", debug=False):
     print("Loading Clinic Registry . . . ")
     clinic_registry = ClinicRegistry(tdg, user_registry.doctor.get_all())
     print("Loading Appointment Registry . . . ")
-    appointment_registry = AppointmentRegistry(clinic_registry)
+    appointment_registry = AppointmentRegistry(clinic_registry, user_registry)
 
     @app.route('/')
     def home():
