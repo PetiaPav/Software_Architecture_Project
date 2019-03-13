@@ -4,10 +4,18 @@ from model.Tool import Tools
 
 class ClinicRegistry:
 
+    __instance_of_registry = None
+
     def __init__(self, tdg, doctor_catalog):
         self.tdg = tdg
         self.clinics = []
         self.populate(doctor_catalog)
+
+    @staticmethod
+    def get_instance(tdg, doctor_catalog):
+        if ClinicRegistry.__instance_of_registry is None:
+            ClinicRegistry.__instance_of_registry = ClinicRegistry(tdg, doctor_catalog)
+        return ClinicRegistry.__instance_of_registry
 
     def populate(self, doctor_catalog):
         clinic_dict = self.tdg.get_clinics()
