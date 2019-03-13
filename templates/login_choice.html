@@ -3,9 +3,6 @@
 {% block body %}
 <br />
 <div class="container">
-    <a href="login/patient">patient</a>
-    <a href="login/doctor">doctor</a>
-    <a href="login/nurse">nurse</a>
-    <div class="footer-push"></div>
+    {% include 'includes/_login_choice_component.html' %}
 </div>
 {% endblock %}
