@@ -122,8 +122,8 @@ class Scheduler:
                     if clinic_rooms[room].schedule.week[week_index].day[day_index].slot[inner_slot_index].booked is True and clinic_rooms[room].schedule.week[week_index].day[day_index].slot[inner_slot_index].doctor_id is doctor.id:
                         # this doctor is already booked
                         return False
-                # we made it through the list
-                return True
+            # we made it through the list
+            return True
 
     @staticmethod
     def __room_is_not_booked(room, week_index, day_index, slot_index, walk_in):
