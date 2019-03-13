@@ -13,6 +13,8 @@ class ClinicRegistry:
         clinic_dict = self.tdg.get_clinics()
         for clinic in clinic_dict:
             clinic_id = clinic['id']
+            clinic_physical_address = clinic['physical_address']
+            clinic_name = clinic['name']
             # We should store start_time and end_time as varchar in the db
             clinic_start_time = Tools.int_to_24hr_format(int(clinic['start_time']))
             clinic_end_time = Tools.int_to_24hr_format(int(clinic['end_time']))

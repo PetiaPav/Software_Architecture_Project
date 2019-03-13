@@ -7,6 +7,7 @@
 <div class="container">
   <h1>Appointment details</h1>
   <br/>
+    <div id="add-item-to-cart-error"></div>
     <table class="table table-striped">
       <thead>
         <tr>
@@ -21,7 +22,7 @@
         </tr>
         <tr>
           <th scope="row">Type of appointment</th>
-          <td>{{type}}</td>
+          <td>{{"Walk-in" if walk_in else "Annual"}}</td>
         </tr>
           <tr>
           <th scope="row">Date</th>
@@ -36,7 +37,7 @@
   <br />
 
 {% if user_type == 'patient' %}
- <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+  <button type="button" class="btn btn-primary" id="add-to-cart-button" data-toggle="button" aria-pressed="false" autocomplete="off" onClick="addToCart()">
     Add to Cart
  </button>
 {% endif %}
@@ -89,13 +90,34 @@
     Select this appointment
   </button>
 {% endif %}
-  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="goBack()">
+  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="window.history.back()">
     Cancel
   </button>
 
   <script>
-    function goBack() {
-      window.history.back();
+    function addToCart() {
+        $.ajax({
+            url: '/cart',
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                clinic_id: {{clinic.id}},
+                start: "{{datetime}}",
+                walk_in: "{{walk_in}}"
+            }),
+            success : function(data){
+                if(data['status'] === 'True'){
+                    window.location.href = data['url'];
+                } else {
+                    let errorElement = document.getElementById('add-item-to-cart-error');
+                    errorElement.setAttribute("class", "alert alert-danger");
+                    errorElement.setAttribute("role", "alert");
+                    errorElement.innerHTML = "The requested appointment was not added to your cart because it " +
+                        "conflicts with an appointment already in your cart.";
+                    document.getElementById('add-to-cart-button').disabled = true;
+                }
+            }
+        });
     }
   </script>
 </div>

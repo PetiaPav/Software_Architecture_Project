@@ -1,8 +1,8 @@
-from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
+from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, jsonify
 
 from model import Forms
 from model.Tdg import Tdg
-from model.Forms import PatientForm, DoctorForm, NurseForm, AppointmentForm
+from model.Forms import PatientForm, DoctorForm, NurseForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
@@ -10,21 +10,23 @@ from model.ClinicRegistry import ClinicRegistry
 from model.UserRegistry import UserRegistry
 from model.AppointmentRegistry import AppointmentRegistry
 from model.Scheduler import Scheduler
+from model.Tool import Tools
 from datetime import datetime
+from model.Payment import Payment
 
 
-def create_app(debug=False):
+def create_app(db_env="ubersante", debug=False):
     print("Loading app . . . ")
     app = Flask(__name__)
-    tdg = Tdg(app)
+    tdg = Tdg(app, db_env)
+    app.secret_key = 'secret123'
+    app.debug = debug
     print("Loading User Registry . . . ")
     user_registry = UserRegistry(tdg)
     print("Loading Clinic Registry . . . ")
     clinic_registry = ClinicRegistry(tdg, user_registry.doctor.get_all())
     print("Loading Appointment Registry . . . ")
-    appointment_registry = AppointmentRegistry(clinic_registry)
-    app.secret_key = 'secret123'
-    app.debug = debug
+    appointment_registry = AppointmentRegistry(clinic_registry, user_registry)
 
     @app.route('/')
     def home():
@@ -34,7 +36,7 @@ def create_app(debug=False):
     def about():
         return render_template('about.html')
 
-    @app.route('/register/patient', methods=['GET','POST'])
+    @app.route('/register/patient', methods=['GET', 'POST'])
     def register_patient():
         form = get_registration_form("patient", request.form)
 
@@ -59,8 +61,7 @@ def create_app(debug=False):
             flash('You are now registered and can log in!', 'success')
             return redirect(url_for('login'))
 
-        flash('Server encountered error - Please try again later', 'error')
-        return render_template('register.html', form=form)
+        return render_template('includes/_patient_form.html', form=form)
 
     @app.route('/register/doctor', methods=['GET', 'POST'])
     def register_doctor():
@@ -84,8 +85,7 @@ def create_app(debug=False):
             flash('You are now registered and can log in!', 'success')
             return redirect(url_for('login'))
 
-        flash('Server encountered error - Please try again later', 'error')
-        return render_template('register.html', form=form)
+        return render_template('includes/_doctor_form.html', form=form)
 
     @app.route('/register/nurse', methods=['GET', 'POST'])
     def register_nurse():
@@ -107,8 +107,7 @@ def create_app(debug=False):
             flash('You are now registered and can log in!', 'success')
             return redirect(url_for('login'))
 
-        flash('Server encountered error - Please try again later', 'error')
-        return render_template('register.html', form=form)
+        return render_template('includes/_nurse_form.html', form=form)
 
     @app.route('/login/<user_type>', methods=['GET', 'POST'])
     def login_user(user_type):
@@ -258,7 +257,16 @@ def create_app(debug=False):
     @app.route('/calendar_doctor')
     @is_logged_in
     def calendar_doctor():
-        print("LOADING CALENDAR PAGE")
+        return render_template('calendar_doctor.html')
+
+    @app.route('/doctor_view_schedule')
+    @is_logged_in
+    def doctor_view_schedule():
+        return render_template('calendar_doctor_schedule_view.html')
+
+    @app.route('/create_schedule')
+    @is_logged_in
+    def doctor_create_schedule():
         return render_template('calendar_doctor.html')
 
     @app.route('/view_patient_appointments')
@@ -321,11 +329,105 @@ def create_app(debug=False):
 
         user_type = session['user_type']
         selected_patient = user_registry.patient.get_by_id(13)
-        return render_template('appointment.html', eventid=id, clinic=clinic, type=appointment_type, date=selected_date, time=selected_time, user_type = user_type, selected_patient = selected_patient)
+        return render_template('appointment.html', eventid=id, clinic=clinic, walk_in=session['has_selected_walk_in'], date=selected_date, time=selected_time, datetime=str(selected_datetime), user_type = user_type, selected_patient = selected_patient)
+
+    @app.route('/cart', methods=["GET", "POST"])
+    @is_logged_in
+    def cart():
+        if request.method == 'GET':  # view cart
+            cart = user_registry.patient.get_by_id(session['id']).cart
+            return render_template('cart.html', items=cart.item_dict)
+        elif request.method == 'POST':  # add item to cart
+            clinic = clinic_registry.get_by_id(request.json['clinic_id'])
+            start_time = request.json['start']
+            is_walk_in = (request.json['walk_in'] == 'True')
+
+            add_item_success = user_registry.patient.get_by_id(session['id']).cart.add(clinic, start_time, is_walk_in)
+            result = {
+                'url': url_for('cart'),
+                'status': str(add_item_success)
+            }
+            return jsonify(result)
+
+    @app.route('/cart/remove/<id>', methods=["POST"])
+    @is_logged_in
+    def remove_from_cart(id):  # remove item from cart
+        id = int(id)
+        cart = user_registry.patient.get_by_id(session['id']).cart
+        cart.remove(id)
+        result = {'url': url_for('cart')}
+        return jsonify(result)
+
+    @app.route('/checkout', methods={"POST"})
+    @is_logged_in
+    def checkout():  # checkout cart
+        patient = user_registry.patient.get_by_id(session['id'])  # Get patient from user registry
+        checkout_result = appointment_registry.checkout_cart(patient.cart.get_all(), patient.id)  # Save checkout result
+
+        appointment_ids = checkout_result['accepted_appt_ids']
+        user_registry.patient.insert_appointment_ids(patient.id, appointment_ids)
+
+        appointments_created = []
+        for appt_id in appointment_ids:
+            appointments_created.append(appointment_registry.get_appointment_by_id(appt_id))
+
+        user_registry.doctor.update_appointment_ids(appointments_created)
+
+        patient.cart.batch_remove(checkout_result['accepted_items'])  # Removing successfully added items from cart
+        patient.cart.batch_mark_booked(checkout_result['rejected_items'])  # Mark unavailable items in cart for frontend
+
+        # Until appointments are paid, will remain in session
+        if 'items_to_pay' in session:
+            session['items_to_pay'] += checkout_result['accepted_items_is_walk_in']
+        else:
+            session['items_to_pay'] = checkout_result['accepted_items_is_walk_in']
+
+        url = url_for('payment')
+        if len(checkout_result['rejected_items']) != 0:
+            url = url_for('cart')
+        result = {'url': url}
+
+        return jsonify(result)
+
+    @app.route('/payment', methods=["GET", "POST"])
+    @is_logged_in
+    def payment():
+        user_type = session['user_type']
+        step = "payment"
+        payment = None
+        date = datetime.today().strftime('%Y-%m-%d')
+        user = user_registry.patient.get_by_id(session['id'])
+        # TODO: Replace with clinic id that was used for payment
+        clinic = clinic_registry.clinics[0]
+        if request.method == "POST":
+            payment = Payment(session['items_to_pay'])
+            session.pop('items_to_pay')
+            payment.initialize()
+            step = "receipt"
+        return render_template('payment.html', user_type=user_type, date=date, step=step, user=user, clinic=clinic, payment=payment)
+
+    @app.route('/doctor_schedule', methods=["GET", "POST"])
+    @is_logged_in
+    def return_doctor_schedule():
+        if request.method == 'GET':
+            return user_registry.doctor.get_schedule_by_week(session['id'], request.args['start'], appointment_registry.get_appointments_by_doctor_id_and_week(session['id'], Tools.get_week_index_from_date(request.args['start'])))
+
+        if request.method == 'POST':
+            user_registry.doctor.set_availability_from_json(session['id'], request.json)
+            result = {'url': url_for('doctor_view_schedule')}
+            return jsonify(result)
+
+    @app.route('/doctor_update_schedule', methods=["POST"])
+    @is_logged_in
+    def updated_doctor_schedule():
+
+        user_registry.doctor.set_special_availability_from_json(session['id'], request.json)
+        result = {'url': url_for('doctor_view_schedule')}
+        return jsonify(result)
 
     return app
 
 
 if __name__ == "__main__":
-    app = create_app(debug=True)
+    app = create_app(db_env="ubersante", debug=True)
     app.run()
