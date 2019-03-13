@@ -28,6 +28,7 @@ def create_app(db_env="ubersante", debug=False):
     print("Loading Appointment Registry . . . ")
     appointment_registry = AppointmentRegistry.get_instance(tdg, clinic_registry, user_registry)
 
+
     @app.route('/')
     def home():
         return render_template('home.html')

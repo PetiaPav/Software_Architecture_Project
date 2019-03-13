@@ -32,6 +32,7 @@ CREATE TABLE PATIENTS (
   birthday date NOT NULL,
   gender varchar(15) NOT NULL,
   physical_address varchar(100) NOT NULL,
+  date_of_last_annual varchar(20) DEFAULT NULL,
   PRIMARY KEY (id),
   KEY PATIENTS_USERS_FK (user_fk),
   CONSTRAINT PATIENTS_USERS_FK FOREIGN KEY (user_fk) REFERENCES USERS (id) ON DELETE CASCADE
@@ -78,9 +79,7 @@ CREATE TABLE ROOM_SLOTS (
   id int(11) NOT NULL AUTO_INCREMENT,
   clinic_id int(11) DEFAULT NULL,
   room_id int(11) DEFAULT NULL,
-  week_index int(11) DEFAULT NULL,
-  day_index int(11) DEFAULT NULL,
-  slot_index int(11) DEFAULT NULL,
+  slot_id int(11) DEFAULT NULL,
   walk_in tinyint(4) DEFAULT '0',
   doctor_id int(11) DEFAULT NULL,
   patient_id int(11) DEFAULT NULL,
