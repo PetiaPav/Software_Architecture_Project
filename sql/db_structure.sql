@@ -80,7 +80,6 @@ CREATE TABLE ROOM_SLOTS (
   clinic_id int(11) DEFAULT NULL,
   room_id int(11) DEFAULT NULL,
   slot_id int(11) DEFAULT NULL,
-  booked tinyint(4) DEFAULT NULL,
   walk_in tinyint(4) DEFAULT '0',
   doctor_id int(11) DEFAULT NULL,
   patient_id int(11) DEFAULT NULL,
