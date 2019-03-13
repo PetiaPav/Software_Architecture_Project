@@ -36,9 +36,60 @@
 
   <br />
 
+{% if user_type == 'patient' %}
   <button type="button" class="btn btn-primary" id="add-to-cart-button" data-toggle="button" aria-pressed="false" autocomplete="off" onClick="addToCart()">
     Add to Cart
-  </button>
+ </button>
+{% endif %}
+{% if user_type == 'nurse' %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Patient Information</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+                <tr>
+                  <td>First Name</td>
+                  <td>{{selected_patient.first_name}}</td>
+                </tr>
+                <tr>
+                  <td>Last Name</td>
+                  <td>{{selected_patient.last_name}}</td>
+                </tr>
+                <tr>
+                  <td>Email</td>
+                  <td>{{selected_patient.email}}</td>
+                </tr>
+                <tr>
+                  <td>Health Card</td>
+                  <td>{{selected_patient.health_card}}</td>
+                </tr>
+                <tr>
+                  <td>Phone Number</td>
+                  <td>{{selected_patient.phone_number}}</td>
+                </tr>
+                <tr>
+                  <td>Birthday</td>
+                  <td>{{selected_patient.birthday}}</td>
+                </tr>
+                <tr>
+                  <td>Gender</td>
+                  <td>{{selected_patient.gender}}</td>
+                </tr>
+                <tr>
+                  <td>Physical Address</td>
+                  <td>{{selected_patient.physical_address}}</td>
+                </tr>
+              </tbody>
+        </tbody>
+    </table>
+
+ <button type="button" class="btn btn-primary" id="book_appointment" data-toggle="button" aria-pressed="false" autocomplete="off" onClick="bookAppointment()">
+    Book appointment
+ </button>
+{% endif %}
   <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="window.history.back()">
     Cancel
   </button>
@@ -65,6 +116,22 @@
                         "conflicts with an appointment already in your cart.";
                     document.getElementById('add-to-cart-button').disabled = true;
                 }
+            }
+        });
+    }
+
+     function bookAppointment() {
+        $.ajax({
+            url: '/book_for_patient',
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                clinic_id: {{clinic.id}},
+                start: "{{datetime}}",
+                walk_in: "{{walk_in}}"
+            }),
+            success : function(data){
+                window.location.href = data['url'];
             }
         });
     }

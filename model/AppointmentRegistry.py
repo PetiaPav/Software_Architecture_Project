@@ -6,7 +6,8 @@ from model.Tool import Tools
 class AppointmentRegistry:
     ID_COUNTER = 0
 
-    def __init__(self, clinic_registry, user_registry):
+    def __init__(self, tdg, clinic_registry, user_registry):
+        self.tdg = tdg
         self.catalog = []
         self.clinic_registry = clinic_registry
         self.populate(clinic_registry, user_registry)
@@ -30,7 +31,6 @@ class AppointmentRegistry:
                                 slot_index += 2
                         slot_index += 1
 
-
     @staticmethod
     def get_new_id():
         AppointmentRegistry.ID_COUNTER += 1
@@ -43,6 +43,8 @@ class AppointmentRegistry:
         if new_appointment_slot is not None:
             appt_id = AppointmentRegistry.get_new_id()
             self.catalog.append(Appointment(appt_id, clinic.id, new_appointment_slot))
+            # update the database
+            self.tdg.update_room_slot(clinic.id, new_appointment_slot)
             return appt_id
         return None
 
@@ -91,7 +93,10 @@ class AppointmentRegistry:
     def delete_appointment(self, id):
         appointment_to_delete = self.get_appointment_by_id(id)
         if appointment_to_delete is not None:
-            return Scheduler.mark_as_available(self.clinic_registry.clinics[appointment_to_delete.clinic_id], appointment_to_delete.appointment_slot)
+            if appointment_to_delete.appointment_slot.id is not None:
+                self.tdg.delete_room_slot(appointment_to_delete.appointment_slot.id)
+                self.catalog.remove(appointment_to_delete)
+            return Scheduler.mark_as_available(self.clinic_registry.clinics[appointment_to_delete.clinic_id - 1], appointment_to_delete.appointment_slot)
         return False
 
     def modify_appointment(self, appointment_id, new_date_time, walk_in):

@@ -40,6 +40,7 @@ class LoginNurseAuthenticator(LoginAuthenticator):
                 session['access_id'] = self.access_id.data
                 session['selected_clinic'] = None
                 session['has_selected_walk_in'] = None
+                session['selected_patient'] = None
                 return True
             else:
                 flash('Incorrect password', 'danger')

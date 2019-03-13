@@ -36,10 +36,13 @@ class ClinicRegistry:
 
             if dict_of_room_slots is not None:
                 for room_slot in dict_of_room_slots:
-                    current_slot = list_of_rooms[room_slot['room_id']-1].schedule.week[room_slot['week_index']].day[room_slot['day_index']].slot[room_slot['slot_index']]
+                    week_index = Tools.get_week_index_from_slot_yearly_index(room_slot['slot_id'])
+                    day_index = Tools.get_day_index_from_slot_yearly_index(room_slot['slot_id'])
+                    slot_index = Tools.get_slot_index_from_slot_yearly_index(room_slot['slot_id'])
+                    current_slot = list_of_rooms[room_slot['room_id']-1].schedule.week[week_index].day[day_index].slot[slot_index]
                     current_slot.id = room_slot["id"]
                     # a slot_yearly_index is a slot position in a 54 week calendar. Range: [0 - 27,215]
-                    current_slot.slot_yearly_index = Tools.get_slot_yearly_index_from_week_day_slot(room_slot['week_index'], room_slot['day_index'], room_slot['slot_index'])
+                    current_slot.slot_yearly_index = room_slot["slot_id"]
                     current_slot.patient_id = room_slot["patient_id"]
                     current_slot.doctor_id = room_slot["doctor_id"]
                     current_slot.booked = True

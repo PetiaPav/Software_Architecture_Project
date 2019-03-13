@@ -26,7 +26,7 @@ def create_app(db_env="ubersante", debug=False):
     print("Loading Clinic Registry . . . ")
     clinic_registry = ClinicRegistry(tdg, user_registry.doctor.get_all())
     print("Loading Appointment Registry . . . ")
-    appointment_registry = AppointmentRegistry(clinic_registry, user_registry)
+    appointment_registry = AppointmentRegistry(tdg, clinic_registry, user_registry)
 
     @app.route('/')
     def home():
@@ -60,7 +60,9 @@ def create_app(db_env="ubersante", debug=False):
             gender = form.gender.data
             physical_address = form.physical_address.data
 
-            tdg.insert_patient(email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address)
+            inserted_id = tdg.insert_patient(email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address)
+            user_registry.patient.insert_patient(inserted_id, email, password, first_name, last_name, health_card, phone_number,
+                                                 birthday, gender, physical_address)
             flash('You are now registered and can log in!', 'success')
             return redirect(url_for('login'))
 
@@ -212,6 +214,7 @@ def create_app(db_env="ubersante", debug=False):
     @is_logged_in
     @nurse_login_required
     def patient_detailed_page(id):
+        session['selected_patient'] = id
         get_patient = user_registry.patient.get_by_id(id)
         return render_template('includes/_patient_detail_page.html', patient = get_patient)
 
@@ -278,6 +281,53 @@ def create_app(db_env="ubersante", debug=False):
     def doctor_create_schedule():
         return render_template('calendar_doctor.html')
 
+    @app.route('/view_patient_appointments')
+    @is_logged_in
+    def view_patient_appointments():
+        appointment_info = view_appointments_for_user(session["id"])
+
+        return render_template('includes/_view_patient_appointments.html', appointment_info=appointment_info)
+
+    @app.route('/view_patient_appointments/<id>')
+    @is_logged_in
+    @nurse_login_required
+    def view_selected_patient_appointments(id):
+
+        session['selected_patient'] = int(id)
+        appointment_info = view_appointments_for_user(int(id))
+        return render_template('includes/_view_patient_appointments.html', appointment_info=appointment_info)
+
+    def view_appointments_for_user(id):
+        selected_patient = user_registry.patient.get_by_id(id)
+        appointments_ids = selected_patient.appointment_ids
+        patient_appointments = []
+        appointment_clinics = []
+        date_list = []
+        time_list = []
+        for id in appointments_ids:
+            appointment = appointment_registry.get_appointment_by_id(id)
+            patient_appointments.append(appointment)
+            appointment_clinics.append(clinic_registry.get_by_id(appointment.clinic_id))
+            appointment_date_time = Tools.get_date_time_from_slot_yearly_index(int(appointment.appointment_slot.slot_yearly_index))
+
+            appointment_datetime = datetime.strptime(appointment_date_time, '%Y-%m-%dT%H:%M:%S')
+            appointment_date = appointment_datetime.date().isoformat()
+            appointment_time = appointment_datetime.time().isoformat()
+
+            date_list.append(appointment_date)
+            time_list.append(appointment_time)
+
+        return zip(patient_appointments, appointment_clinics, date_list, time_list)
+
+    @app.route('/delete_appointments/<appointment_id>/<patient_id>/<doctor_id>')
+    @is_logged_in
+    def delete_appointments(appointment_id, patient_id, doctor_id):
+        # Delete the appointment for good
+        appointment_registry.delete_appointment(int(appointment_id))
+        user_registry.patient.delete_appointment(int(patient_id), int(appointment_id))
+        user_registry.doctor.delete_appointment(int(doctor_id), int(appointment_id))
+        return redirect(url_for('view_patient_appointments'))
+
     @app.route('/select_clinic')
     @is_logged_in
     def add_appointment():
@@ -318,7 +368,27 @@ def create_app(db_env="ubersante", debug=False):
         selected_datetime = datetime.strptime(start, '%Y-%m-%dT%H:%M:%S')
         selected_date = selected_datetime.date().isoformat()
         selected_time = selected_datetime.time().isoformat()
-        return render_template('appointment.html', eventid=id, clinic=clinic, walk_in=session['has_selected_walk_in'], date=selected_date, time=selected_time, datetime=str(selected_datetime))
+
+        user_type = session['user_type']
+        selected_patient = user_registry.patient.get_by_id(13)
+        return render_template('appointment.html', eventid=id, clinic=clinic, walk_in=session['has_selected_walk_in'], date=selected_date, time=selected_time, datetime=str(selected_datetime), user_type = user_type, selected_patient = selected_patient)
+
+    @app.route('/book_for_patient', methods=["POST"])
+    @is_logged_in
+    def book_for_patient():
+        clinic = clinic_registry.get_by_id(request.json['clinic_id'])
+        start_time = request.json['start']
+        is_walk_in = (request.json['walk_in'] == 'True')
+
+        new_appointment_id = appointment_registry.add_appointment(session['selected_patient'], clinic, start_time, is_walk_in)
+        user_registry.patient.insert_appointment_ids(int(session['selected_patient']), [new_appointment_id])
+        doctor_id = appointment_registry.get_appointment_by_id(new_appointment_id).appointment_slot.doctor_id
+        user_registry.doctor.add_appointment_id(int(doctor_id), new_appointment_id)
+
+        result = {
+            'url': url_for('view_patient_appointments', id = str(session['selected_patient']))
+        }
+        return jsonify(result)
 
     @app.route('/cart', methods=["GET", "POST"])
     @is_logged_in
