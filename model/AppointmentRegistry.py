@@ -4,13 +4,22 @@ from model.Tool import Tools
 
 
 class AppointmentRegistry:
+    
     ID_COUNTER = 0
+
+    __instance_of_registry = None
 
     def __init__(self, tdg, clinic_registry, user_registry):
         self.tdg = tdg
         self.catalog = []
         self.clinic_registry = clinic_registry
         self.populate(clinic_registry, user_registry)
+
+    @staticmethod
+    def get_instance(tdg, clinic_registry, user_registry):
+        if AppointmentRegistry.__instance_of_registry is None:
+            AppointmentRegistry.__instance_of_registry = AppointmentRegistry(tdg, clinic_registry, user_registry)
+        return AppointmentRegistry.__instance_of_registry
 
     def populate(self, clinic_registry, user_registry):
         for clinic in clinic_registry.clinics:

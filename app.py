@@ -22,11 +22,11 @@ def create_app(db_env="ubersante", debug=False):
     app.secret_key = 'secret123'
     app.debug = debug
     print("Loading User Registry . . . ")
-    user_registry = UserRegistry(tdg)
+    user_registry = UserRegistry.get_instance(tdg)
     print("Loading Clinic Registry . . . ")
-    clinic_registry = ClinicRegistry(tdg, user_registry.doctor.get_all())
+    clinic_registry = ClinicRegistry.get_instance(tdg, user_registry.doctor.get_all())
     print("Loading Appointment Registry . . . ")
-    appointment_registry = AppointmentRegistry(tdg, clinic_registry, user_registry)
+    appointment_registry = AppointmentRegistry.get_instance(tdg, clinic_registry, user_registry)
 
     @app.route('/')
     def home():
