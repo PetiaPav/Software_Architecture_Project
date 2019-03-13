@@ -19,16 +19,16 @@
             <a class="nav-item nav-link" href="/dashboard">Dashboard</a>
             {% endif %}
 
-            {% if session.logged_in and session.user_type == 'patient' %}
-            <a class="nav-item nav-link" href="/cart">My Cart</a>
-            {% endif %}
-
             {% if session.logged_in and session.user_type != 'doctor' %}
             <a class="nav-item nav-link" href="/select_clinic">Make an appointment</a>
             {% endif %}
 
+            {% if session.logged_in and session.user_type == 'patient' %}
+            <a class="nav-item nav-link" href="/cart">My Cart</a>
+            {% endif %}
+
             {% if session.items_to_pay %}
-            <a class="nav-item nav-link float-right" href="/payment">Finish Payment<span class="glyphicon glyphicon-usd"></span></a>
+            <a class="nav-item nav-link float-right" href="/payment">Finish Payment <span class="glyphicon glyphicon-usd"></span></a>
             {% endif %}
 
         </div>
