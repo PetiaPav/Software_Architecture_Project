@@ -1,57 +1,88 @@
+import re
+
 from flask import flash
-from wtforms import Form, StringField, DateField, SelectField, IntegerField, PasswordField, validators
+from wtforms import Form, StringField, DateField, SelectField, IntegerField, PasswordField, validators, ValidationError
 from wtforms.fields.html5 import EmailField
 
 
+def alpha(minimum, maximum, allow_digits):
+    def _alpha(form, field):
+        length = len(field.data)
+        if length < minimum or length > maximum:
+            raise ValidationError('Input length must be between %d and %d characters long.' % (minimum, maximum))
+        if allow_digits == 0:
+            if any(char.isdigit() for char in field.data):
+                raise ValidationError('Input must not contain any digits.')
+    return _alpha
+
+
+def password(form, field):
+    minimum_password_length = 6
+    if type(field.data) is str:
+        if not any(char.isdigit() for char in field.data):
+            raise ValidationError('Password must contain at least 1 digit.')
+        elif not any(char.isalpha() for char in field.data):
+            raise ValidationError('Password must contain at least 1 letter.')
+    elif len(field.data) < minimum_password_length:
+        raise ValidationError('The password needs to be at least ' + str(minimum_password_length) + ' characters.')
+
+
+def phone_number(form, field):
+    if len(field.data) == 0:
+        raise ValidationError('Please enter a phone number.')
+    elif not re.match('^[(]\d{3}[)]\s*\d{3}[-]\d{4}$', field.data):
+        raise ValidationError('Invalid phone number, please follow the pattern: (514) 423-3918')
+
+
+def health_card(form, field):
+    if len(field.data) == 0:
+        raise ValidationError('Please enter a health card number.')
+    elif not re.match('^[a-zA-Z]{4}\s*\d{4}\s*\d{4}$', field.data):
+        raise ValidationError('Invalid health card number, please follow the pattern: LOUX 0803 2317.')
+
+
+def permit_number(form, field):
+    if field.data == '' or not all(char.isdigit() for char in field.data):
+        raise ValidationError('Input must be a valid digit.')
+    data = int(field.data)
+    if data < 1000000 or data > 9999999:
+        raise ValidationError('Please enter a valid 7-digit licence number.')
+
+def nurse_access(form, field):
+    if len(field.data) == 0:
+        raise ValidationError('Please enter a nurse access id number.')
+    elif not re.match('^[a-zA-Z]{3}\s*\d{5}$', field.data):
+        raise ValidationError('Invalid access id number, please follow the pattern: DOL96315.')
+
+
 class UserForm(Form):
-    first_name = StringField('First Name')
-    last_name = StringField('Last Name')
+    first_name = StringField('First Name', [alpha(2, 50, 0)])
+    last_name = StringField('Last Name', [alpha(2, 50, 0)])
     password = PasswordField('Password', [
-        validators.DataRequired(),
+        password,
         validators.EqualTo('confirm', message='Passwords do not match.')
     ])
     confirm = PasswordField('Confirm Password')
 
 
 class PatientForm(UserForm):
-    email = EmailField('Email address', [
-        validators.DataRequired(),
-        validators.Email()
-    ])
-
-    health_card = StringField('Health Card', [
-        validators.DataRequired()
-        # TODO: Add validator for checking that health card is of the form 'LOUX08032317'
-    ])
-    phone_number = StringField('Phone Number')
+    email = EmailField('Email address', [validators.Email()])
+    health_card = StringField('Health Card', [health_card])
+    phone_number = StringField('Phone Number', [phone_number])
     birthday = DateField('Birth Date', format='%m/%d/%y')
     gender = SelectField('Gender', choices=[('M', 'Male'), ('F', 'Female')])
-    physical_address = StringField('Address')
+    physical_address = StringField('Address', [alpha(2, 100, 1)])
 
 
 class DoctorForm(UserForm):
-    permit_number = IntegerField('Permit Number', [
-        validators.DataRequired()
-        # TODO: Add validator for ensuring permit number is 7 digits
-    ])
-
-    specialty = StringField('Specialty')
-    city = StringField('City')
+    permit_number = StringField('Permit Number', [permit_number])
+    specialty = StringField('Specialty', [alpha(2, 50, 0)])
+    city = StringField('City', [alpha(2, 50, 0)])
 
 
 class NurseForm(UserForm):
-    access_id = StringField('Access id', [
-        validators.DataRequired()
-        # TODO: Add validator for ensuring that access id is 3 letters followed by 5 digits (e.g. DOL96315)
-    ])
+    access_id = StringField('Access id', [nurse_access])
 
-
-class AppointmentForm(Form):
-    doctor_id = SelectField('Doctor Name', choices=[('1', 'Ivanov'), ('2', 'Petrov')])
-    room = SelectField('Room Number', choices=[('1', '1'), ('2', '2')])
-    # TODO will need to properly validate and convert the times
-    start_time = StringField('Start Time')
-    end_time = StringField('Start Time')
 
 def get_form_data(type, selected_object, request):
     if type == "patient":

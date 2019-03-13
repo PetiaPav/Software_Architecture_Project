@@ -1,6 +1,8 @@
 //variable declaration
 var myDialog; 
 var current_event_object;
+var removed_events = [];
+var counter = 0;
 
 // this runs after the page has been initialized
 $(document).ready(function() {
@@ -16,28 +18,28 @@ $(document).ready(function() {
     $('#external-events .walk-in').each(function() {
         // store data so the calendar knows to render an event upon drop
         $(this).data('event', {
-            title: $.trim($(this).text()), // use the element's text as the event title
+            title: "Walk-in", // use the element's text as the event title
             stick: true, // maintain when user navigates (see docs on the renderEvent method)
             duration: '00:20:00',
             color: '#257e4a',  //defining the color of the draggeable object
-            _id: "walk-in"
+            _id: 'walk-in'
         });
         // make the event draggable using jQuery UI
         $(this).draggable({
             zIndex: 999,
             revert: true,      // will cause the event to go back to its
             revertDuration: 0,  //  original position after the drag
-            _id: "annual"
         });
     });
 
     $('#external-events .annual').each(function() {
         // store data so the calendar knows to render an event upon drop
         $(this).data('event', {
-            title: $.trim($(this).text()), // use the element's text as the event title
+            title: "Annual", // use the element's text as the event title
             stick: true, // maintain when user navigates (see docs on the renderEvent method)
             duration: '01:00:00',
-            color: '#257e4a' //defining the color of the draggeable object
+            color: '#257e4a', //defining the color of the draggeable object
+            _id: 'annual'
         });
         // make the event draggable using jQuery UI
         $(this).draggable({
@@ -83,19 +85,11 @@ $(document).ready(function() {
 
         allDay: true,
 
-        // Test set of events
-        eventSources: [
-            {
-                url: 'doctor_booked',
-                color: 'orange',
-                textColor: 'black'
-            },
-            {
-                url: 'doctor_schedule',
-                color: 'blue',
-                textColor: 'black'
-            }
-        ],       
+        events: {
+            url: 'doctor_schedule',
+            editable: false,
+            startEditable: false
+        },    
 
         editable: false, //assured that the events are not extendible
         eventStartEditable  : true,
@@ -105,20 +99,24 @@ $(document).ready(function() {
 
         //Open modal when an event is clicked and handle remove event functionality
         eventClick: function (eventObj){
-            if(eventObj._id == "walk-in"){
-                eventObj._id = "w" + get_counter();
-            }else if (eventObj._id == "annual"){
-                eventObj._id = "a" + get_counter();
-            }
             $('#calendar').fullCalendar('updateEvent', eventObj);
 
             //Set information to be displayed
             $('#appointment-type').html(eventObj.title);
             $("#startTime").html(moment(eventObj.start).format('MMM Do h:mm A'));
             $("#endTime").html(moment(eventObj.end).format('MMM Do h:mm A'));
-                
-            myDialog.dialog('open');
+            
             current_event_object = eventObj;
+            myDialog.dialog('open');
+            
+        },
+
+        eventRender: function(eventObj){
+            if(eventObj._id == "walk-in"){
+                eventObj._id = "w" + get_counter();
+            }else if (eventObj._id == "annual"){
+                eventObj._id = "a" + get_counter();
+            }
         }
 
     });
@@ -127,26 +125,38 @@ $(document).ready(function() {
 //method to send information to the back-end in a readable format
 function send_to_backend(){
     var myEvents = $('#calendar').fullCalendar('clientEvents');
-    console.log(myEvents);
-
     var new_event;
     var list_of_events = [];
-
+    var added_events = [];
     var i;
-    for(i = 0; i < myEvents.length; ++i) {
-        new_event = {title: myEvents[i].title, day: myEvents[i].start.format('d'), time: myEvents[i].start.format('HH:mm')};
-        list_of_events.push(new_event);
-        console.log("my events list " + list_of_events[i].title + "; day: " + list_of_events[i].day + "; time: " + list_of_events[i].time);
-    }
     
+    //get the newly added events
+    for(i = 0; i < myEvents.length; ++i) {
+        if(myEvents[i].color == '#257e4a'){
+            added_events.push(myEvents[i]);
+        }
+    }
+
+    //add the newly added events to the schedule
+    for(i = 0; i < added_events.length; i++) {
+        new_event = {title: added_events[i].title, day: added_events[i].start.format('d'), time: added_events[i].start.format(), id: 'new-availability'};
+        list_of_events.push(new_event);
+    }
+
+    //add the removed events from original schedule
+    for(i = 0; i < removed_events.length; ++i) {
+        new_event = {title: removed_events[i].title, day: removed_events[i].start.format('d'), time: removed_events[i].start.format(), id: 'removed-availability'};
+        list_of_events.push(new_event);
+    }
+
     $.ajax({
-        url: 'doctor_schedule',
+        url: 'doctor_update_schedule',
         type: 'POST',
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
         data: JSON.stringify(list_of_events),
-        success : function(res){
-            console.log("Response received")
+        success : function(data){
+            window.location.href = data['url']
         }
     });
     
@@ -154,7 +164,12 @@ function send_to_backend(){
 
 //on-click method for Remove modal button
 function remove_event(){
-    console.log("my event id: " + current_event_object);
+    
+    //keep track of initial schedule events that have been removed
+    if(current_event_object.color != '#257e4a'){
+        removed_events.push(current_event_object);
+    }
+
     $('#calendar').fullCalendar('removeEvents', current_event_object._id);
     myDialog.dialog('close');
 }
@@ -165,7 +180,6 @@ function keep_event() {
 }
 
 //counter for unique ids
-counter = 0;
 function get_counter() {
     counter++;
     return counter;

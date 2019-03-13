@@ -194,8 +194,8 @@ class Tools:
 
     @staticmethod
     def get_date_time_from_slot_yearly_index(slot_yearly_index):
-        week_index = int(slot_yearly_index / (Tools.SLOTS_PER_DAY*7))
-        day_index = int((slot_yearly_index % (Tools.SLOTS_PER_DAY*7)) / Tools.SLOTS_PER_DAY)
+        week_index = int(slot_yearly_index / (Tools.SLOTS_PER_DAY * 7))
+        day_index = int((slot_yearly_index % (Tools.SLOTS_PER_DAY * 7)) / Tools.SLOTS_PER_DAY)
         slot_index = slot_yearly_index % Tools.SLOTS_PER_DAY
         return "2019-" + year_2019_dict[week_index][day_index] + "T" + time_dict[slot_index] + ":00"
 
@@ -205,19 +205,15 @@ class Tools:
 
     @staticmethod
     def get_slot_yearly_index_from_week_day_slot(week_index, day_index, slot_index):
-        return week_index*Tools.SLOTS_PER_DAY*7 + day_index*Tools.SLOTS_PER_DAY + slot_index
+        return week_index * Tools.SLOTS_PER_DAY * 7 + day_index * Tools.SLOTS_PER_DAY + slot_index
 
     @staticmethod
     def get_week_index_from_slot_yearly_index(slot_yearly_index):
-        return int(slot_yearly_index / (Tools.SLOTS_PER_DAY*7))
+        return int(slot_yearly_index / (Tools.SLOTS_PER_DAY * 7))
 
     @staticmethod
     def get_day_index_from_slot_yearly_index(slot_yearly_index):
-        return int((slot_yearly_index % (Tools.SLOTS_PER_DAY*7)) / Tools.SLOTS_PER_DAY)
-
-    @staticmethod
-    def get_slot_index_from_slot_yearly_index(slot_yearly_index):
-        return slot_yearly_index % Tools.SLOTS_PER_DAY
+        return int((slot_yearly_index % (Tools.SLOTS_PER_DAY * 7)) / Tools.SLOTS_PER_DAY)
 
     @staticmethod
     def int_to_bool(value):
@@ -249,35 +245,41 @@ class Tools:
     @staticmethod
     def json_from_available_slots_doctor_available(availability_list):
         pydict = []
+        counter = 0
         for availability in availability_list:
+            counter += 1
+            generated_id = "generated_available_" + str(counter)
             available_slot = availability[0]
             walk_in = availability[1]
 
             start_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2]] + ":00"
             if walk_in:
-                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2]+1] + ":00"
+                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2] + 1] + ":00"
                 event_title = "Walk-in"
             else:
-                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2]+3] + ":00"
+                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2] + 3] + ":00"
                 event_title = "Annual"
-            pydict.append({"title": event_title, "start": start_time, "end": end_time})
+            pydict.append({"title": event_title, "start": start_time, "end": end_time, "id": generated_id})
         return pydict
 
     @staticmethod
     def json_from_available_slots_doctor_scheduled(availability_list):
         pydict = []
+        counter = 0
         for availability in availability_list:
+            counter += 1
+            generated_id = "generated_booked_" + str(counter)
             available_slot = availability[0]
             walk_in = availability[1]
             
             start_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2]] + ":00"
             if walk_in:
-                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2]+1] + ":00"
+                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2] + 1] + ":00"
                 event_title = "Walk-in"
                 event_color = "orange"
             else:
-                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2]+3] + ":00"
+                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2] + 3] + ":00"
                 event_title = "Annual"
                 event_color = "orange"
-            pydict.append({"title": event_title, "start": start_time, "end": end_time, "color": event_color})
+            pydict.append({"title": event_title, "start": start_time, "end": end_time, "color": event_color, "id": generated_id})
         return pydict

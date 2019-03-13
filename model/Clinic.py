@@ -13,6 +13,8 @@ class Clinic:
         self.doctors = list_of_doctors
         self.rooms = list_of_rooms
         self.business_hours = business_hours
+        self.name = name
+        self.physical_address = physical_address
 
 
 class Room:
