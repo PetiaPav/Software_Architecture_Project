@@ -43,7 +43,7 @@ class AppointmentRegistry:
             appt_id = AppointmentRegistry.get_new_id()
             self.catalog.append(Appointment(appt_id, clinic.id, new_appointment_slot))
             # update the database
-            self.tdg.update_room_slot(new_appointment_slot)
+            self.tdg.update_room_slot(clinic.id, new_appointment_slot)
             return appt_id
         return None
 
