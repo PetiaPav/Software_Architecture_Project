@@ -8,41 +8,40 @@
 </script>
 
 <div class="container">
-<h1>Patient appointments</h1>
+{% if session.logged_in and session.user_type == 'patient' %}
+    <h1>My appointments</h1>
+{% endif %}
+
+{% if session.logged_in and session.user_type == 'nurse' %}
+    <h1>Patient's appointments</h1>
+{% endif %}
 <hr>
     <br/>
     <br/>
+{% if session.logged_in and session.user_type == 'nurse' %}
+    <a class="btn btn-success" href="/select_clinic">Create appointment</a>
+{% endif %}
     <table id="myTable" class="table">
         <thead class="thead-dark">
         <tr>
             <th scope="col">Clinic name</th>
             <th scope="col">Clinic address</th>
             <th scope="col">Type of appointment</th>
-            <th scope="col">Date</th>
-            <th scope="col">Start time</th>
             <th scope="col">Modify</th>
             <th scope="col">Delete</th>
+
         </tr>
         </thead>
         <tbody>
+        {% for x, y in appointment_info %}
             <tr>
-                <td>Uber hospital</td>
-                <td>123 maisonneuve</td>
-                <td>Walk-in</td>
-                <td>2019-09-09</td>
-                <td>8am</td>
-                <td><a class="btn btn-primary" value="Modify" href="/calendar">Modify</a></td>
-                <td><a class="btn btn-primary" value="Delete" href="#">Delete</a></td>
+                <td>{{y.name}}</td>
+                <td>{{y.physical_address}}</td>
+                <td>{{"Walk-in" if x.appointment_slot.walk_in else "Annual"}}</td>
+                <td class="col-2"><a class="btn btn-danger" href="">Modify</a></td>
+                <td class="col-2"><a class="btn btn-danger" href="/delete_appointments/{{x.id}}">Remove</a></td>
             </tr>
-            <tr>
-                <td>Pointe claire</td>
-                <td>123 Bourassa</td>
-                <td>Walk-in</td>
-                <td>2019-09-09</td>
-                <td>9 am</td>
-                <td><a class="btn btn-primary" value="Modify" href="/calendar">Modify</a></td>
-                <td><a class="btn btn-primary" value="Delete" href="#">Delete</a></td>
-            </tr>
+        {% endfor %}
         </tbody>
     </table>
 </div>

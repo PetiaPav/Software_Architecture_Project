@@ -20,7 +20,7 @@
             <th scope="col">Email</th>
             <th scope="col">Health card</th>
             <th scope="col">View details</th>
-            <th scope="col">Add appointment</th>
+            <th scope="col">Modify appointment</th>
         </tr>
         </thead>
         <tbody>
@@ -30,8 +30,8 @@
                 <td>{{x.last_name}}</td>
                 <td>{{x.email}}</td>
                 <td>{{x.health_card}}</td>
-                <td><a class="btn btn-primary" value="Modify" href="/dashboard/patient_registry/{{x.id}}">More Details</a></td>
-                <td><a class="btn btn-primary" value="Modify" href="/view_patient_appointments/{{x.id}}">Add</a></td>
+                <td><a class="btn btn-primary" value="details" href="/dashboard/patient_registry/{{x.id}}">More Details</a></td>
+                <td><a class="btn btn-primary" value="Modify" href="/view_patient_appointments/{{x.id}}">Modify appointments</a></td>
             </tr>
         {% endfor %}
         </tbody>

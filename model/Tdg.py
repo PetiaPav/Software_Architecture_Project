@@ -28,6 +28,7 @@ class Tdg:
 
         cur.close()
         connection.commit()
+        return cur.lastrowid
 
     def insert_doctor(self, first_name, last_name, password, permit_number, specialty, city):
         connection = self.mysql.connect()
