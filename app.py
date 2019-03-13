@@ -26,7 +26,7 @@ def create_app(db_env="ubersante", debug=False):
     print("Loading Clinic Registry . . . ")
     clinic_registry = ClinicRegistry(tdg, user_registry.doctor.get_all())
     print("Loading Appointment Registry . . . ")
-    appointment_registry = AppointmentRegistry(clinic_registry, user_registry)
+    appointment_registry = AppointmentRegistry(tdg, clinic_registry, user_registry)
 
     @app.route('/')
     def home():
@@ -44,6 +44,9 @@ def create_app(db_env="ubersante", debug=False):
             return render_template('includes/_patient_form.html', form=form)
 
         elif request.method == 'POST' and form.validate():
+            if user_registry.patient.get_by_email(form.email.data) is not None:
+                flash ('This e-mail address has already been registered.', 'danger')
+                return render_template('includes/_patient_form.html', form=form)
             # Common user attributes
             first_name = form.first_name.data
             last_name = form.last_name.data
@@ -71,6 +74,9 @@ def create_app(db_env="ubersante", debug=False):
             return render_template('includes/_doctor_form.html', form=form)
 
         elif request.method == 'POST' and form.validate():
+            if user_registry.doctor.get_by_permit_number(form.permit_number.data) is not None:
+                flash ('This permit number has already been registered.', 'danger')
+                return render_template('includes/_doctor_form.html', form=form)
             # Common user attributes
             first_name = form.first_name.data
             last_name = form.last_name.data
@@ -95,6 +101,9 @@ def create_app(db_env="ubersante", debug=False):
             return render_template('includes/_nurse_form.html', form=form)
 
         elif request.method == 'POST' and form.validate():
+            if user_registry.nurse.get_by_access_id(form.access_id.data) is not None:
+                flash ('This Access ID has already been registered.', 'danger')
+                return render_template('includes/_nurse_form.html', form=form)
             # Common user attributes
             first_name = form.first_name.data
             last_name = form.last_name.data
@@ -342,10 +351,11 @@ def create_app(db_env="ubersante", debug=False):
             start_time = request.json['start']
             is_walk_in = (request.json['walk_in'] == 'True')
 
-            add_item_success = user_registry.patient.get_by_id(session['id']).cart.add(clinic, start_time, is_walk_in)
+            cart = user_registry.patient.get_by_id(session['id']).cart
+            add_item_status = cart.add(clinic, start_time, is_walk_in)
             result = {
                 'url': url_for('cart'),
-                'status': str(add_item_success)
+                'status': str(add_item_status)
             }
             return jsonify(result)
 
@@ -398,7 +408,7 @@ def create_app(db_env="ubersante", debug=False):
         date = datetime.today().strftime('%Y-%m-%d')
         user = user_registry.patient.get_by_id(session['id'])
         # TODO: Replace with clinic id that was used for payment
-        clinic = clinic_registry.clinics[0]
+        clinic = session['selected_clinic']
         if request.method == "POST":
             payment = Payment(session['items_to_pay'])
             session.pop('items_to_pay')
