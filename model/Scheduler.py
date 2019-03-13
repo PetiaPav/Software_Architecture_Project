@@ -61,6 +61,7 @@ class Scheduler:
         week_index = week_and_day_index[0]
         day_index = week_and_day_index[1]
         slot_index = Tools.get_slot_index_from_time(date_time[11:16])
+        slot_yearly_index = Tools.get_slot_yearly_index_from_week_day_slot(week_index, day_index, slot_index)
 
         # find an empty room with randomness to avoid over booking any room
         for room in random.sample(range(len(clinic.rooms)), len(clinic.rooms)):
@@ -69,16 +70,18 @@ class Scheduler:
                 for doctor in random.sample(range(len(clinic.doctors)), len(clinic.doctors)):
                     if Scheduler.__doctor_is_available(clinic.doctors[doctor].get_week_availability(week_index), day_index, slot_index, walk_in):
                         if Scheduler.__doctor_is_not_booked(clinic.rooms, clinic.doctors[doctor], week_index, day_index, slot_index, walk_in):
-                            return Scheduler.__mark_as_booked(clinic.rooms[room].schedule.week[week_index].day[day_index], clinic.doctors[doctor].id, slot_index, patient_id, walk_in)
+                            return Scheduler.__mark_as_booked(clinic.rooms[room].schedule.week[week_index].day[day_index], clinic.doctors[doctor].id, slot_index, patient_id, walk_in, slot_yearly_index, room+1)
         return None
 
     @staticmethod
-    def __mark_as_booked(day, doctor_id, slot_index, patient_id, walk_in):
+    def __mark_as_booked(day, doctor_id, slot_index, patient_id, walk_in, slot_yearly_index, room_id):
         appointment_slot = day.slot[slot_index]
         appointment_slot.booked = True
         appointment_slot.doctor_id = doctor_id
         appointment_slot.patient_id = patient_id
         appointment_slot.walk_in = walk_in
+        appointment_slot.slot_yearly_index = slot_yearly_index
+        appointment_slot.room_id = room_id
         if walk_in is False:
             for inner_slot_index in range(slot_index + 1, slot_index + 3):
                 appointment_slot_extended = day.slot[inner_slot_index]
@@ -86,7 +89,8 @@ class Scheduler:
                 appointment_slot_extended.doctor_id = doctor_id
                 appointment_slot_extended.patient_id = patient_id
                 appointment_slot.walk_in = walk_in
-        # TODO update Database
+                appointment_slot.slot_yearly_index = slot_yearly_index
+                appointment_slot.room_id = room_id
         return appointment_slot
 
     @staticmethod
@@ -99,12 +103,15 @@ class Scheduler:
                 slot_to_clear.doctor_id = None
                 slot_to_clear.patient_id = None
                 slot_to_clear.walk_in = None
+                slot_to_clear.slot_yearly_index = None
+                slot_to_clear.room_id = None
         else:
             appointment_slot.booked = False
             appointment_slot.doctor_id = None
             appointment_slot.patient_id = None
             appointment_slot.walk_in = None
-        # TODO update Database
+            appointment_slot.slot_yearly_index = None
+            appointment_slot.room_id = None
         return True
 
     @staticmethod
