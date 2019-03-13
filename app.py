@@ -44,6 +44,9 @@ def create_app(db_env="ubersante", debug=False):
             return render_template('includes/_patient_form.html', form=form)
 
         elif request.method == 'POST' and form.validate():
+            if user_registry.patient.get_by_email(form.email.data) is not None:
+                flash ('This e-mail address has already been registered.', 'danger')
+                return render_template('includes/_patient_form.html', form=form)
             # Common user attributes
             first_name = form.first_name.data
             last_name = form.last_name.data
@@ -71,6 +74,9 @@ def create_app(db_env="ubersante", debug=False):
             return render_template('includes/_doctor_form.html', form=form)
 
         elif request.method == 'POST' and form.validate():
+            if user_registry.doctor.get_by_permit_number(form.permit_number.data) is not None:
+                flash ('This permit number has already been registered.', 'danger')
+                return render_template('includes/_doctor_form.html', form=form)
             # Common user attributes
             first_name = form.first_name.data
             last_name = form.last_name.data
@@ -95,6 +101,9 @@ def create_app(db_env="ubersante", debug=False):
             return render_template('includes/_nurse_form.html', form=form)
 
         elif request.method == 'POST' and form.validate():
+            if user_registry.nurse.get_by_access_id(form.access_id.data) is not None:
+                flash ('This Access ID has already been registered.', 'danger')
+                return render_template('includes/_nurse_form.html', form=form)
             # Common user attributes
             first_name = form.first_name.data
             last_name = form.last_name.data

@@ -1,3 +1,5 @@
+import sys
+
 from flask import Flask
 from flaskext.mysql import MySQL
 
@@ -7,6 +9,11 @@ app.config['MYSQL_DATABASE_USER'] = 'soen344'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'ubersante'
 app.config['MYSQL_DATABASE_DB'] = 'ubersante'
 app.config['MYSQL_DATABASE_HOST'] = 'mydbinst.ccaem9daeat5.us-east-2.rds.amazonaws.com'
+
+if len (sys.argv) > 1:
+    if sys.argv[1] == 'test':
+        app.config['MYSQL_DATABASE_DB'] = 'ubersante_test'
+
 mysql.init_app(app)
 connection = mysql.connect()
 c = connection.cursor()
