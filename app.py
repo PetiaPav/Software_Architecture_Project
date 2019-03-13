@@ -322,10 +322,11 @@ def create_app(db_env="ubersante", debug=False):
             start_time = request.json['start']
             is_walk_in = (request.json['walk_in'] == 'True')
 
-            add_item_success = user_registry.patient.get_by_id(session['id']).cart.add(clinic, start_time, is_walk_in)
+            cart = user_registry.patient.get_by_id(session['id']).cart
+            add_item_status = cart.add(clinic, start_time, is_walk_in)
             result = {
                 'url': url_for('cart'),
-                'status': str(add_item_success)
+                'status': str(add_item_status)
             }
             return jsonify(result)
 
