@@ -239,9 +239,9 @@ class Tdg:
         connection = self.mysql.connect()
         cur = connection.cursor()
         if room_slot.id is None:
-            cur.execute("INSERT INTO ROOM_SLOTS (id, clinic_id, room_id, slot_id, walk_in, doctor_id, patient_id) VALUES(NULL, %s, %s, %s, %s, %s, %s, %s)", (room_slot.clinic_id, room_slot.room_id, room_slot.slot_yearly_index, room_slot.walk_in, room_slot.doctor_id, room_slot.patient_id))
+            cur.execute("INSERT INTO ROOM_SLOTS (id, room_id, slot_id, walk_in, doctor_id, patient_id) VALUES(NULL, %s, %s, %s, %s, %s, %s, %s)", (room_slot.room_id, room_slot.slot_yearly_index, room_slot.walk_in, room_slot.doctor_id, room_slot.patient_id))
         else:
-            cur.execute("UPDATE ROOM_SLOTS SET (clinic_id=%s, room_id=%s, slot_id=%s, walk_in=%s, doctor_id=%s, patient_id=%s) WHERE id=%s", (room_slot.clinic_id, room_slot.room_id, room_slot.slot_yearly_index, room_slot.walk_in, room_slot.doctor_id, room_slot.patient_id, room_slot.id))
+            cur.execute("UPDATE ROOM_SLOTS SET (room_id=%s, slot_id=%s, walk_in=%s, doctor_id=%s, patient_id=%s) WHERE id=%s", (room_slot.room_id, room_slot.slot_yearly_index, room_slot.walk_in, room_slot.doctor_id, room_slot.patient_id, room_slot.id))
         connection.commit()
         cur.close()
 
