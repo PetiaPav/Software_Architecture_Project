@@ -379,7 +379,7 @@ def create_app(db_env="ubersante", debug=False):
         date = datetime.today().strftime('%Y-%m-%d')
         user = user_registry.patient.get_by_id(session['id'])
         # TODO: Replace with clinic id that was used for payment
-        clinic = clinic_registry.clinics[0]
+        clinic = session['selected_clinic']
         if request.method == "POST":
             payment = Payment(session['items_to_pay'])
             session.pop('items_to_pay')
