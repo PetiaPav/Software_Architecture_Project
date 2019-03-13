@@ -24,6 +24,7 @@ class Patient(User):
         self.physical_address = physical_address
         self.email = email
         self.cart = cart
+        self.appointment_ids = []
 
 
 class Nurse(User):
@@ -41,6 +42,7 @@ class Doctor(User):
         self.city = city
         self.availability = availability
         self.availability_special = availability_special
+        self.appointment_ids = []
 
     def get_week_availability(self, week_index):
         specific_week = copy.deepcopy(self.availability)
@@ -187,6 +189,11 @@ class DoctorMapper:
             event_source.append(item)
         return json.dumps(event_source)
 
+    def update_appointment_ids(self, appointments):
+        for appointment in appointments:
+            doctor = self.get_by_id(appointment.appointment_slot.doctor_id)
+            doctor.appointment_ids.append(appointment.id)
+
 
 class PatientMapper:
     def __init__(self, tdg):
@@ -244,6 +251,10 @@ class PatientMapper:
             patient_obj.email = request.form['email'][0:len(request.form['email'])]
 
         flash(f'The patient account information (id {id}) has been modified.', 'success')
+
+    def insert_appointment_ids(self, patient_id, appointment_ids):
+        patient = self.get_by_id(patient_id)
+        patient.appointment_ids = patient.appointment_ids + appointment_ids
 
 
 class NurseMapper:

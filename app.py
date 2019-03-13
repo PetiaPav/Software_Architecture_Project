@@ -26,7 +26,7 @@ def create_app(db_env="ubersante", debug=False):
     print("Loading Clinic Registry . . . ")
     clinic_registry = ClinicRegistry(tdg, user_registry.doctor.get_all())
     print("Loading Appointment Registry . . . ")
-    appointment_registry = AppointmentRegistry(clinic_registry)
+    appointment_registry = AppointmentRegistry(clinic_registry, user_registry)
 
     @app.route('/')
     def home():
@@ -344,6 +344,15 @@ def create_app(db_env="ubersante", debug=False):
     def checkout():  # checkout cart
         patient = user_registry.patient.get_by_id(session['id'])  # Get patient from user registry
         checkout_result = appointment_registry.checkout_cart(patient.cart.get_all(), patient.id)  # Save checkout result
+
+        appointment_ids = checkout_result['accepted_appt_ids']
+        user_registry.patient.insert_appointment_ids(patient.id, appointment_ids)
+
+        appointments_created = []
+        for appt_id in appointment_ids:
+            appointments_created.append(appointment_registry.get_appointment_by_id(appt_id))
+
+        user_registry.doctor.update_appointment_ids(appointments_created)
 
         patient.cart.batch_remove(checkout_result['accepted_items'])  # Removing successfully added items from cart
         patient.cart.batch_mark_booked(checkout_result['rejected_items'])  # Mark unavailable items in cart for frontend
