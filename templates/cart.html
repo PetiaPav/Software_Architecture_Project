@@ -1,0 +1,66 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <br />
+    <div class="container">
+        <div class="main-content">
+            <h1>Appointment Cart</h1>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr class="table-primary d-flex">
+                        <th scope="col" class="col-4">Clinic</th>
+                        <th scope="col" class="col-2">Type</th>
+                        <th scope="col" class="col-2">Start Date/Time</th>
+                        <th scope="col" class="col-2">Status</th>
+                        <th scope="col" class="col-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item_id, item in items.items() %}
+                        <tr class="d-flex">
+                            <td class="col-4">{{item.clinic.name}}</td>
+                            <td class="col-2">{{"Walk-in" if item.is_walk_in else "Annual"}}</td>
+                            <td class="col-2">{{item.start_time}}</td>
+                            <td class="col-2 {% if item.is_booked %}table-danger{% endif %}">
+                                {{"Not Available" if item.is_booked else "Available"}}
+                            </td>
+                            <td class="col-2"><button type="button" class="btn btn-danger"
+                                                      onclick="remove_item({{item_id}})">Remove</button></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <button type="button" onclick="checkout()"
+                    {% if items.items()|length == 0 %}
+                    class="btn btn-secondary" disabled
+                    {% else %}
+                    class="btn btn-primary"
+                    {% endif %}>Checkout cart
+            </button>
+            <script>
+                function checkout() {
+                    $.ajax({
+                        url: '/checkout',
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        success : function(data){
+                            window.location.href = data['url']
+                        }
+                    });
+                }
+                function remove_item(id) {
+                    let url = '/cart/remove/' + id
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        success : function(data){
+                            window.location.href = data['url']
+                        }
+                    });
+                }
+            </script>
+        </div>
+        <div class="footer-push"></div>
+    </div>
+{% endblock %}

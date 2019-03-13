@@ -12,20 +12,21 @@ from model.AppointmentRegistry import AppointmentRegistry
 from model.Scheduler import Scheduler
 from model.Tool import Tools
 from datetime import datetime
+from model.Payment import Payment
 
 
 def create_app(db_env="ubersante", debug=False):
     print("Loading app . . . ")
     app = Flask(__name__)
     tdg = Tdg(app, db_env)
+    app.secret_key = 'secret123'
+    app.debug = debug
     print("Loading User Registry . . . ")
     user_registry = UserRegistry(tdg)
     print("Loading Clinic Registry . . . ")
     clinic_registry = ClinicRegistry(tdg, user_registry.doctor.get_all())
     print("Loading Appointment Registry . . . ")
-    appointment_registry = AppointmentRegistry(clinic_registry)
-    app.secret_key = 'secret123'
-    app.debug = debug
+    appointment_registry = AppointmentRegistry(clinic_registry, user_registry)
 
     @app.route('/')
     def home():
@@ -35,7 +36,7 @@ def create_app(db_env="ubersante", debug=False):
     def about():
         return render_template('about.html')
 
-    @app.route('/register/patient', methods=['GET','POST'])
+    @app.route('/register/patient', methods=['GET', 'POST'])
     def register_patient():
         form = get_registration_form("patient", request.form)
 
@@ -308,7 +309,83 @@ def create_app(db_env="ubersante", debug=False):
         selected_datetime = datetime.strptime(start, '%Y-%m-%dT%H:%M:%S')
         selected_date = selected_datetime.date().isoformat()
         selected_time = selected_datetime.time().isoformat()
-        return render_template('appointment.html', eventid=id, clinic=clinic, type=appointment_type, date=selected_date, time=selected_time)
+        return render_template('appointment.html', eventid=id, clinic=clinic, walk_in=session['has_selected_walk_in'], date=selected_date, time=selected_time, datetime=str(selected_datetime))
+
+    @app.route('/cart', methods=["GET", "POST"])
+    @is_logged_in
+    def cart():
+        if request.method == 'GET':  # view cart
+            cart = user_registry.patient.get_by_id(session['id']).cart
+            return render_template('cart.html', items=cart.item_dict)
+        elif request.method == 'POST':  # add item to cart
+            clinic = clinic_registry.get_by_id(request.json['clinic_id'])
+            start_time = request.json['start']
+            is_walk_in = (request.json['walk_in'] == 'True')
+
+            cart = user_registry.patient.get_by_id(session['id']).cart
+            add_item_status = cart.add(clinic, start_time, is_walk_in)
+            result = {
+                'url': url_for('cart'),
+                'status': str(add_item_status)
+            }
+            return jsonify(result)
+
+    @app.route('/cart/remove/<id>', methods=["POST"])
+    @is_logged_in
+    def remove_from_cart(id):  # remove item from cart
+        id = int(id)
+        cart = user_registry.patient.get_by_id(session['id']).cart
+        cart.remove(id)
+        result = {'url': url_for('cart')}
+        return jsonify(result)
+
+    @app.route('/checkout', methods={"POST"})
+    @is_logged_in
+    def checkout():  # checkout cart
+        patient = user_registry.patient.get_by_id(session['id'])  # Get patient from user registry
+        checkout_result = appointment_registry.checkout_cart(patient.cart.get_all(), patient.id)  # Save checkout result
+
+        appointment_ids = checkout_result['accepted_appt_ids']
+        user_registry.patient.insert_appointment_ids(patient.id, appointment_ids)
+
+        appointments_created = []
+        for appt_id in appointment_ids:
+            appointments_created.append(appointment_registry.get_appointment_by_id(appt_id))
+
+        user_registry.doctor.update_appointment_ids(appointments_created)
+
+        patient.cart.batch_remove(checkout_result['accepted_items'])  # Removing successfully added items from cart
+        patient.cart.batch_mark_booked(checkout_result['rejected_items'])  # Mark unavailable items in cart for frontend
+
+        # Until appointments are paid, will remain in session
+        if 'items_to_pay' in session:
+            session['items_to_pay'] += checkout_result['accepted_items_is_walk_in']
+        else:
+            session['items_to_pay'] = checkout_result['accepted_items_is_walk_in']
+
+        url = url_for('payment')
+        if len(checkout_result['rejected_items']) != 0:
+            url = url_for('cart')
+        result = {'url': url}
+
+        return jsonify(result)
+
+    @app.route('/payment', methods=["GET", "POST"])
+    @is_logged_in
+    def payment():
+        user_type = session['user_type']
+        step = "payment"
+        payment = None
+        date = datetime.today().strftime('%Y-%m-%d')
+        user = user_registry.patient.get_by_id(session['id'])
+        # TODO: Replace with clinic id that was used for payment
+        clinic = session['selected_clinic']
+        if request.method == "POST":
+            payment = Payment(session['items_to_pay'])
+            session.pop('items_to_pay')
+            payment.initialize()
+            step = "receipt"
+        return render_template('payment.html', user_type=user_type, date=date, step=step, user=user, clinic=clinic, payment=payment)
 
     @app.route('/doctor_schedule', methods=["GET", "POST"])
     @is_logged_in

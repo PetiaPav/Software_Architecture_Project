@@ -24,6 +24,7 @@ class Patient(User):
         self.physical_address = physical_address
         self.email = email
         self.cart = cart
+        self.appointment_ids = []
 
 
 class Nurse(User):
@@ -41,6 +42,7 @@ class Doctor(User):
         self.city = city
         self.availability = availability
         self.availability_special = availability_special
+        self.appointment_ids = []
 
     def get_week_availability(self, week_index):
         specific_week = copy.deepcopy(self.availability)
@@ -147,7 +149,7 @@ class DoctorMapper:
             if event['id'] == 'removed-availability':
                 for special_availability in doctor.availability_special:
                     if special_availability.slot_index == slot_index and special_availability.day_index == day_index and special_availability.week_index == week_index:
-                        if special_availability.id is not None: 
+                        if special_availability.id is not None:
                             list_of_ids_to_delete.append(special_availability.id)
                         doctor.availability_special.remove(special_availability)
             doctor.availability_special.append(SpecialAvailability(None, week_index, day_index, slot_index, available, walk_in))
@@ -187,6 +189,11 @@ class DoctorMapper:
             event_source.append(item)
         return json.dumps(event_source)
 
+    def update_appointment_ids(self, appointments):
+        for appointment in appointments:
+            doctor = self.get_by_id(appointment.appointment_slot.doctor_id)
+            doctor.appointment_ids.append(appointment.id)
+
 
 class PatientMapper:
     def __init__(self, tdg):
@@ -208,7 +215,7 @@ class PatientMapper:
                 patient['phone_number'],
                 patient['physical_address'],
                 patient['email'],
-                None
+                Cart()
             )
             self.catalog_dict[patient['id']] = patient_obj
 
@@ -244,6 +251,10 @@ class PatientMapper:
             patient_obj.email = request.form['email'][0:len(request.form['email'])]
 
         flash(f'The patient account information (id {id}) has been modified.', 'success')
+
+    def insert_appointment_ids(self, patient_id, appointment_ids):
+        patient = self.get_by_id(patient_id)
+        patient.appointment_ids = patient.appointment_ids + appointment_ids
 
 
 class NurseMapper:
@@ -286,3 +297,51 @@ class SpecialAvailability:
         self.slot_index = slot_index
         self.available = available
         self.walk_in = walk_in
+
+
+class Cart:
+    def __init__(self):
+        self.item_dict = {}
+        self.__id_counter = 0  # Internal ID of cart items, analogous to an autoincrementing ID as seen in popular DBs.
+
+    def add(self, clinic, start_time, is_walk_in):
+        if not self.__check_if_item_exists(clinic, start_time, is_walk_in):
+            self.item_dict[self.__id_counter] = CartItem(self.__id_counter, clinic, start_time, is_walk_in, False)
+            self.__id_counter += 1
+            return True
+        return False
+
+    def __check_if_item_exists(self, clinic, start_time, is_walk_in):  # Checks if a cart item already exists.
+        for item in self.item_dict.values():
+            print(str(clinic.name) + ' ' + str(item.clinic.name) + ' ' + start_time + ' ' + item.start_time + ' ' + str(is_walk_in) + ' ' + str(item.is_walk_in))
+            if clinic == item.clinic and start_time == item.start_time and is_walk_in == item.is_walk_in:
+                return True
+        return False
+
+
+    def remove(self, item_id):
+        try:
+            self.item_dict.pop(item_id)
+            return True
+        except KeyError:
+            return False
+
+    def get_all(self):
+        return list(self.item_dict.values())
+
+    def batch_remove(self, item_list):  # Removes all items in a list of CartItems.
+        for item in item_list:
+            self.remove(item.item_id)
+
+    def batch_mark_booked(self, item_list):  # Marks all items in a list of CartItems as booked.
+        for item in item_list:
+            item.is_booked = True
+
+
+class CartItem:
+    def __init__(self, item_id, clinic, start_time, is_walk_in, is_booked):
+        self.item_id = item_id  # Internal cart item ID, not unique across multiple users.
+        self.clinic = clinic
+        self.start_time = start_time  # Stored as string
+        self.is_walk_in = is_walk_in  # Stored as boolean
+        self.is_booked = is_booked  # Stored as boolean
