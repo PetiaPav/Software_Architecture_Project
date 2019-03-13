@@ -95,7 +95,7 @@ class AppointmentRegistry:
             if appointment_to_delete.appointment_slot.id is not None:
                 self.tdg.delete_room_slot(appointment_to_delete.appointment_slot.id)
                 self.catalog.remove(appointment_to_delete)
-            return Scheduler.mark_as_available(self.clinic_registry.clinics[appointment_to_delete.clinic_id], appointment_to_delete.appointment_slot)
+            return Scheduler.mark_as_available(self.clinic_registry.clinics[appointment_to_delete.clinic_id - 1], appointment_to_delete.appointment_slot)
         return False
 
     def modify_appointment(self, id, clinic_number, doctor_id, patient_id, date_time, walk_in):

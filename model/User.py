@@ -200,6 +200,15 @@ class DoctorMapper:
             doctor = self.get_by_id(appointment.appointment_slot.doctor_id)
             doctor.appointment_ids.append(appointment.id)
 
+    def add_appointment_id(self, doctor_id, appointment_id):
+        doctor = self.get_by_id(doctor_id)
+        if appointment_id not in doctor.appointment_ids:
+            doctor.appointment_ids.append(appointment_id)
+
+    def delete_appointment(self, doctor_id, appointment_id):
+        doctor = self.get_by_id(doctor_id)
+        doctor.appointment_ids.remove(appointment_id)
+
 
 class PatientMapper:
     def __init__(self, tdg):
@@ -283,6 +292,10 @@ class PatientMapper:
             Cart()
         )
         self.catalog_dict[patient_id] = patient_obj
+
+    def delete_appointment(self, patient_id, appointment_id):
+        patient = self.get_by_id(patient_id)
+        patient.appointment_ids.remove(appointment_id)
 
 
 class NurseMapper:

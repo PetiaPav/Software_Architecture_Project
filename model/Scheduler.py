@@ -110,8 +110,8 @@ class Scheduler:
             appointment_slot.doctor_id = None
             appointment_slot.patient_id = None
             appointment_slot.walk_in = None
-            slot_to_clear.slot_yearly_index = None
-            slot_to_clear.room_id = None
+            appointment_slot.slot_yearly_index = None
+            appointment_slot.room_id = None
         return True
 
     @staticmethod

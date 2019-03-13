@@ -27,19 +27,25 @@
             <th scope="col">Clinic name</th>
             <th scope="col">Clinic address</th>
             <th scope="col">Type of appointment</th>
+            <th scope="col">Date</th>
+            <th scope="col">Time</th>
+            <th scope="col">Time</th>
             <th scope="col">Modify</th>
             <th scope="col">Delete</th>
 
         </tr>
         </thead>
         <tbody>
-        {% for x, y in appointment_info %}
+        {% for x, y, u, v in appointment_info %}
             <tr>
                 <td>{{y.name}}</td>
                 <td>{{y.physical_address}}</td>
                 <td>{{"Walk-in" if x.appointment_slot.walk_in else "Annual"}}</td>
-                <td class="col-2"><a class="btn btn-danger" href="">Modify</a></td>
-                <td class="col-2"><a class="btn btn-danger" href="/delete_appointments/{{x.id}}">Remove</a></td>
+                <td>{{u}}</td>
+                <td>{{v}}</td>
+                <td>{{x.id}}</td>
+                <td><a class="btn btn-danger" href="">Modify</a></td>
+                <td><a class="btn btn-danger" href="/delete_appointments/{{x.id}}/{{x.appointment_slot.patient_id}}/{{x.appointment_slot.doctor_id}}">Remove</a></td>
             </tr>
         {% endfor %}
         </tbody>

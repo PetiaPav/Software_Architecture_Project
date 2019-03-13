@@ -86,9 +86,9 @@
         </tbody>
     </table>
 
-  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
-    Select this appointment
-  </button>
+ <button type="button" class="btn btn-primary" id="book_appointment" data-toggle="button" aria-pressed="false" autocomplete="off" onClick="bookAppointment()">
+    Book appointment
+ </button>
 {% endif %}
   <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="window.history.back()">
     Cancel
@@ -116,6 +116,22 @@
                         "conflicts with an appointment already in your cart.";
                     document.getElementById('add-to-cart-button').disabled = true;
                 }
+            }
+        });
+    }
+
+     function bookAppointment() {
+        $.ajax({
+            url: '/book_for_patient',
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                clinic_id: {{clinic.id}},
+                start: "{{datetime}}",
+                walk_in: "{{walk_in}}"
+            }),
+            success : function(data){
+                window.location.href = data['url'];
             }
         });
     }
