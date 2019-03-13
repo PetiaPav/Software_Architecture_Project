@@ -26,10 +26,9 @@ class AppointmentRegistry:
                             user_registry.patient.catalog_dict[current_slot.patient_id].appointment_ids.append(new_appointment_id)
                             # add the id to the doctor asscociated with the appointment
                             user_registry.doctor.catalog_dict[current_slot.doctor_id].appointment_ids.append(new_appointment_id)
-                        if current_slot.walk_in is False:
-                            slot_index += 3
-                        else:
-                            slot_index += 1
+                            if current_slot.walk_in is False:
+                                slot_index += 2
+                        slot_index += 1
 
 
     @staticmethod
