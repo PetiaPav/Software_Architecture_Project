@@ -6,18 +6,19 @@ class ClinicRegistry:
 
     __instance_of_registry = None
 
-    def __init__(self, tdg, doctor_catalog):
+    def __init__(self, mediator, tdg):
         self.tdg = tdg
-        self.clinics = []
-        self.populate(doctor_catalog)
+        self.mediator = mediator
+        self.catalog_dict = {}
+        self.populate()
 
     @staticmethod
-    def get_instance(tdg, doctor_catalog):
+    def get_instance(mediator, tdg):
         if ClinicRegistry.__instance_of_registry is None:
-            ClinicRegistry.__instance_of_registry = ClinicRegistry(tdg, doctor_catalog)
+            ClinicRegistry.__instance_of_registry = ClinicRegistry(mediator, tdg)
         return ClinicRegistry.__instance_of_registry
 
-    def populate(self, doctor_catalog):
+    def populate(self):
         clinic_dict = self.tdg.get_clinics()
         for clinic in clinic_dict:
             clinic_id = clinic['id']
@@ -29,7 +30,6 @@ class ClinicRegistry:
             clinic_name = clinic['name']
             clinic_physical_address = clinic['physical_address']
 
-
             dict_of_doctor_clinic_assignments = self.tdg.get_all_doctor_clinic_assignments()
             dict_of_room_slots = self.tdg.get_room_slots_by_clinic_id(clinic_id)
 
@@ -37,8 +37,10 @@ class ClinicRegistry:
             # will be modified when there are multiple rooms
             list_of_rooms = [Room(), Room(), Room(), Room(), Room()]
 
+            all_doctors = self.mediator.get_all_doctors()
+
             for assignment in dict_of_doctor_clinic_assignments:
-                for doctor in doctor_catalog:
+                for doctor in all_doctors:
                     if assignment['clinic_id'] == clinic_id and doctor.id == assignment['doctor_id']:
                         list_of_doctors.append(doctor)
 
@@ -58,10 +60,10 @@ class ClinicRegistry:
 
             # currently no database entries for business days
             business_hours = BusinessHours(BusinessDays.SEVEN_DAYS, clinic_start_time, clinic_end_time)
-            self.clinics.append(Clinic(clinic_id,clinic_name, clinic_physical_address, list_of_doctors, list_of_rooms, business_hours))
+            self.catalog_dict[clinic_id] = Clinic(clinic_id, clinic_name, clinic_physical_address, list_of_doctors, list_of_rooms, business_hours)
 
     def get_by_id(self, id):
-        for clinic in self.clinics:
-            if str(id) == str(clinic.id):
-                return clinic
-        return None
+        return self.catalog_dict[int(id)]
+
+    def get_all(self):
+        return list(self.catalog_dict.values())

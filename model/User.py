@@ -122,6 +122,12 @@ class DoctorMapper:
                 return doctor
         return None
 
+    def register(self, first_name, last_name, password, permit_number, specialty, city):
+        # record this doctor in the database and get a new id
+        new_doctor_id = self.tdg.insert_doctor(first_name, last_name, password, permit_number, specialty, city)
+        if new_doctor_id is not None:
+            self.catalog_dict[new_doctor_id] = Doctor(new_doctor_id, first_name, last_name, password, permit_number, specialty, city, None, None)
+
     def set_availability_from_json(self, doctor_id, json):
         doctor = self.get_by_id(doctor_id)
         # reset the current availability in working memory
@@ -246,6 +252,11 @@ class PatientMapper:
                 return patient
         return None
 
+    def register(self, email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address):
+        inserted_id = self.tdg.insert_patient(email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address)
+        self.insert_patient(inserted_id, email, password, first_name, last_name, health_card, phone_number,
+                                                 birthday, gender, physical_address)
+
     def update_patient(self, id, request):
 
         self.tdg.update_patient(
@@ -329,6 +340,11 @@ class NurseMapper:
                 return nurse
         return None
 
+    def register(self, first_name, last_name, password, access_id):
+        new_nurse_id = self.tdg.insert_nurse(first_name, last_name, password, access_id)
+        if new_nurse_id is not None:
+            self.catalog_dict[new_nurse_id] = Nurse(new_nurse_id, first_name, last_name, password, access_id)
+
 
 class SpecialAvailability:
     def __init__(self, id, week_index, day_index, slot_index, available, walk_in):
@@ -358,7 +374,6 @@ class Cart:
             if clinic == item.clinic and start_time == item.start_time and is_walk_in == item.is_walk_in:
                 return True
         return False
-
 
     def remove(self, item_id):
         try:

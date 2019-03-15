@@ -40,9 +40,11 @@ class Tdg:
 
         cur.execute("INSERT INTO DOCTORS(id, user_fk, permit_number, specialty, city) VALUES(NULL, %s, %s, %s, %s)",
                     (last_inserted_id, permit_number, specialty, city))
+        last_inserted_doctor_id = cur.lastrowid
 
         cur.close()
         connection.commit()
+        return last_inserted_doctor_id
 
     def insert_nurse(self, first_name, last_name, password, access_id):
         connection = self.mysql.connect()
@@ -54,8 +56,10 @@ class Tdg:
 
         cur.execute("INSERT INTO NURSES(id, user_fk, access_id) VALUES(NULL, %s, %s)", (last_inserted_id, access_id))
 
+        last_inserted_nurse_id = cur.lastrowid
         cur.close()
         connection.commit()
+        return last_inserted_nurse_id
 
     def get_patient_by_email(self, email):
         connection = self.mysql.connect()

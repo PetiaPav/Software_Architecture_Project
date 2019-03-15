@@ -2,7 +2,7 @@ from model.User import DoctorMapper, PatientMapper, NurseMapper
 
 
 class UserRegistry:
-    
+
     __instance_of_registry = None
 
     def __init__(self, tdg):
