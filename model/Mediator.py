@@ -147,5 +147,3 @@ class Mediator:
 
     def checkout_cart(self, cart_items, patient_id):
         return self.__appointment_registry.checkout_cart(cart_items, patient_id)
-
-    # app calls

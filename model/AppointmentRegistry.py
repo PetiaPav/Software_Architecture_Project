@@ -72,7 +72,6 @@ class AppointmentRegistry:
 
         self.mediator.update_doctor_appointment_ids(appointments_created)
 
-
     def get_by_id(self, id):
         return self.catalog_dict[int(id)]
 
