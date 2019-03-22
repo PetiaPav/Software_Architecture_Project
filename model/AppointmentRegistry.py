@@ -51,12 +51,27 @@ class AppointmentRegistry:
     def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
         new_appointment_slot = Scheduler.book_appointement(self.mediator.get_clinic_by_id(clinic_id), date_time, patient_id, walk_in)
         if new_appointment_slot is not None:
-            appt_id = AppointmentRegistry.get_new_id()
-            self.catalog_dict[appt_id] = (Appointment(appt_id, clinic_id, new_appointment_slot))
+            new_appointment_id = AppointmentRegistry.get_new_id()
+            self.catalog_dict[new_appointment_id] = (Appointment(new_appointment_id, clinic_id, new_appointment_slot))
             # update the database
             self.tdg.update_room_slot(clinic_id, new_appointment_slot)
-            return appt_id
+            # update the patient's appointment list
+            self.mediator.insert_patient_appointment_id(int(patient_id), new_appointment_id)
+            # update the doctor's appointment list
+            self.mediator.add_doctor_appointment_id(int(new_appointment_slot.doctor_id), new_appointment_id)
+
+            return new_appointment_id
         return None
+
+    def add_appointment_batch(accepted_ids):
+        self.mediator.insert_patient_batch_appointment_ids(self.catalog_dict[accepted_ids[0]].appointment_slot.patient_id, accepted_ids)
+
+        appointments_created = []
+        for appt_id in accepted_ids:
+            appointments_created.append(self.catalog_dict[appt_id])
+
+        self.mediator.update_doctor_appointment_ids(appointments_created)
+
 
     def get_by_id(self, id):
         return self.catalog_dict[int(id)]
@@ -100,14 +115,20 @@ class AppointmentRegistry:
             appointments_by_doctor_and_week[:] = [appointment for appointment in appointments_by_doctor_and_week if Tools.get_week_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index) == week_index]
         return appointments_by_doctor_and_week
 
-    def delete_appointment(self, id):
-        if int(id) in self.catalog_dict:
-            appointment_to_delete = self.catalog_dict[int(id)]
+    def delete_appointment(self, appointment_id):
+        if int(appointment_id) in self.catalog_dict:
+            appointment_to_delete = self.catalog_dict[int(appointment_id)]
             if appointment_to_delete.appointment_slot.id is not None:
                 self.tdg.delete_room_slot(appointment_to_delete.appointment_slot.id)
             clinic_id = appointment_to_delete.clinic_id
             appointment_slot = appointment_to_delete.appointment_slot
-            del self.catalog_dict[int(id)]
+            # remove from the appointment registry
+            del self.catalog_dict[int(appointment_id)]
+            # remove from the patient's appointment list
+            self.mediator.delete_patient_appointment(appointment_slot.patient_id, appointment_id)
+            # remove from the doctor's appointment list
+            self.mediator.delete_doctor_appointment(appointment_slot.doctor_id, appointment_id)
+            # clear the room schedule
             return Scheduler.mark_as_available(self.mediator.get_clinic_by_id(clinic_id), appointment_slot)
         return False
 

@@ -308,11 +308,11 @@ def create_app(db_env="ubersante", debug=False):
 
         return zip(patient_appointments, appointment_clinics, date_list, time_list)
 
-    @app.route('/delete_appointments/<appointment_id>/<patient_id>/<doctor_id>')
+    @app.route('/delete_appointments/<appointment_id>')
     @is_logged_in
     def delete_appointments(appointment_id, patient_id, doctor_id):
         # Delete the appointment for good
-        mediator.delete_appointment(int(appointment_id), patient_id, doctor_id)
+        mediator.delete_appointment(int(appointment_id))
         return redirect(url_for('view_patient_appointments'))
 
     @app.route('/select_clinic')
@@ -406,7 +406,7 @@ def create_app(db_env="ubersante", debug=False):
         patient = mediator.get_patient_by_id(session['id'])  # Get patient from user registry
         checkout_result = mediator.checkout_cart(patient.cart.get_all(), patient.id)  # Save checkout result
 
-        mediator.add_appointment_batch(checkout_result['accepted_appt_ids'], patient.id)
+        mediator.add_appointment_batch(checkout_result['accepted_appt_ids'])
 
         patient.cart.batch_remove(checkout_result['accepted_items'])  # Removing successfully added items from cart
         patient.cart.batch_mark_booked(checkout_result['rejected_items'])  # Mark unavailable items in cart for frontend

@@ -64,6 +64,16 @@ class Mediator:
     def get_patient_cart(self, patient_id):
         return self.__user_registry.patient.get_by_id(patient_id).cart
 
+    def insert_patient_appointment_id(patient_id, new_appointment_id):
+        self.__user_registry.patient.insert_appointment_ids(int(patient_id), [new_appointment_id])
+
+    def insert_patient_batch_appointment_ids(patient_id, appointment_ids):
+        self.__user_registry.patient.insert_appointment_ids(int(patient_id), appointment_ids)
+
+    def delete_patient_appointment(patient_id, appointment_id):
+        self.__user_registry.patient.delete_appointment(int(patient_id), int(appointment_id))
+
+
     # # # Doctor calls
 
     def get_all_doctors(self):
@@ -87,6 +97,16 @@ class Mediator:
     def set_doctor_special_availability_from_json(self, doctor_id, json):
         self.__user_registry.doctor.set_special_availability_from_json(doctor_id, json)
 
+    def add_doctor_appointment_id(doctor_id, new_appointment_id):
+        self.__user_registry.doctor.add_appointment_id(int(doctor_id), new_appointment_id)
+
+    def delete_doctor_appointment(doctor_id, appointment_id):
+        self.__user_registry.doctor.delete_appointment(int(doctor_id), int(appointment_id))
+
+    def update_doctor_appointment_ids(appointments_created):
+        self.__user_registry.doctor.update_appointment_ids(appointments_created)
+
+
     # # # Nurse calls
 
     def get_all_nurses(self):
@@ -101,6 +121,7 @@ class Mediator:
     def register_nurse(self, first_name, last_name, password, access_id):
         self.__user_registry.nurse.register(first_name, last_name, password, access_id)
 
+
     # # Clinic calls
 
     def get_all_clinics(self):
@@ -109,30 +130,20 @@ class Mediator:
     def get_clinic_by_id(self, clinic_id):
         return self.__clinic_registry.get_by_id(clinic_id)
 
+
     # # Appointment calls
 
     def get_appointment_by_id(self, appointment_id):
         return self.__appointment_registry.get_by_id(appointment_id)
 
     def add_appointment(self, patient_id, clinic_id, start_time, is_walk_in):
-        new_appointment_id = self.__appointment_registry.add_appointment(patient_id, clinic_id, start_time, is_walk_in)
-        self.__user_registry.patient.insert_appointment_ids(int(patient_id), [new_appointment_id])
-        doctor_id = self.__appointment_registry.get_appointment_by_id(new_appointment_id).appointment_slot.doctor_id
-        self.__user_registry.doctor.add_appointment_id(int(doctor_id), new_appointment_id)
+        return new_appointment_id = self.__appointment_registry.add_appointment(patient_id, clinic_id, start_time, is_walk_in)
 
-    def add_appointment_batch(self, accepted_ids, patient_id):
-        self.__user_registry.patient.insert_appointment_ids(patient_id, accepted_ids)
+    def add_appointment_batch(self, accepted_ids):
+        self.__appointment_registry.add_appointment_batch(accepted_ids)
 
-        appointments_created = []
-        for appt_id in accepted_ids:
-            appointments_created.append(self.__appointment_registry.get_by_id(appt_id))
-
-        self.__user_registry.doctor.update_appointment_ids(appointments_created)
-
-    def delete_appointment(self, appointment_id, patient_id, doctor_id):
+    def delete_appointment(self, appointment_id):
         self.__appointment_registry.delete_appointment(int(appointment_id))
-        self.__user_registry.patient.delete_appointment(int(patient_id), int(appointment_id))
-        self.__user_registry.doctor.delete_appointment(int(doctor_id), int(appointment_id))
 
     def checkout_cart(self, cart_items, patient_id):
         return self.__appointment_registry.checkout_cart(cart_items, patient_id)
