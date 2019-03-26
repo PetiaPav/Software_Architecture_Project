@@ -64,13 +64,13 @@ class Mediator:
     def get_patient_cart(self, patient_id):
         return self.__user_registry.patient.get_by_id(patient_id).cart
 
-    def insert_patient_appointment_id(patient_id, new_appointment_id):
+    def insert_patient_appointment_id(self, patient_id, new_appointment_id):
         self.__user_registry.patient.insert_appointment_ids(int(patient_id), [new_appointment_id])
 
-    def insert_patient_batch_appointment_ids(patient_id, appointment_ids):
+    def insert_patient_batch_appointment_ids(self, patient_id, appointment_ids):
         self.__user_registry.patient.insert_appointment_ids(int(patient_id), appointment_ids)
 
-    def delete_patient_appointment(patient_id, appointment_id):
+    def delete_patient_appointment(self, patient_id, appointment_id):
         self.__user_registry.patient.delete_appointment(int(patient_id), int(appointment_id))
 
 
@@ -97,13 +97,13 @@ class Mediator:
     def set_doctor_special_availability_from_json(self, doctor_id, json):
         self.__user_registry.doctor.set_special_availability_from_json(doctor_id, json)
 
-    def add_doctor_appointment_id(doctor_id, new_appointment_id):
+    def add_doctor_appointment_id(self, doctor_id, new_appointment_id):
         self.__user_registry.doctor.add_appointment_id(int(doctor_id), new_appointment_id)
 
-    def delete_doctor_appointment(doctor_id, appointment_id):
+    def delete_doctor_appointment(self, doctor_id, appointment_id):
         self.__user_registry.doctor.delete_appointment(int(doctor_id), int(appointment_id))
 
-    def update_doctor_appointment_ids(appointments_created):
+    def update_doctor_appointment_ids(self, appointments_created):
         self.__user_registry.doctor.update_appointment_ids(appointments_created)
 
 
