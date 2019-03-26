@@ -137,7 +137,7 @@ class Mediator:
         return self.__appointment_registry.get_by_id(appointment_id)
 
     def add_appointment(self, patient_id, clinic_id, start_time, is_walk_in):
-        return new_appointment_id = self.__appointment_registry.add_appointment(patient_id, clinic_id, start_time, is_walk_in)
+        return self.__appointment_registry.add_appointment(patient_id, clinic_id, start_time, is_walk_in)
 
     def add_appointment_batch(self, accepted_ids):
         self.__appointment_registry.add_appointment_batch(accepted_ids)

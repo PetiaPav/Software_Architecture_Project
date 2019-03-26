@@ -63,7 +63,7 @@ class AppointmentRegistry:
             return new_appointment_id
         return None
 
-    def add_appointment_batch(accepted_ids):
+    def add_appointment_batch(self, accepted_ids):
         self.mediator.insert_patient_batch_appointment_ids(self.catalog_dict[accepted_ids[0]].appointment_slot.patient_id, accepted_ids)
 
         appointments_created = []
