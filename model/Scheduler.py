@@ -78,4 +78,13 @@ class Scheduler:
         clinic = self.mediator.get_clinic_by_id(clinic_id)
 
         # step 2: find available room (at random)
-
+        room_list = list(clinic.rooms)
+        doctor_list = list(clinic.doctors)
+        for room in random.sample(range(len(room_list)), len(room_list)):
+            if room_list[room].confirm_availability(date_time, walk_in) is True:
+                # step 3: find available doctor (at random)
+                for doctor in random.sample(range(len(doctor_list)), len(doctor_list)):
+                    if doctor_list[doctor].confirm_availability(date_time, walk_in) is True:
+                        # we return object references so that the appointment registry can add the appointment ids / bookings directly
+                        return (room_list[room], doctor_list[doctor])
+        return None

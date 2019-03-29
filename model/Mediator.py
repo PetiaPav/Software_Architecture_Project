@@ -14,14 +14,14 @@ class Mediator:
 
         self.__tdg = Tdg(app, db_env)
 
+        print("Loading Appointment Registry . . . ")
+        self.__appointment_registry = AppointmentRegistry.get_instance(self, self.__tdg)
+
         print("Loading User Registry . . . ")
         self.__user_registry = UserRegistry.get_instance(self.__tdg)
 
         print("Loading Clinic Registry . . . ")
         self.__clinic_registry = ClinicRegistry.get_instance(self, self.__tdg)
-
-        print("Loading Appointment Registry . . . ")
-        self.__appointment_registry = AppointmentRegistry.get_instance(self, self.__tdg)
 
         self._scheduler = Scheduler(self)
 
