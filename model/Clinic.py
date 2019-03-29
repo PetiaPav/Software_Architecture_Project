@@ -27,19 +27,19 @@ class Room:
             if room_truth_table[truth_table_iterator][0] is False:
                 if room_truth_table[truth_table_iterator][1] in self.bookings_dict:
                     pass
-            elif truth_table_iterator == 0 or truth_table_iterator == 1 or room_truth_table[truth_table_iterator][1] - room_truth_table[truth_table_iterator - 1][1] > timedelta(minutes=Clinic.SLOT_DURATION) or room_truth_table[truth_table_iterator][1] - room_truth_table[truth_table_iterator - 2][1] > timedelta(minutes=Clinic.SLOT_DURATION*2):
-                # if this is the first or second slot of any day, mark this one as Available
-                room_truth_table[truth_table_iterator][0] = True
-            elif room_truth_table[truth_table_iterator - 1][1] in self.bookings_dict:
-                # if the preceeding slot it a walk-in, mark this one as Available
-                if self.bookings_dict[room_truth_table[truth_table_iterator - 1][1]] is True:
+                elif truth_table_iterator == 0 or truth_table_iterator == 1 or room_truth_table[truth_table_iterator][1] - room_truth_table[truth_table_iterator - 1][1] > timedelta(minutes=Clinic.SLOT_DURATION) or room_truth_table[truth_table_iterator][1] - room_truth_table[truth_table_iterator - 2][1] > timedelta(minutes=Clinic.SLOT_DURATION*2):
+                    # if this is the first or second slot of any day, mark this one as Available
                     room_truth_table[truth_table_iterator][0] = True
-                else:
-                    pass
-            elif room_truth_table[truth_table_iterator - 2][1] in self.bookings_dict:
-                # if the slot that is two slots before this is marked as a walkin, mark this one as Available
-                if self.bookings_dict[room_truth_table[truth_table_iterator - 2][1]] is True:
-                    room_truth_table[truth_table_iterator][0] = True
+                elif room_truth_table[truth_table_iterator - 1][1] in self.bookings_dict:
+                    # if the preceeding slot it a walk-in, mark this one as Available
+                    if self.bookings_dict[room_truth_table[truth_table_iterator - 1][1]] is True:
+                        room_truth_table[truth_table_iterator][0] = True
+                    else:
+                        pass
+                elif room_truth_table[truth_table_iterator - 2][1] in self.bookings_dict:
+                    # if the slot that is two slots before this is marked as a walkin, mark this one as Available
+                    if self.bookings_dict[room_truth_table[truth_table_iterator - 2][1]] is True:
+                        room_truth_table[truth_table_iterator][0] = True
 
         return room_truth_table
 
