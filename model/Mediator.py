@@ -2,6 +2,7 @@ from model.Tdg import Tdg
 from model.UserRegistry import UserRegistry
 from model.ClinicRegistry import ClinicRegistry
 from model.AppointmentRegistry import AppointmentRegistry
+from model.Scheduler import Scheduler
 from model.Tool import Tools
 
 
@@ -21,6 +22,8 @@ class Mediator:
 
         print("Loading Appointment Registry . . . ")
         self.__appointment_registry = AppointmentRegistry.get_instance(self, self.__tdg)
+
+        self._scheduler = Scheduler(self)
 
     @staticmethod
     def get_instance(app, db_env):

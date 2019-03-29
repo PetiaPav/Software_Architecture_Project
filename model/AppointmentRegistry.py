@@ -1,11 +1,10 @@
 from model.Appointment import Appointment
+from datetime import datetime
 from model.Scheduler import Scheduler
 from model.Tool import Tools
 
 
 class AppointmentRegistry:
-
-    ID_COUNTER = 0
 
     __instance_of_registry = None
 
@@ -22,31 +21,11 @@ class AppointmentRegistry:
         return AppointmentRegistry.__instance_of_registry
 
     def populate(self):
-        all_clinics = self.mediator.get_all_clinics()
-        for clinic in all_clinics:
-            for room in clinic.rooms:
-                for week in range(0, 54):
-                    for day in range(0, 7):
-                        slot_index = 0
-                        current_slot = room.schedule.week[week].day[day].slot[slot_index]
-                        if current_slot.booked is True:
-                            new_appointment_id = self.get_new_id()
-                            # add this appointment to the catalog
-                            self.catalog_dict[new_appointment_id] = Appointment(new_appointment_id, clinic.id, current_slot)
-                            # add the id to the patient associated with the appointment
-                            self.mediator.get_patient_by_id(current_slot.patient_id).appointment_ids.append(new_appointment_id)
-                            # add the id to the doctor asscociated with the appointment
-                            self.mediator.get_doctor_by_id(current_slot.doctor_id).appointment_ids.append(new_appointment_id)
-                            if current_slot.walk_in is False:
-                                slot_index += 2
-                        slot_index += 1
-
-    @staticmethod
-    def get_new_id():
-        AppointmentRegistry.ID_COUNTER += 1
-        return AppointmentRegistry.ID_COUNTER
-
-    # expects date_time as string "2019-01-27T08:00:00"
+        appointments = self.tdg.get_all_appointments()
+        for appointment in appointments:
+            walk_in = True if appointment['walk_in'] == 1 else False
+            new_appointment = Appointment(int(appointment['id']), int(appointment['clinic_id']), int(appointment['room_id']), int(appointment['doctor_id']), int(appointment['patient_id']), datetime.fromtimestamp(appointment['date_time']), walk_in)
+            self.catalog_dict[new_appointment.id] = new_appointment
 
     def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
         new_appointment_slot = Scheduler.book_appointement(self.mediator.get_clinic_by_id(clinic_id), date_time, patient_id, walk_in)
@@ -101,7 +80,7 @@ class AppointmentRegistry:
     def get_appointments_by_doctor_id(self, doctor_id):
         appointments_by_doctor = []
         for appointment in self.catalog_dict:
-            if appointment.appointment_slot.doctor_id == int(doctor_id):
+            if appointment.doctor_id == int(doctor_id):
                 appointments_by_doctor.append(appointment)
         if len(appointments_by_doctor) > 0:
             return appointments_by_doctor

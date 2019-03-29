@@ -25,8 +25,8 @@ class ClinicRegistry:
             clinic_physical_address = clinic['physical_address']
             clinic_name = clinic['name']
             # We should store start_time and end_time as varchar in the db
-            clinic_start_time = Tools.int_to_24hr_format(int(clinic['start_time']))
-            clinic_end_time = Tools.int_to_24hr_format(int(clinic['end_time']))
+            opening_hour = clinic['start_time']
+            closing_hour = clinic['end_time']
             clinic_name = clinic['name']
             clinic_physical_address = clinic['physical_address']
 
@@ -59,7 +59,7 @@ class ClinicRegistry:
                     current_slot.walk_in = room_slot["walk_in"]
 
             # currently no database entries for business days
-            business_hours = BusinessHours(BusinessDays.SEVEN_DAYS, clinic_start_time, clinic_end_time)
+            business_hours = BusinessHours(BusinessDays.SEVEN_DAYS, opening_hour, closing_hour)
             self.catalog_dict[clinic_id] = Clinic(clinic_id, clinic_name, clinic_physical_address, list_of_doctors, list_of_rooms, business_hours)
 
     def get_by_id(self, id):
