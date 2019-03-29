@@ -206,7 +206,7 @@ class Tdg:
         else:
             return user_data
 
-    def get_clinics(self):
+    def get_all_clinics(self):
         connection = self.mysql.connect()
         cur = connection.cursor()
         cur.execute("SELECT * FROM CLINICS")
@@ -226,35 +226,18 @@ class Tdg:
         cur.close()
         return clinic_doctor_assignments
 
-    def get_room_slots_by_clinic_id(self, clinic_id):
+    def get_rooms_by_clinic_id(self, clinic_id):
         connection = self.mysql.connect()
         cur = connection.cursor()
-        cur.execute("SELECT * FROM ROOM_SLOTS WHERE clinic_id=%s", [clinic_id])
-        room_slots = []
-        for room_slot in cur:
-            room_slots.append(room_slot)
+        cur.execute("SELECT * FROM ROOMS WHERE clinic_id=%s", [clinic_id])
+        rooms = []
+        for room in cur:
+            room.append(room)
         cur.close()
-        if len(room_slots) > 0:
-            return room_slots
+        if len(rooms) > 0:
+            return rooms
         else:
             return None
-
-    def update_room_slot(self, clinic_id, room_slot):
-        connection = self.mysql.connect()
-        cur = connection.cursor()
-        if room_slot.id is None:
-            cur.execute("INSERT INTO ROOM_SLOTS (id, clinic_id, room_id, slot_id, walk_in, doctor_id, patient_id) VALUES(NULL, %s, %s, %s, %s, %s, %s)", (clinic_id, room_slot.room_id, room_slot.slot_yearly_index, room_slot.walk_in, room_slot.doctor_id, room_slot.patient_id))
-        else:
-            cur.execute("UPDATE ROOM_SLOTS SET (clinic_id=%s, room_id=%s, slot_id=%s, walk_in=%s, doctor_id=%s, patient_id=%s) WHERE id=%s", (clinic_id, room_slot.room_id, room_slot.slot_yearly_index, room_slot.walk_in, room_slot.doctor_id, room_slot.patient_id, room_slot.id))
-        connection.commit()
-        cur.close()
-
-    def delete_room_slot(self, room_slot_id):
-        connection = self.mysql.connect()
-        cur = connection.cursor()
-        cur.execute("DELETE FROM ROOM_SLOTS WHERE id=%s", [room_slot_id])
-        connection.commit()
-        cur.close()
 
     def update_patient(self, id, first_name, last_name, health_card, birthday, gender, phone_number, physical_address, email):
         connection = self.mysql.connect()

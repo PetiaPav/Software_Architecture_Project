@@ -26,11 +26,11 @@ class Scheduler:
         weekday = date_time.weekday()
         if weekday is not 0:
             week_start_time = date_time - timedelta(days=weekday)
-        hour = int(clinic.business_hours.opening_hour[0:2])
-        minute = int(clinic.business_hours.opening_hour[3:5])
+        hour = clinic.business_hours.opening_time.hour
+        minute = clinic.business_hours.opening_time.minute
         week_start_time = datetime(week_start_time.year, week_start_time.month, week_start_time.day, hour, minute)
-        hour = int(clinic.business_hours.closing_hour[0:2])
-        minute = int(clinic.business_hours.closing_hour[3:5])
+        hour = clinic.business_hours.closing_time.hour
+        minute = clinic.business_hours.closing_time.minute
         current_day_end_time = datetime(week_start_time.year, week_start_time.month, week_start_time.day, hour, minute)
         week_end_time = current_day_end_time + timedelta(days=6)
 

@@ -46,10 +46,10 @@ class Room:
 
 # hours must be 24 hr format with leading 0 : 08:00, NOT 8:00
 class BusinessHours:
-    def __init__(self, business_days, opening_hour, closing_hour):
+    def __init__(self, business_days, opening_time, closing_time):
         self.business_days = business_days
-        self.opening_hour = opening_hour
-        self.closing_hour = closing_hour
+        self.opening_time = opening_time
+        self.closing_time = closing_time
 
 
 class BusinessDays(Enum):

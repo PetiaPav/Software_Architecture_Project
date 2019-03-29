@@ -1,6 +1,5 @@
 from model.Appointment import Appointment
 from datetime import datetime
-from model.Scheduler import Scheduler
 from model.Tool import Tools
 
 
@@ -28,7 +27,7 @@ class AppointmentRegistry:
             self.catalog_dict[new_appointment.id] = new_appointment
 
     def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
-        new_appointment_slot = Scheduler.book_appointement(self.mediator.get_clinic_by_id(clinic_id), date_time, patient_id, walk_in)
+        room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in)
         if new_appointment_slot is not None:
             new_appointment_id = AppointmentRegistry.get_new_id()
             self.catalog_dict[new_appointment_id] = (Appointment(new_appointment_id, clinic_id, new_appointment_slot))

@@ -18,7 +18,7 @@ class Mediator:
         self.__appointment_registry = AppointmentRegistry.get_instance(self, self.__tdg)
 
         print("Loading User Registry . . . ")
-        self.__user_registry = UserRegistry.get_instance(self.__tdg)
+        self.__user_registry = UserRegistry.get_instance(self, self.__tdg)
 
         print("Loading Clinic Registry . . . ")
         self.__clinic_registry = ClinicRegistry.get_instance(self, self.__tdg)
@@ -145,8 +145,16 @@ class Mediator:
     def add_appointment_batch(self, accepted_ids):
         self.__appointment_registry.add_appointment_batch(accepted_ids)
 
+    def get_appointments_by_doctor_id(self, doctor_id):
+        return self.__appointment_registry.get_appointments_by_doctor_id(doctor_id)
+
     def delete_appointment(self, appointment_id):
         self.__appointment_registry.delete_appointment(int(appointment_id))
 
     def checkout_cart(self, cart_items, patient_id):
         return self.__appointment_registry.checkout_cart(cart_items, patient_id)
+
+    # # Scheduler calls
+
+    def confirm_availability(self, clinic_id, date_time, walk_in):
+        return self.__scheduler.confirm_availability(clinic_id, date_time, walk_in)
