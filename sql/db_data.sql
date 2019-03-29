@@ -1,5 +1,10 @@
 -- Clinics
-INSERT INTO CLINICS (id, physical_address ,name, start_time, end_time) VALUES (1, '111 Sherbrooke W.', 'Uber Hospital', 8, 20);
+INSERT INTO CLINICS (id, physical_address, name, start_time, end_time) VALUES (1, '111 Sherbrooke W.', 'Uber Hospital', 8, 20);
+
+-- UBER_CLINICS
+INSERT INTO UBER_CLINICS (id, physical_address, name, start_time, end_time) VALUES (1, '222 Maisonneuve Blvd. W.', 'Uber Children Hospital', '08:00', '20:00');
+INSERT INTO UBER_CLINICS (id, physical_address, name, start_time, end_time) VALUES (2, '243 St-Catherine W.', 'Uber Hospital', '08:00', '20:00');
+INSERT INTO UBER_CLINICS (id, physical_address, name, start_time, end_time) VALUES (3, '225 Rene-Levesque Blvd. W.', 'Uber Sante Hospital', '08:00', '20:00');
 
 -- USERS (All passwords qwe123456)
 INSERT INTO USERS (id, first_name, last_name, password) VALUES (1, 'Benny', 'Bombs', '$5$rounds=535000$9Hn.TKXfmLsr4Riy$IjnYzjlHIfBq4o7kL4kGGxROnTtlttfJ4WLVCqHvydB');
@@ -41,4 +46,30 @@ INSERT INTO DOCTOR_AVAILABILITIES (id, doctor_id, day_index, slot_index, walk_in
 INSERT INTO NURSES (id, user_fk, access_id) VALUES (1, 7, 'ABC12345');
 INSERT INTO NURSES (id, user_fk, access_id) VALUES (2, 8, 'RET66777');
 
+-- ROOMS
+INSERT INTO ROOMS (id, name, clinic_id) VALUES (1, '303', 1);
+INSERT INTO ROOMS (id, name, clinic_id) VALUES (2, '305', 1);
+INSERT INTO ROOMS (id, name, clinic_id) VALUES (3, '306', 1);
+INSERT INTO ROOMS (id, name, clinic_id) VALUES (4, '101', 2);
+INSERT INTO ROOMS (id, name, clinic_id) VALUES (5, '102', 2);
+INSERT INTO ROOMS (id, name, clinic_id) VALUES (6, '560', 3);
 
+-- ROOM_BOOKINGS
+INSERT INTO ROOM_BOOKINGS (id, room_id, date_time, walk_in) VALUES (1, 1, '2019-12-31 20:59:59', 0);
+INSERT INTO ROOM_BOOKINGS (id, room_id, date_time, walk_in) VALUES (2, 2, '2019-12-31 20:59:59', 1);
+INSERT INTO ROOM_BOOKINGS (id, room_id, date_time, walk_in) VALUES (3, 3, '2019-12-31 20:59:59', 1);
+INSERT INTO ROOM_BOOKINGS (id, room_id, date_time, walk_in) VALUES (4, 4, '2019-12-31 20:59:59', 0);
+
+-- DOCTOR_GENERIC_AVAILABILITIES
+INSERT INTO DOCTOR_GENERIC_AVAILABILITIES (id, doctor_id, date_time, walk_in) VALUES (1, 1, '2019-12-31 20:59:59', 0);
+INSERT INTO DOCTOR_GENERIC_AVAILABILITIES (id, doctor_id, date_time, walk_in) VALUES (2, 1, '2019-11-31 20:59:59', 1);
+
+-- DOCTOR_ADJUSTMENTS
+INSERT INTO DOCTOR_ADJUSTMENTS (id, doctor_id, date_time, opp_type_add, walk_in) VALUES (1, 1, '2019-12-31 20:59:59', 1, 1);
+INSERT INTO DOCTOR_ADJUSTMENTS (id, doctor_id, date_time, opp_type_add, walk_in) VALUES (2, 2, '2019-11-31 20:59:59', 2, 0);
+INSERT INTO DOCTOR_ADJUSTMENTS (id, doctor_id, date_time, opp_type_add, walk_in) VALUES (3, 2, '2019-11-22 20:59:59', 1, 0);
+
+-- APPOINTMENTS
+INSERT INTO APPOINTMENTS (id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in) VALUES (1, 1, 1, 1, 1, '2019-11-22 20:59:59', 0);
+INSERT INTO APPOINTMENTS (id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in) VALUES (2, 2, 2, 2, 2, '2019-10-11 08:59:59', 1);
+INSERT INTO APPOINTMENTS (id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in) VALUES (3, 3, 1, 3, 1, '2019-05-24 12:59:59', 0);

@@ -10,7 +10,7 @@ app.config['MYSQL_DATABASE_PASSWORD'] = 'ubersante'
 app.config['MYSQL_DATABASE_DB'] = 'ubersante'
 app.config['MYSQL_DATABASE_HOST'] = 'mydbinst.ccaem9daeat5.us-east-2.rds.amazonaws.com'
 
-if len (sys.argv) > 1:
+if len(sys.argv) > 1:
     if sys.argv[1] == 'test':
         app.config['MYSQL_DATABASE_DB'] = 'ubersante_test'
 
