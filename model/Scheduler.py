@@ -21,32 +21,20 @@ class Scheduler:
 
         # step 2: build room_truth_table
         # 2.1 get week / day start and end time from date_time and clinic business hours
-        week_start_time = date_time
-        # Monday is 0 and Sunday is 6
-        weekday = date_time.weekday()
-        if weekday is not 0:
-            week_start_time = date_time - timedelta(days=weekday)
-        hour = clinic.business_hours.opening_time.hour
-        minute = clinic.business_hours.opening_time.minute
-        week_start_time = datetime(week_start_time.year, week_start_time.month, week_start_time.day, hour, minute)
-        hour = clinic.business_hours.closing_time.hour
-        minute = clinic.business_hours.closing_time.minute
-        current_day_end_time = datetime(week_start_time.year, week_start_time.month, week_start_time.day, hour, minute)
-        week_end_time = current_day_end_time + timedelta(days=6)
+        week_start = self.__get_week_start(clinic, date_time)
+        week_end = self.__get_week_end(clinic, week_start)
 
-        # step 3: build room_truth_table, doctor_truth_table
-        room_truth_table = []
-        doctor_truth_table = []
-        current_day_start_time = week_start_time
-        while current_day_end_time <= week_end_time:
+
+        # step 3: build list of times to check for rooms and doctors
+        current_date_time = week_start
+        for day in range(1,8):
             while current_day_start_time < current_day_end_time:
                 # truth tables of tupples (boolean = room/doctor availability, datetime = time of current availablity)
                 room_truth_table.append((False, current_day_start_time))
                 doctor_truth_table.append((False, current_day_start_time))
                 current_day_start_time = current_day_end_time + timedelta(minutes=Scheduler.WALK_IN_DURATION)
 
-            current_day_start_time = week_start_time + timedelta(days=1)
-            current_day_end_time = datetime(current_day_start_time.year, current_day_start_time.month, current_day_start_time.day, hour, minute)
+            current_date_time = week_start + timedelta(days=day)
 
         # step 4: send the room_truth_table to every room in the clinic
         if walk_in is True:
@@ -88,3 +76,19 @@ class Scheduler:
                         # we return object references so that the appointment registry can add the appointment ids / bookings directly
                         return (room_list[room], doctor_list[doctor])
         return None
+
+    def __get_week_start(self, clinic, date_time):
+        week_start = date_time.date
+        weekday = week_start.weekday()  # Monday is 0 and Sunday is 6
+        if weekday is not 0:
+            week_start = week_start - timedelta(days=weekday)  # Go to Monday of week
+        hour = clinic.business_hours.opening_time.hour
+        minute = clinic.business_hours.opening_time.minute
+        return datetime(week_start.year, week_start.month, week_start.day, hour, minute)
+
+    def __get_week_end(self, clinic, week_start):
+        hour = clinic.business_hours.closing_time.hour
+        minute = clinic.business_hours.closing_time.minute
+
+        return datetime(week_start.year, week_start.month, week_start.day, hour, minute) + timedelta(days=6)
+
