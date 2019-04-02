@@ -265,7 +265,7 @@ class Tdg:
         cur = connection.cursor()
 
         cur.execute("INSERT INTO ROOM_BOOKINGS (id, room_id, date_time, walk_in) VALUES (NULL, %s, %s, %s, %s)",
-                    (room_id, convert_to_sql_datetime(date_time), walk_in))
+                    (room_id, self.convert_to_sql_datetime(date_time), walk_in))
         last_inserted_id = cur.lastrowid
         cur.close()
         connection.commit()
@@ -298,7 +298,7 @@ class Tdg:
         connection = self.mysql.connect()
         cur = connection.cursor()
 
-        cur.execute("DELETE FROM ROOM_BOOKINGS WHERE room_id=%s AND date_time=%s", (room_id, convert_to_sql_datetime(date_time)))
+        cur.execute("DELETE FROM ROOM_BOOKINGS WHERE room_id=%s AND date_time=%s", (room_id, self.convert_to_sql_datetime(date_time)))
         
         removed_id = cur.lastrowid
         cur.close()
