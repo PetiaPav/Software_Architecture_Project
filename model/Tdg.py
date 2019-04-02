@@ -1,6 +1,6 @@
 from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
-from datetime import strftime
+from datetime import datetime
 
 
 class Tdg:
