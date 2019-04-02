@@ -193,9 +193,11 @@ class Tdg:
 
         cur.execute("INSERT INTO UBER_CLINICS (id, physical_address, name, start_time, end_time) VALUES (NULL, %s, %s, %s, %s)",
                     (physical_address, name, start_time, end_time))
-
+        
+        last_inserted_id = cur.lastrowid
         cur.close()
         connection.commit()
+        return last_inserted_id
 
     def update_clinic(self, id, physical_address, name, start_time, end_time):
         connection = self.mysql.connect()
@@ -312,4 +314,49 @@ class Tdg:
 
     def convert_to_sql_datetime(self, date_time):
         return date_time.strftime('%Y-%m-%d %H-%M-%S')
+
+    def insert_room_booking(self, room_id, date_time, walk_in):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+
+        cur.execute("INSERT INTO ROOM_BOOKINGS (id, room_id, date_time, walk_in) VALUES (NULL, %s, %s, %s, %s)",
+                    (room_id, self.convert_to_sql_datetime(date_time), walk_in))
+        last_inserted_id = cur.lastrowid
+        cur.close()
+        connection.commit()
+        return last_inserted_id
+        
+    def get_room_bookings_by_room_id(self, room_id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        
+        result = cur.execute("SELECT * FROM ROOM_BOOKINGS LEFT JOIN ROOMS ROOM ON (ROOM_BOOKINGS.room_id = ROOM.id WHERE id =%s", [id])
+        room_booking_data = cur.fetchone()
+
+        cur.close()
+        if result is None:
+            return False
+        else:
+            return room_booking_data
+
+    def get_all_room_bookings(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM ROOM_BOOKINGS")
+        room_bookings = []
+        for room_booking in cur:
+            room_bookings.append(room_booking)
+        cur.close()
+        return room_bookings
+
+    def remove_room_booking(self, room_id, date_time):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+
+        cur.execute("DELETE FROM ROOM_BOOKINGS WHERE room_id=%s AND date_time=%s", (room_id, self.convert_to_sql_datetime(date_time)))
+        
+        removed_id = cur.lastrowid
+        cur.close()
+        connection.commit()
+        return removed_id
 
