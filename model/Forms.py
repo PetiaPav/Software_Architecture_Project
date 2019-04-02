@@ -1,8 +1,9 @@
-import re
+import re, json
 
 from flask import flash
-from wtforms import Form, StringField, DateField, SelectField, IntegerField, PasswordField, validators, ValidationError
+from wtforms import Form, StringField, DateField, SelectField, IntegerField, PasswordField, validators, ValidationError, SelectMultipleField
 from wtforms.fields.html5 import EmailField
+
 
 
 def alpha(minimum, maximum, allow_digits):
@@ -83,6 +84,36 @@ class DoctorForm(UserForm):
 class NurseForm(UserForm):
     access_id = StringField('Access id', [nurse_access])
 
+def _add_chosen_class(kwargs):
+    if 'render_kw' in kwargs:
+        if 'class' in kwargs['render_kw']:
+            kwargs['render_kw']['class'] += ' chosen-select'
+        else:
+            kwargs['render_kw']['class'] = 'chosen-select'
+    else:
+        kwargs['render_kw'] = {'class': 'chosen-select'}
+
+
+class ChosenSelectField(SelectField):
+    def __init__(self, *args, **kwargs):
+        _add_chosen_class(kwargs)
+        super(ChosenSelectField, self).__init__(*args, **kwargs)
+
+
+class ChosenSelectMultipleField(SelectMultipleField):
+    def __init__(self, *args, **kwargs):
+        _add_chosen_class(kwargs)
+        super(ChosenSelectMultipleField, self).__init__(*args, **kwargs)
+
+
+class ClinicForm(Form):
+    name = StringField('Name', [validators.required()])
+    physical_address = StringField('Physical Address', [validators.required()])
+    start_time = IntegerField('Opening Time', [validators.required()])
+    end_time = IntegerField('Closing Time', [validators.required()])
+    doctors = ChosenSelectMultipleField("Doctors", choices=[])
+    nurses = ChosenSelectMultipleField("Nurses", choices=[])
+
 
 def get_form_data(type, selected_object, request):
     if type == "patient":
@@ -128,3 +159,4 @@ def generate_nurse_form(selected_object, request):
     form.access_id.data = selected_object.access_id
 
     return form
+
