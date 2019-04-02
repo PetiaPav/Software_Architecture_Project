@@ -261,7 +261,7 @@ class Tdg:
     def insert_appointment(self, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in):
         connection = self.mysql.connect()
         cur = connection.cursor()
-        cur.execute( "INSERT INTO APPOINTMENTS (id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in) VALUES (NULL, %s, %s, %s, %s, %s, %s)",(clinic_id, room_id, doctor_id, patient_id, date_time, walk_in))
+        cur.execute( "INSERT INTO APPOINTMENTS (id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in) VALUES (NULL, %s, %s, %s, %s, %s, %s)",(clinic_id, room_id, doctor_id, patient_id, convert_to_sql_datetime(date_time), walk_in))
         last_inserted_id = cur.lastrowid
         cur.close()
         return last_inserted_id
