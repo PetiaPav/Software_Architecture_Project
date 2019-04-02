@@ -41,4 +41,8 @@ INSERT INTO DOCTOR_AVAILABILITIES (id, doctor_id, day_index, slot_index, walk_in
 INSERT INTO NURSES (id, user_fk, access_id) VALUES (1, 7, 'ABC12345');
 INSERT INTO NURSES (id, user_fk, access_id) VALUES (2, 8, 'RET66777');
 
+-- Nurse_Clinic_Assignment
+INSERT INTO NURSE_CLINIC_ASSIGNMENT (id, clinic_id, nurse_id) VALUES (1, 1, 1);
+INSERT INTO NURSE_CLINIC_ASSIGNMENT (id, clinic_id, nurse_id) VALUES (2, 1, 2);
+
 
