@@ -6,7 +6,7 @@ from enum import Enum
 class Clinic:
     SLOT_DURATION = 20
 
-    def __init__(self, id, name, physical_address, dict_of_doctors, dict_of_rooms, business_hours):
+    def __init__(self, id: int, name: str, physical_address: str, dict_of_doctors, dict_of_rooms, business_hours):
         self.id = id
         self.name = name
         self.physical_address = physical_address
@@ -16,7 +16,7 @@ class Clinic:
 
 
 class Room:
-    def __init__(self, name, bookings_dict):
+    def __init__(self, name: str, bookings_dict):
         self.name = name
         # booking dict is a key, value pair of datetime (appointment time), boolean (appointment is walk-in)
         self.bookings_dict = bookings_dict
