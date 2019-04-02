@@ -54,22 +54,16 @@ INSERT INTO ROOMS (id, name, clinic_id) VALUES (4, '101', 2);
 INSERT INTO ROOMS (id, name, clinic_id) VALUES (5, '102', 2);
 INSERT INTO ROOMS (id, name, clinic_id) VALUES (6, '560', 3);
 
--- ROOM_BOOKINGS
-INSERT INTO ROOM_BOOKINGS (id, room_id, date_time, walk_in) VALUES (1, 1, '2019-12-31 20:59:59', 0);
-INSERT INTO ROOM_BOOKINGS (id, room_id, date_time, walk_in) VALUES (2, 2, '2019-12-31 20:59:59', 1);
-INSERT INTO ROOM_BOOKINGS (id, room_id, date_time, walk_in) VALUES (3, 3, '2019-12-31 20:59:59', 1);
-INSERT INTO ROOM_BOOKINGS (id, room_id, date_time, walk_in) VALUES (4, 4, '2019-12-31 20:59:59', 0);
-
 -- DOCTOR_GENERIC_AVAILABILITIES
-INSERT INTO DOCTOR_GENERIC_AVAILABILITIES (id, doctor_id, date_time, walk_in) VALUES (1, 1, '2019-12-31 20:59:59', 0);
-INSERT INTO DOCTOR_GENERIC_AVAILABILITIES (id, doctor_id, date_time, walk_in) VALUES (2, 1, '2019-11-31 20:59:59', 1);
+INSERT INTO DOCTOR_GENERIC_AVAILABILITIES (id, doctor_id, date_time, walk_in) VALUES (1, 1, '2019-12-31 12:00:00', 0);
+INSERT INTO DOCTOR_GENERIC_AVAILABILITIES (id, doctor_id, date_time, walk_in) VALUES (2, 1, '2019-11-31 13:00:00', 1);
 
 -- DOCTOR_ADJUSTMENTS
-INSERT INTO DOCTOR_ADJUSTMENTS (id, doctor_id, date_time, opp_type_add, walk_in) VALUES (1, 1, '2019-12-31 20:59:59', 1, 1);
-INSERT INTO DOCTOR_ADJUSTMENTS (id, doctor_id, date_time, opp_type_add, walk_in) VALUES (2, 2, '2019-11-31 20:59:59', 2, 0);
-INSERT INTO DOCTOR_ADJUSTMENTS (id, doctor_id, date_time, opp_type_add, walk_in) VALUES (3, 2, '2019-11-22 20:59:59', 1, 0);
+INSERT INTO DOCTOR_ADJUSTMENTS (id, doctor_id, date_time, opp_type_add, walk_in) VALUES (1, 1, '2019-12-31 14:00:00', 1, 1);
+INSERT INTO DOCTOR_ADJUSTMENTS (id, doctor_id, date_time, opp_type_add, walk_in) VALUES (2, 2, '2019-11-31 15:00:00', 2, 0);
+INSERT INTO DOCTOR_ADJUSTMENTS (id, doctor_id, date_time, opp_type_add, walk_in) VALUES (3, 2, '2019-11-22 16:00:00', 1, 0);
 
 -- APPOINTMENTS
-INSERT INTO APPOINTMENTS (id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in) VALUES (1, 1, 1, 1, 1, '2019-11-22 20:59:59', 0);
-INSERT INTO APPOINTMENTS (id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in) VALUES (2, 2, 2, 2, 2, '2019-10-11 08:59:59', 1);
-INSERT INTO APPOINTMENTS (id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in) VALUES (3, 3, 1, 3, 1, '2019-05-24 12:59:59', 0);
+INSERT INTO APPOINTMENTS (id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in) VALUES (1, 1, 1, 1, 1, '2019-11-22 10:00:00', 0);
+INSERT INTO APPOINTMENTS (id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in) VALUES (2, 2, 2, 2, 2, '2019-10-11 08:00:00', 1);
+INSERT INTO APPOINTMENTS (id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in) VALUES (3, 3, 1, 3, 1, '2019-05-24 17:00:00', 0);

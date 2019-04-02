@@ -17,8 +17,8 @@ CREATE TABLE UBER_CLINICS (
   id int(11) NOT NULL AUTO_INCREMENT,
   physical_address varchar(100) DEFAULT NULL,
   name varchar(100) DEFAULT NULL,
-  start_time varchar(5) DEFAULT '08:00',
-  end_time varchar(5) DEFAULT '20:00',
+  start_time datetime DEFAULT '08:00',
+  end_time datetime DEFAULT '20:00',
   PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
@@ -101,7 +101,7 @@ CREATE TABLE ROOM_BOOKINGS (
   id int(11) NOT NULL AUTO_INCREMENT,
   room_id int(11) NOT NULL,
   date_time datetime NOT NULL,
-  walk_in tinyint(4) NOT NULL,
+  walk_in tinyint(1) NOT NULL,
   PRIMARY KEY (id),
   KEY ROOM_FK (room_id),
   CONSTRAINT ROOM_FK FOREIGN KEY (room_id) REFERENCES ROOMS (id) ON DELETE CASCADE
@@ -114,7 +114,7 @@ CREATE TABLE ROOM_SLOTS (
   clinic_id int(11) DEFAULT NULL,
   room_id int(11) DEFAULT NULL,
   slot_id int(11) DEFAULT NULL,
-  walk_in tinyint(4) DEFAULT '0',
+  walk_in tinyint(1) DEFAULT '0',
   doctor_id int(11) DEFAULT NULL,
   patient_id int(11) DEFAULT NULL,
   PRIMARY KEY (id),
@@ -130,7 +130,7 @@ CREATE TABLE DOCTOR_GENERIC_AVAILABILITIES (
   id int(11) NOT NULL AUTO_INCREMENT,
   doctor_id int(11) NOT NULL,
   date_time datetime NOT NULL,
-  walk_in tinyint(4) NOT NULL,
+  walk_in tinyint(1) NOT NULL,
   PRIMARY KEY (id),
   KEY DOCTOR_FK (doctor_id),
   CONSTRAINT DOCTOR_FK FOREIGN KEY (doctor_id) REFERENCES DOCTORS (id) ON DELETE CASCADE
@@ -142,8 +142,8 @@ CREATE TABLE DOCTOR_ADJUSTMENTS (
   id int(11) NOT NULL AUTO_INCREMENT,
   doctor_id int(11) NOT NULL,
   date_time datetime NOT NULL,
-  opp_type_add tinyint(4) NOT NULL,
-  walk_in tinyint(4) NOT NULL,
+  operation_type_add tinyint(1) NOT NULL,
+  walk_in tinyint(1) NOT NULL,
   PRIMARY KEY (id),
   KEY DOCTOR_ID_FK (doctor_id),
   CONSTRAINT DOCTOR_ID_FK FOREIGN KEY (doctor_id) REFERENCES DOCTORS (id) ON DELETE CASCADE
@@ -186,7 +186,7 @@ CREATE TABLE APPOINTMENTS (
   doctor_id int(11) NOT NULL,
   patient_id int(11) NOT NULL,
   date_time datetime NOT NULL,
-  walk_in tinyint(4) NOT NULL,
+  walk_in tinyint(1) NOT NULL,
   PRIMARY KEY (id),
   KEY CLINICS_ID_FK (clinic_id),
   KEY ROOMS_ID_FK (room_id),
