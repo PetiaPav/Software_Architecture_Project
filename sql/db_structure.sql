@@ -6,8 +6,8 @@ CREATE TABLE UBER_CLINICS (
   id int(11) NOT NULL AUTO_INCREMENT,
   physical_address varchar(100) DEFAULT NULL,
   name varchar(100) DEFAULT NULL,
-  start_time datetime DEFAULT '2019-04-07 08:00:00',
-  end_time datetime DEFAULT '2019-04-14 20:00:00',
+  start_time datetime DEFAULT '2019-01-01 08:00:00', 
+  end_time datetime DEFAULT '2019-01-07 20:00:00',
   PRIMARY KEY (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
