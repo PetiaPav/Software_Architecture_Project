@@ -242,19 +242,6 @@ class Tdg:
         cur.close()
         return clinic_doctor_assignments
 
-    def get_rooms_by_clinic_id(self, clinic_id):
-        connection = self.mysql.connect()
-        cur = connection.cursor()
-        cur.execute("SELECT * FROM ROOMS WHERE clinic_id=%s", [clinic_id])
-        rooms = []
-        for room in cur:
-            room.append(room)
-        cur.close()
-        if len(rooms) > 0:
-            return rooms
-        else:
-            return None
-
     def update_patient(self, id, first_name, last_name, health_card, birthday, gender, phone_number, physical_address, email):
         connection = self.mysql.connect()
         cur = connection.cursor()
@@ -312,8 +299,42 @@ class Tdg:
             cur.execute("DELETE FROM DOCTOR_ADJUSTMENTS WHERE id=%s AND date_time=%s", (doctor_id, self.convert_to_sql_datetime(adjustment.date_time))
         cur.close()
 
-    def convert_to_sql_datetime(self, date_time):
-        return date_time.strftime('%Y-%m-%d %H-%M-%S')
+    def insert_appointment(self, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute( "INSERT INTO APPOINTMENTS (id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in) VALUES (NULL, %s, %s, %s, %s, %s, %s)",(clinic_id, room_id, doctor_id, patient_id, self.convert_to_sql_datetime(date_time), walk_in))
+        last_inserted_id = cur.lastrowid
+        cur.close()
+        return last_inserted_id
+
+    def get_all_appointments(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute( "SELECT * FROM APPOINTMENTS")
+        appointments = []
+        for appt in cur:
+            appointments.append(appt)
+        cur.close()
+        return appointments
+
+    def remove_appointment(self, id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("DELETE FROM APPOINTMENTS WHERE id = %s", id)
+        cur.close()
+
+    def get_rooms_by_clinic_id(self, clinic_id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM ROOMS WHERE clinic_id=%s", [clinic_id])
+        rooms = []
+        for room in cur:
+            room.append(room)
+        cur.close()
+        if len(rooms) > 0:
+            return rooms
+        else:
+            return None
 
     def insert_room_booking(self, room_id, date_time, walk_in):
         connection = self.mysql.connect()
@@ -360,3 +381,5 @@ class Tdg:
         connection.commit()
         return removed_id
 
+    def convert_to_sql_datetime(self, date_time):
+        return date_time.strftime('%Y-%m-%d %H-%M-%S')
