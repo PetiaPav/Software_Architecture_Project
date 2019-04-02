@@ -8,7 +8,7 @@ class UserRegistry:
     def __init__(self, mediator, tdg):
         self.tdg = tdg
         self.doctor = DoctorMapper(mediator, tdg)
-        self.patient = PatientMapper(tdg)
+        self.patient = PatientMapper(mediator, tdg)
         self.nurse = NurseMapper(tdg)
 
     @staticmethod

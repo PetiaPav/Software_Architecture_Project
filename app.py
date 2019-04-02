@@ -448,7 +448,7 @@ def create_app(db_env="ubersante", debug=False):
             return mediator.get_doctor_schedule_by_week(session['id'], request.args['start'])
 
         if request.method == 'POST':
-            mediator.set_doctor_availability_from_json(session['id'], request.json)
+            mediator.set_doctor_generic_availability_from_json(session['id'], request.json)
             result = {'url': url_for('doctor_view_schedule')}
             return jsonify(result)
 
