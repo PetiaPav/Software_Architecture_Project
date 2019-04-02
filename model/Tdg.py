@@ -1,5 +1,6 @@
 from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
+from datetime import strftime
 
 
 class Tdg:
@@ -174,7 +175,7 @@ class Tdg:
             clinics.append(clinic)
         cur.close()
         return clinics
-    
+
     def get_clinic_by_id(self, id):
         connection = self.mysql.connect()
         cur = connection.cursor()
@@ -185,7 +186,7 @@ class Tdg:
             return False
         else:
             return clinic_data
-            
+
     def insert_clinic(self, physical_address, name, start_time, end_time):
         connection = self.mysql.connect()
         cur = connection.cursor()
@@ -224,7 +225,7 @@ class Tdg:
             return False
         else:
             return room_data
-    
+
     def update_room(self, id, name, clinic_id):
         connection = self.mysql.connect()
         cur = connection.cursor()
@@ -241,23 +242,61 @@ class Tdg:
         cur.close()
         return clinic_doctor_assignments
 
-    def get_rooms_by_clinic_id(self, clinic_id):
-        connection = self.mysql.connect()
-        cur = connection.cursor()
-        cur.execute("SELECT * FROM ROOMS WHERE clinic_id=%s", [clinic_id])
-        rooms = []
-        for room in cur:
-            room.append(room)
-        cur.close()
-        if len(rooms) > 0:
-            return rooms
-        else:
-            return None
-
     def update_patient(self, id, first_name, last_name, health_card, birthday, gender, phone_number, physical_address, email):
         connection = self.mysql.connect()
         cur = connection.cursor()
         cur.execute("UPDATE PATIENTS LEFT JOIN USERS ON PATIENTS.user_fk = USERS.id SET first_name = %s, last_name = %s, health_card = %s, birthday = %s, gender = %s, phone_number = %s, physical_address = %s, email = %s WHERE PATIENTS.id = %s", (first_name, last_name, health_card, birthday, gender, phone_number, physical_address, email, id))
+        cur.close()
+
+    def update_doctor_generic_availabilities(self, doctor_id, list_of_generic_availabilities):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        # delete all existing availability for this doctor
+        cur.execute("DELETE FROM DOCTOR_GENERIC_AVAILABILITIES WHERE doctor_id=%s", [doctor_id])
+        # populate with new availabilities
+        for daily_dict_of_generic_availabilities in list_of_generic_availabilities:
+            for date_time, walk_in in daily_dict_of_generic_availabilities:
+                cur.execute("INSERT INTO DOCTOR_GENERIC_AVAILABILITIES (id, doctor_id, date_time, walk_in) VALUES (NULL, %s, %s, %s)", (doctor_id, self.convert_to_sql_datetime(date_time), walk_in))
+        cur.close()
+
+    def get_doctor_generic_availabilities_by__id(self, doctor_id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM DOCTOR_GENERIC_AVAILABILITIES WHERE doctor_id=%s", [doctor_id])
+        generic_availabilities = []
+        for generic_availability in cur:
+            generic_availabilities.append(generic_availability)
+        cur.close()
+        if len(generic_availabilities) > 0:
+            return generic_availabilities
+        else:
+            return None
+
+    def get_doctor_adjustments(self, doctor_id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM DOCTOR_ADJUSTMENTS WHERE doctor_id=%s", [doctor_id])
+        adjustments = []
+        for adjustment in cur:
+            adjustments.append(adjustment)
+        cur.close()
+        if len(adjustments) > 0:
+            return adjustments
+        else:
+            return None
+
+    def insert_doctor_adjustments(self, doctor_id, list_of_adjustments):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        for adjustment in list_of_adjustments:
+            cur.execute("INSERT INTO DOCTOR_ADJUSTMENTS (id, doctor_id, date_time, operation_type_add, walk_in) VALUES(NULL, %s, %s, %s, %s)", (doctor_id, self.convert_to_sql_datetime(adjustment.date_time), adjustment.operation_type_add, adjustment.walk_in))
+        cur.close()
+
+    def remove_doctor_adjustments(self, doctor_id, list_of_adjustments):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        for adjustment in list_of_adjustments:
+            cur.execute("DELETE FROM DOCTOR_ADJUSTMENTS WHERE id=%s AND date_time=%s", (doctor_id, self.convert_to_sql_datetime(adjustment.date_time))
         cur.close()
 
     def insert_appointment(self, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in):
@@ -283,6 +322,19 @@ class Tdg:
         cur = connection.cursor()
         cur.execute("DELETE FROM APPOINTMENTS WHERE id = %s", id)
         cur.close()
+
+    def get_rooms_by_clinic_id(self, clinic_id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM ROOMS WHERE clinic_id=%s", [clinic_id])
+        rooms = []
+        for room in cur:
+            room.append(room)
+        cur.close()
+        if len(rooms) > 0:
+            return rooms
+        else:
+            return None
 
     def insert_room_booking(self, room_id, date_time, walk_in):
         connection = self.mysql.connect()
@@ -329,3 +381,5 @@ class Tdg:
         connection.commit()
         return removed_id
 
+    def convert_to_sql_datetime(self, date_time):
+        return date_time.strftime('%Y-%m-%d %H-%M-%S')
