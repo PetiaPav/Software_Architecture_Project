@@ -1,0 +1,42 @@
+{% extends 'layout.html' %}
+{% block head %} 
+<link type="text/css" rel="stylesheet" href="../static/css/chosen.min.css" />
+<script type="text/javascript" src="../static/js/chosen.jquery.min.js"></script>
+<script type="text/javascript" src="../static/js/soen344script.js"></script>
+{% endblock %}
+{% block body %}
+{% from "includes/_form_helpers.html" import render_field %}
+<div class="container clinic-holder">
+    <h1 class="clinic-title"> Insert New Clinic </h1>
+    <form method="POST" action="/insert_clinic">
+        <div class="form-group">
+            {{render_field(form.name, class_="form-control", placeholder="example: Alice")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.physical_address, class_="form-control", placeholder="example: Abernathy")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.start_time, class_="form-control", placeholder="Enter password")}}
+        </div>
+        <div class="form-group">
+            {{render_field(form.end_time, class_="form-control", placeholder="Confirm password")}}
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{render_field(form.doctors, class_="form-control chosen-select", placeholder="Select Doctors")}}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{render_field(form.nurses, class_="form-control chosen-select", placeholder="Select Nurses")}}
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="form-group">
+            <input type="submit" class="btn btn-primary center-block" value="Insert Clinic" />
+        </div>
+    </form>
+</div>
+{% endblock %}
