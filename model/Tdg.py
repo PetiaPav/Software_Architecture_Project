@@ -296,7 +296,7 @@ class Tdg:
         connection = self.mysql.connect()
         cur = connection.cursor()
         for adjustment in list_of_adjustments:
-            cur.execute("DELETE FROM DOCTOR_ADJUSTMENTS WHERE id=%s AND date_time=%s", (doctor_id, self.convert_to_sql_datetime(adjustment.date_time))
+            cur.execute("DELETE FROM DOCTOR_ADJUSTMENTS WHERE id=%s AND date_time=%s", (doctor_id, self.convert_to_sql_datetime(adjustment.date_time)))
         cur.close()
 
     def insert_appointment(self, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in):
