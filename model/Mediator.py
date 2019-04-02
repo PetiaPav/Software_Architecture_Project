@@ -14,6 +14,8 @@ class Mediator:
 
         self.__tdg = Tdg(app, db_env)
 
+        # Registy loading order matters
+
         print("Loading Appointment Registry . . . ")
         self.__appointment_registry = AppointmentRegistry.get_instance(self, self.__tdg)
 
@@ -23,7 +25,7 @@ class Mediator:
         print("Loading Clinic Registry . . . ")
         self.__clinic_registry = ClinicRegistry.get_instance(self, self.__tdg)
 
-        self._scheduler = Scheduler(self)
+        self.__scheduler = Scheduler(self)
 
     @staticmethod
     def get_instance(app, db_env):

@@ -21,7 +21,7 @@ class ClinicRegistry:
 
     def populate(self):
         tdg_clinic_dict = self.tdg.get_all_clinics()
-        tdg_doctor_clinic_assignments = self.tdg.get_doctor_clinic_assignments()
+        tdg_doctor_clinic_assignments = self.tdg.get_all_doctor_clinic_assignments()
         for clinic in tdg_clinic_dict:
             clinic_id = clinic['id']
             clinic_physical_address = clinic['physical_address']

@@ -106,7 +106,7 @@ class DoctorMapper:
         doctor_dict = self.tdg.get_all_doctors()
         for doctor in doctor_dict:
             doctor_id = int(doctor['id'])
-            doctor_generic_availabilities = self.tdg.get_doctor_generic_availabilities(doctor_id)
+            doctor_generic_availabilities = self.tdg.get_doctor_generic_availabilities_by_id(doctor_id)
             generic_week_availability_list = [{}, {}, {}, {}, {}, {}, {}]
             for gen_availabiliy_row in doctor_generic_availabilities:
                 date_time = datetime.fromtimestamp(gen_availabiliy_row['date_time'])
@@ -121,9 +121,9 @@ class DoctorMapper:
             adjustment_list = []
 
             for adjustment_row in doctor_adjustments:
-                opperation_type_add = True if adjustment_row['opp_type_add'] == 1 else False
+                operation_type_add = True if adjustment_row['operation_type_add'] == 1 else False
                 walk_in = True if adjustment_row['walk_in'] == 1 else False
-                adjustment = Adjustment(int(adjustment_row['id']), datetime.fromtimestamp(adjustment_row['date_time']), opperation_type_add, walk_in)
+                adjustment = Adjustment(int(adjustment_row['id']), datetime.fromtimestamp(adjustment_row['date_time']), operation_type_add, walk_in)
                 adjustment_list.append(adjustment)
 
             appointment_list = self.mediator.get_appointments_by_doctor_id(doctor_id)
@@ -159,7 +159,7 @@ class DoctorMapper:
         # record this doctor in the database and get a new id
         new_doctor_id = self.tdg.insert_doctor(first_name, last_name, password, permit_number, specialty, city)
         if new_doctor_id is not None:
-            self.catalog_dict[new_doctor_id] = Doctor(new_doctor_id, first_name, last_name, password, permit_number, specialty, city, None, None)
+            self.catalog_dict[new_doctor_id] = Doctor(new_doctor_id, first_name, last_name, password, permit_number, specialty, city, None, None, None)
 
     def set_availability_from_json(self, doctor_id, json):
         doctor = self.get_by_id(doctor_id)
