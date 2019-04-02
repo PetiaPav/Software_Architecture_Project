@@ -2,7 +2,7 @@ from flask import Flask, render_template, flash, redirect, url_for, session, log
 
 from model import Forms
 from model.Tdg import Tdg
-from model.Forms import PatientForm, DoctorForm, NurseForm
+from model.Forms import PatientForm, DoctorForm, NurseForm, ClinicForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
@@ -149,6 +149,8 @@ def create_app(db_env="ubersante", debug=False):
             return DoctorForm(form)
         elif user_type == 'nurse':
             return NurseForm(form)
+        elif user_type == 'clinic':
+            return ClinicForm(form)
         return None
 
     def is_logged_in(f):
@@ -485,6 +487,26 @@ def create_app(db_env="ubersante", debug=False):
         user_registry.doctor.set_special_availability_from_json(session['id'], request.json)
         result = {'url': url_for('doctor_view_schedule')}
         return jsonify(result)
+
+    @app.route('/insert_clinic', methods=["GET","POST"])
+    def insert_clinic():
+        doctors = user_registry.doctor.get_all()
+        doctors_tuple = []
+        for doctor in doctors:
+            doctors_tuple.append((doctor.id, doctor.first_name + " " + doctor.last_name))
+        nurses = user_registry.nurse.get_all()
+        nurses_tuple = []
+        for nurse in nurses:
+            nurses_tuple.append((nurse.id, nurse.first_name + " " + nurse.last_name))
+        form = get_registration_form("clinic", request.form)
+        form.doctors.choices = doctors_tuple
+        form.nurses.choices = nurses_tuple
+        if request.method == 'GET':
+            return render_template('clinic.html', form=form)
+        else:
+            #TODO: This is where you'll enter the clinic then doctor_clinic_assignment then nurse_clinic_assignment
+            print(form.doctors.data)
+            return render_template('clinic.html', form=form)
 
     return app
 
