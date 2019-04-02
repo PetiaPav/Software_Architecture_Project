@@ -257,3 +257,25 @@ class Tdg:
         cur = connection.cursor()
         cur.execute("UPDATE PATIENTS LEFT JOIN USERS ON PATIENTS.user_fk = USERS.id SET first_name = %s, last_name = %s, health_card = %s, birthday = %s, gender = %s, phone_number = %s, physical_address = %s, email = %s WHERE PATIENTS.id = %s", (first_name, last_name, health_card, birthday, gender, phone_number, physical_address, email, id))
         cur.close()
+
+    def insert_appointment(self, id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute( "INSERT INTO APPOINTMENTS (id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in) VALUES (NULL, %s, %s, %s, %s, %s, %s)",(clinic_id, room_id, doctor_id, patient_id, date_time, walk_in))
+        cur.close()
+
+    def get_all_appointments(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute( "SELECT * FROM APPOINTMENTS")
+        appointments = []
+        for appt in cur:
+            appointments.append(appt)
+        cur.close()
+        return appointments
+
+    def remove_appointment(self, id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("DELETE FROM APPOINTMENTS WHERE id = %s", id)
+        cur.close()
