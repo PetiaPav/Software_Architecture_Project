@@ -40,9 +40,11 @@ class Tdg:
 
         cur.execute("INSERT INTO DOCTORS(id, user_fk, permit_number, specialty, city) VALUES(NULL, %s, %s, %s, %s)",
                     (last_inserted_id, permit_number, specialty, city))
+        last_inserted_doctor_id = cur.lastrowid
 
         cur.close()
         connection.commit()
+        return last_inserted_doctor_id
 
     def insert_nurse(self, first_name, last_name, password, access_id):
         connection = self.mysql.connect()
@@ -54,8 +56,10 @@ class Tdg:
 
         cur.execute("INSERT INTO NURSES(id, user_fk, access_id) VALUES(NULL, %s, %s)", (last_inserted_id, access_id))
 
+        last_inserted_nurse_id = cur.lastrowid
         cur.close()
         connection.commit()
+        return last_inserted_nurse_id
 
     def get_patient_by_email(self, email):
         connection = self.mysql.connect()
@@ -113,47 +117,6 @@ class Tdg:
         cur.close()
         return doctors
 
-    # def update_doctor_availability(self, doctor_id, list_of_availabilities):
-    #     connection = self.mysql.connect()
-    #     cur = connection.cursor()
-    #     # delete all existing availability for this doctor
-    #     cur.execute("DELETE FROM DOCTOR_AVAILABILITIES WHERE doctor_id=%s", [doctor_id])
-    #     # populate new availability
-    #     for avail in list_of_availabilities:
-    #         cur.execute("INSERT INTO DOCTOR_AVAILABILITIES (id, doctor_id, day_index, slot_index, walk_in) VALUES (NULL, %s, %s, %s, %s)", (avail['doctor_id'], avail['day'], avail['slot_index'], avail['walk_in']))
-    #     connection.commit()
-    #     cur.close()
-
-    # def get_doctor_availabilities(self, doctor_id):
-    #     connection = self.mysql.connect()
-    #     cur = connection.cursor()
-    #     cur.execute("SELECT * FROM DOCTOR_AVAILABILITIES WHERE doctor_id=%s", [doctor_id])
-    #     doctor_availabilities = []
-    #     for availabilities in cur:
-    #         doctor_availabilities.append(availabilities)
-    #     cur.close()
-    #     return doctor_availabilities
-
-    # def update_doctor_availabilities_special(self, doctor_id, list_for_tdg, list_of_ids_to_delete):
-    #     connection = self.mysql.connect()
-    #     cur = connection.cursor()
-    #     for id_to_delete in list_of_ids_to_delete:
-    #         cur.execute("DELETE FROM DOCTOR_AVAILABILITIES_SPECIAL WHERE id=%s", [id_to_delete])
-    #     for special_availability in list_for_tdg:
-    #         cur.execute("INSERT INTO DOCTOR_AVAILABILITIES_SPECIAL (id, doctor_id, week_index, day_index, slot_index, walk_in, available) VALUES (NULL, %s, %s, %s, %s, %s, %s)", (doctor_id, special_availability.week_index, special_availability.day_index, special_availability.slot_index, special_availability.walk_in, special_availability.available))
-    #     connection.commit()
-    #     cur.close()
-
-    # def get_doctor_availabilities_special(self, doctor_id):
-    #     connection = self.mysql.connect()
-    #     cur = connection.cursor()
-    #     cur.execute("SELECT * FROM DOCTOR_AVAILABILITIES_SPECIAL WHERE doctor_id=%s", [doctor_id])
-    #     doctor_availabilities_special = []
-    #     for availabilities_special in cur:
-    #         doctor_availabilities_special.append(availabilities_special)
-    #     cur.close()
-    #     return doctor_availabilities_special
-
     def get_patient_by_id(self, id):
         connection = self.mysql.connect()
         cur = connection.cursor()
@@ -202,17 +165,7 @@ class Tdg:
         else:
             return user_data
 
-    # def get_clinics(self):
-    #     connection = self.mysql.connect()
-    #     cur = connection.cursor()
-    #     cur.execute("SELECT * FROM CLINICS")
-    #     clinics = []
-    #     for clinic in cur:
-    #         clinics.append(clinic)
-    #     cur.close()
-    #     return clinics
-
-    def get_clinics(self):
+    def get_all_clinics(self):
         connection = self.mysql.connect()
         cur = connection.cursor()
         cur.execute("SELECT * FROM UBER_CLINICS")
@@ -269,8 +222,6 @@ class Tdg:
             return False
         else:
             return room_data
-
-    # def insert_room(self):
     
     def update_room(self, id, name, clinic_id):
         connection = self.mysql.connect()
@@ -288,51 +239,21 @@ class Tdg:
         cur.close()
         return clinic_doctor_assignments
 
-    # def get_room_slots_by_clinic_id(self, clinic_id):
-    #     connection = self.mysql.connect()
-    #     cur = connection.cursor()
-    #     cur.execute("SELECT * FROM ROOM_SLOTS WHERE clinic_id=%s", [clinic_id])
-    #     room_slots = []
-    #     for room_slot in cur:
-    #         room_slots.append(room_slot)
-    #     cur.close()
-    #     if len(room_slots) > 0:
-    #         return room_slots
-    #     else:
-    #         return None
-
-    # def update_room_slot(self, clinic_id, room_slot):
-    #     connection = self.mysql.connect()
-    #     cur = connection.cursor()
-    #     if room_slot.id is None:
-    #         cur.execute("INSERT INTO ROOM_SLOTS (id, clinic_id, room_id, slot_id, walk_in, doctor_id, patient_id) VALUES(NULL, %s, %s, %s, %s, %s, %s)", (clinic_id, room_slot.room_id, room_slot.slot_yearly_index, room_slot.walk_in, room_slot.doctor_id, room_slot.patient_id))
-    #     else:
-    #         cur.execute("UPDATE ROOM_SLOTS SET (clinic_id=%s, room_id=%s, slot_id=%s, walk_in=%s, doctor_id=%s, patient_id=%s) WHERE id=%s", (clinic_id, room_slot.room_id, room_slot.slot_yearly_index, room_slot.walk_in, room_slot.doctor_id, room_slot.patient_id, room_slot.id))
-    #     connection.commit()
-    #     cur.close()
-
-    # def delete_room_slot(self, room_slot_id):
-    #     connection = self.mysql.connect()
-    #     cur = connection.cursor()
-    #     cur.execute("DELETE FROM ROOM_SLOTS WHERE id=%s", [room_slot_id])
-    #     connection.commit()
-    #     cur.close()
+    def get_rooms_by_clinic_id(self, clinic_id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM ROOMS WHERE clinic_id=%s", [clinic_id])
+        rooms = []
+        for room in cur:
+            room.append(room)
+        cur.close()
+        if len(rooms) > 0:
+            return rooms
+        else:
+            return None
 
     def update_patient(self, id, first_name, last_name, health_card, birthday, gender, phone_number, physical_address, email):
         connection = self.mysql.connect()
         cur = connection.cursor()
         cur.execute("UPDATE PATIENTS LEFT JOIN USERS ON PATIENTS.user_fk = USERS.id SET first_name = %s, last_name = %s, health_card = %s, birthday = %s, gender = %s, phone_number = %s, physical_address = %s, email = %s WHERE PATIENTS.id = %s", (first_name, last_name, health_card, birthday, gender, phone_number, physical_address, email, id))
         cur.close()
-
-    # def get_all_apointments(self):
-    #     connection = self.mysql.connect()
-    #     cur = connection.cursor()
-    #     cur.execute("SELECT * FROM APPOINTMENTS LEFT JOIN USERS USR ON (PATIENTS.user_fk = USR.id)")
-    #     all_appointments = []
-    #     for appointment in cur:
-    #         all_appointments.append(appointment)
-    #     cur.close()
-    #     return all_appointments
-
-   
-     
