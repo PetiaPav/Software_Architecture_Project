@@ -67,7 +67,6 @@ class Doctor(User):
             else:
                 return None
         except KeyError:
-            print("There was a key error at: " + date_time.strftime("%Y-%m-%d %H:%M"))
             return None
 
 
@@ -99,9 +98,9 @@ class DoctorMapper:
                     walk_in = True if generic_availability_row['walk_in'] == 1 else False
                     # Monday is 0, Sunday is 6 generic availabilities are stored in the week of September 30th, 2019
                     if date_time.day == 30:
-                        generic_week_availability_list[0][date_time] = walk_in
+                        generic_week_availability_list[0][date_time.time()] = walk_in
                     else:
-                        generic_week_availability_list[date_time.day][date_time] = walk_in
+                        generic_week_availability_list[date_time.day][date_time.time()] = walk_in
 
             doctor_adjustments = self.tdg.get_doctor_adjustments(doctor_id)
             adjustment_list = []

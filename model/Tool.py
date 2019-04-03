@@ -17,8 +17,7 @@ class Tools:
         id_counter = 0
         pydict = []
         # available slots are tuples of (week_index, day_index, slot_index)
-        for date_time, walk_in in available_slots:
-            print("there was something in the available slots in json_from_available_slots")
+        for date_time in available_slots:
             start_time = date_time.strftime("%Y-%m-%dT%H:%M:%S")
             if walk_in:
                 end_time = (date_time + timedelta(minutes=20)).strftime("%Y-%m-%dT%H:%M:%S")
@@ -31,7 +30,6 @@ class Tools:
                 "end": end_time
             })
             id_counter += 1
-        print("We were in json_from_available_slots")
         return json.dumps(pydict)
 
     @staticmethod
