@@ -25,7 +25,7 @@ class Scheduler:
         for day in range(0, 7):
             current_date_time = week_start + timedelta(days=day)
             while current_date_time.time() < closing_time:
-                room_available = self.__check_room_availabilities(clinic, current_date_time, walk_in)
+                room_available = self.__check_room_availabilities(clinic, current_date_time, walk_in, closing_time)
                 if room_available:
                     doctor_available = self.__check_doctor_availabilities(clinic, current_date_time, walk_in)
                     if doctor_available:
@@ -60,9 +60,9 @@ class Scheduler:
         minute = clinic.business_hours.opening_time.minute
         return datetime(week_start.year, week_start.month, week_start.day, hour, minute)
 
-    def __check_room_availabilities(self, clinic, date_time: datetime, walk_in: bool) -> bool:
+    def __check_room_availabilities(self, clinic, date_time: datetime, walk_in: bool, closing_time: datetime.time) -> bool:
         for room in clinic.rooms.values():
-            if room.get_availability(date_time, walk_in) is not None:
+            if room.get_availability(date_time, walk_in, closing_time) is not None:
                 return True
         return False
 

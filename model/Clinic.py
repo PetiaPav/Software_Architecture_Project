@@ -20,12 +20,12 @@ class Room:
         self.name = name
         self.bookings_dict = bookings_dict
 
-    def get_availability(self, date_time: datetime, walk_in: bool):
+    def get_availability(self, date_time: datetime, walk_in: bool, closing_time: datetime.time):
         date_time_to_check = date_time
         if date_time_to_check in self.bookings_dict:  # Checking the requested time
             return None
 
-        #  Checking if there are annual appointments in the next two slots
+        #  Checking if there are annual appointments in the previous two slots
         date_time_to_check -= timedelta(minutes=20)
         if date_time_to_check in self.bookings_dict:
             if self.bookings_dict[date_time_to_check] is False:
@@ -36,6 +36,10 @@ class Room:
                 return None
 
         if not walk_in:  # If appointment to be booked is annual, must also check two slots ahead
+            # First we check if the clinic is open long enough to accomodate for an annual at this time
+            date_time_to_check = date_time + timedelta(minutes=40)
+            if date_time_to_check.time() >= closing_time:
+                return None
             date_time_to_check = date_time + timedelta(minutes=20)
             if date_time_to_check in self.bookings_dict:  # Checking the requested time
                 return None
