@@ -145,7 +145,7 @@ def create_app(db_env="ubersante", debug=False):
             if 'logged_in' in session:
                 return f(*args, **kwargs)
             else:
-                flash('Unauthroized, please log in', 'danger')
+                flash('Unauthorized, please log in', 'danger')
                 return redirect(url_for('login'))
         return wrap
 
@@ -206,43 +206,6 @@ def create_app(db_env="ubersante", debug=False):
         session['selected_patient'] = id
         patient = mediator.get_by_patient_id(id)
         return render_template('includes/_patient_detail_page.html', patient=patient)
-
-    @app.route('/edit/patient/<id>', methods=['GET', 'POST'])
-    @is_logged_in
-    @nurse_login_required
-    def modify_patient(id):
-        selected_patient = mediator.get_patient_by_id(id)
-        form = Forms.get_form_data("patient", selected_patient, request)
-
-        if request.method == "POST" and form.validate():
-            mediator.update_patient(id, request)
-            return redirect(url_for('patient_registry'))
-        else:
-            return render_template('includes/_edit_patient_form.html', form=form, id=selected_patient.id)
-
-    @app.route('/edit/doctor/<id>', methods=['GET', 'POST'])
-    @is_logged_in
-    @nurse_login_required
-    def modify_doctor(id):
-        selected_doctor = mediator.get_doctor_by_id(id)
-        form = Forms.get_form_data("doctor", selected_doctor, request)
-        return render_template('includes/_edit_doctor_form.html', form=form)
-
-    @app.route('/edit/nurse/<id>', methods=['GET', 'POST'])
-    @is_logged_in
-    @nurse_login_required
-    def modify_nurse(id):
-        selected_nurse = mediator.get_nurse_by_id(id)
-        form = Forms.get_form_data("nurse", selected_nurse, request)
-        return render_template('includes/_edit_nurse_form.html', form=form)
-
-    @app.route('/edit/personal_profile', methods=['GET', 'POST'])
-    @is_logged_in
-    @nurse_login_required
-    def modify_personal_profile():
-        selected_nurse = mediator.get_nurse_by_access_id(session["access_id"])
-        form = Forms.get_form_data("nurse", selected_nurse, request)
-        return render_template('includes/_edit_nurse_form.html', form=form)
 
     @app.route('/calendar')
     @is_logged_in
