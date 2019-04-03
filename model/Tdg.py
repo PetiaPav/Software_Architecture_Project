@@ -296,19 +296,21 @@ class Tdg:
         else:
             return None
 
-    def insert_doctor_adjustments(self, doctor_id, list_of_adjustments):
+    def insert_doctor_adjustment(self, doctor_id, adjustment):
         connection = self.mysql.connect()
         cur = connection.cursor()
-        for adjustment in list_of_adjustments:
-            cur.execute("INSERT INTO DOCTOR_ADJUSTMENTS (id, doctor_id, date_time, operation_type_add, walk_in) VALUES(NULL, %s, %s, %s, %s)", (doctor_id, adjustment.date_time, adjustment.operation_type_add, adjustment.walk_in))
+        cur.execute("INSERT INTO DOCTOR_ADJUSTMENTS (id, doctor_id, date_time, operation_type_add, walk_in) VALUES(NULL, %s, %s, %s, %s)", (doctor_id, adjustment.date_time, adjustment.operation_type_add, adjustment.walk_in))
+        last_inserted_id = cur.lastrowid
         connection.commit()
         cur.close()
+        return last_inserted_id
 
     def remove_doctor_adjustments(self, doctor_id, list_of_adjustments):
         connection = self.mysql.connect()
         cur = connection.cursor()
         for adjustment in list_of_adjustments:
-            cur.execute("DELETE FROM DOCTOR_ADJUSTMENTS WHERE id=%s AND date_time=%s", (doctor_id, adjustment.date_time))
+            cur.execute("DELETE FROM DOCTOR_ADJUSTMENTS WHERE id=%s", [adjustment.id])
+        connection.commit()
         cur.close()
 
     def insert_appointment(self, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in):

@@ -4,8 +4,7 @@ from typing import List, Dict
 
 from model.Appointment import Appointment
 from model.Tool import Tools
-from model.FullCalendarEventWrapper import WrapDoctorGenericEvent
-import copy
+from model.FullCalendarEventWrapper import WrapDoctorGenericEvent, WrapDoctorAdjustmentEvent
 from flask import flash
 import json
 
@@ -38,7 +37,6 @@ class Nurse(User):
 
 
 class Doctor(User):
-
     def __init__(self, id, first_name, last_name, password, permit_number, specialty, city, generic_week_availability: List[Dict[datetime.time, bool]], adjustment_list, appointment_dict: Dict[datetime, Appointment]):
         User.__init__(self, id, first_name, last_name, password)
         self.permit_number = permit_number
@@ -159,28 +157,27 @@ class DoctorMapper:
             event = WrapDoctorGenericEvent(event)
             doctor.generic_week_availability[event.day][event.time] = event.walk_in
 
-        # update the tdg
+        # update the db
         self.tdg.update_doctor_generic_availabilities(doctor.id, doctor.generic_week_availability)
 
-    def set_special_availability_from_json(self, doctor_id, json):
-        list_for_tdg = []
-        list_of_ids_to_delete = []
-        doctor = self.get_by_id(doctor_id)
+    def set_adjustments_from_json(self, doctor_id, json):
+        doctor = self.get_by_id(int(doctor_id))
+        adjustments_to_delete = []
         for event in json:
-            walk_in = True if event['title'] == "Walk-in" else False
-            week_index = Tools.get_week_index_from_date(event['time'])
-            day_index = int(event['day'])
-            slot_index = Tools.get_slot_index_from_time((event['time'])[11:16])
-            available = True if event['id'] == 'new-availability' else False
-            if event['id'] == 'removed-availability':
-                for special_availability in doctor.availability_special:
-                    if special_availability.slot_index == slot_index and special_availability.day_index == day_index and special_availability.week_index == week_index:
-                        if special_availability.id is not None:
-                            list_of_ids_to_delete.append(special_availability.id)
-                        doctor.availability_special.remove(special_availability)
-            doctor.availability_special.append(SpecialAvailability(None, week_index, day_index, slot_index, available, walk_in))
-            list_for_tdg.append(SpecialAvailability("NULL", week_index, day_index, slot_index, available, walk_in))
-        self.tdg.update_doctor_availabilities_special(int(doctor_id), list_for_tdg, list_of_ids_to_delete)
+            event = WrapDoctorAdjustmentEvent(event)
+            for adjustment in doctor.adjustment_list:
+                # remove any existing adjustments for the same datetime
+                if adjustment.date_time == event.date_time:
+                    if adjustment.id != -1:
+                        adjustments_to_delete.append(adjustment)
+                    doctor.adjustment_list.remove(adjustment)
+                adjustment_to_add = Adjustment(-1, event.date_time, event.operation_type_add, event.walk_in)
+                # update the db
+                adjustment_to_add.id = self.tdg.insert_doctor_adjustment(doctor.id, adjustment_to_add)
+                # update working memory with a valid db id
+                doctor.adjustment_list.append(adjustment_to_add)
+        # batch remove over-written adjustments
+        self.tdg.remove_doctor_adjustments(doctor.id, adjustments_to_delete)
 
     def get_schedule_by_week(self, doctor_id, fullcalendar_datetime):
         doctor = self.get_by_id(doctor_id)
@@ -215,16 +212,19 @@ class DoctorMapper:
             event_source.append(item)
         return json.dumps(event_source)
 
+    # needs to be updated to support new appointment_dict structure
     def update_appointment_ids(self, appointments):
         for appointment in appointments:
             doctor = self.get_by_id(appointment.appointment_slot.doctor_id)
             doctor.appointment_ids.append(appointment.id)
 
+    # needs to be updated to support new appointment_dict structure
     def add_appointment_id(self, doctor_id, appointment_id):
         doctor = self.get_by_id(doctor_id)
         if appointment_id not in doctor.appointment_ids:
             doctor.appointment_ids.append(appointment_id)
 
+    # needs to be updated to support new appointment_dict structure
     def delete_appointment(self, doctor_id, appointment_id):
         doctor = self.get_by_id(doctor_id)
         doctor.appointment_ids.remove(appointment_id)
@@ -379,16 +379,6 @@ class NurseMapper:
         new_nurse_id = self.tdg.insert_nurse(first_name, last_name, password, access_id)
         if new_nurse_id is not None:
             self.catalog_dict[new_nurse_id] = Nurse(new_nurse_id, first_name, last_name, password, access_id)
-
-
-class SpecialAvailability:
-    def __init__(self, id, week_index, day_index, slot_index, available, walk_in):
-        self.id = id
-        self.week_index = week_index
-        self.day_index = day_index
-        self.slot_index = slot_index
-        self.available = available
-        self.walk_in = walk_in
 
 
 class Cart:

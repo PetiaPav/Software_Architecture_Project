@@ -454,7 +454,7 @@ def create_app(db_env="ubersante", debug=False):
     @is_logged_in
     def updated_doctor_schedule():
 
-        mediator.set_doctor_special_availability_from_json(session['id'], request.json)
+        mediator.set_doctor_adjustments_from_json(session['id'], request.json)
         result = {'url': url_for('doctor_view_schedule')}
         return jsonify(result)
 

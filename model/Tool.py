@@ -70,4 +70,5 @@ class Tools:
 
     @staticmethod
     def convert_to_python_datetime(fullcalendar_datetime):
+        print("fullcalendar_datetime in Tools.convert_to_python_datetime :" + fullcalendar_datetime)
         return datetime(int(fullcalendar_datetime[0:4]), int(fullcalendar_datetime[5:7]), int(fullcalendar_datetime[8:10]), int(fullcalendar_datetime[11:13]), int(fullcalendar_datetime[14:16]), int(fullcalendar_datetime[17:19]))

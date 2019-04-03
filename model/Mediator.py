@@ -98,8 +98,8 @@ class Mediator:
     def set_doctor_generic_availability_from_json(self, doctor_id, json):
         self.__user_registry.doctor.set_generic_availability_from_json(doctor_id, json)
 
-    def set_doctor_special_availability_from_json(self, doctor_id, json):
-        self.__user_registry.doctor.set_special_availability_from_json(doctor_id, json)
+    def set_doctor_adjustments_from_json(self, doctor_id, json):
+        self.__user_registry.doctor.set_adjustments_from_json(doctor_id, json)
 
     def add_doctor_appointment_id(self, doctor_id, new_appointment_id):
         self.__user_registry.doctor.add_appointment_id(int(doctor_id), new_appointment_id)
