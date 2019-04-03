@@ -1,4 +1,4 @@
-class Appointment():
+class Appointment:
 
     def __init__(self, id, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in):
         self.id = id
