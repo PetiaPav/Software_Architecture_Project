@@ -4,7 +4,7 @@ from typing import List, Dict
 
 from model.Appointment import Appointment
 from model.Tool import Tools
-from model.FullcalendarEventWrapper import WrapDoctorGenericEvent
+from model.FullCalendarEventWrapper import WrapDoctorGenericEvent
 import copy
 from flask import flash
 import json
@@ -153,14 +153,14 @@ class DoctorMapper:
     def set_generic_availability_from_json(self, doctor_id, json):
         doctor = self.get_by_id(int(doctor_id))
         # reset the current generic availability in working memory
-        doctor.generic_week_availability_list = [{}, {}, {}, {}, {}, {}, {}]
+        doctor.generic_week_availability = [{}, {}, {}, {}, {}, {}, {}]
 
         for event in json:
             event = WrapDoctorGenericEvent(event)
-            doctor.generic_week_availability_list[event.day][event.time] = event.walk_in
+            doctor.generic_week_availability[event.day][event.time] = event.walk_in
 
         # update the tdg
-        self.tdg.update_doctor_availability(doctor.id, doctor.generic_week_availability_list)
+        self.tdg.update_doctor_availability(doctor.id, doctor.generic_week_availability)
 
     def set_special_availability_from_json(self, doctor_id, json):
         list_for_tdg = []
@@ -182,35 +182,36 @@ class DoctorMapper:
             list_for_tdg.append(SpecialAvailability("NULL", week_index, day_index, slot_index, available, walk_in))
         self.tdg.update_doctor_availabilities_special(int(doctor_id), list_for_tdg, list_of_ids_to_delete)
 
-    def get_schedule_by_week(self, doctor_id, date_time, scheduled_appointments):
+    def get_schedule_by_week(self, doctor_id, fullcalendar_datetime):
         doctor = self.get_by_id(doctor_id)
-        availabilities = []
-        new_scheduled_appointments = []
-        week_index = Tools.get_week_index_from_date(date_time)
-        week_availabilities = doctor.get_week_availability(week_index)
-        if scheduled_appointments is not None:
-            for appointment in scheduled_appointments:
-                day_index = Tools.get_day_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index)
-                slot_index = Tools.get_slot_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index)
-                walk_in = appointment.appointment_slot.walk_in
-                week_availabilities.day[day_index].slot[slot_index].available = False
-                if walk_in is False:
-                    for inner_slot_index in range(slot_index + 1, slot_index + 2):
-                        week_availabilities.day[day_index].slot[inner_slot_index].available = False
-                new_scheduled_appointments.append(((week_index, day_index, slot_index), walk_in))
+        date_time = Tools.convert_to_python_datetime(fullcalendar_datetime)
+        week_start_time = self.week_start_from_date_time(date_time)
+        week_end_time = self.week_end_from_week_start(week_start_time)
 
-        for day in range(0, 7):
-            inner_slot_index = 0
-            while inner_slot_index < 72:
-                current_slot = week_availabilities.day[day].slot[inner_slot_index]
-                if current_slot.available is True:
-                    availabilities.append(((week_index, day, inner_slot_index), current_slot.walk_in))
-                if current_slot.walk_in is False:
-                    inner_slot_index += 2
-                inner_slot_index += 1
+        requested_week_availabilities_dict = {}
+        for day in range(0, len(doctor.generic_week_availability)):
+            daily_availability = doctor.generic_week_availability[day]
+            for time, walk_in in daily_availability:
+                availability_date_time = week_start_time + timedelta(days=day)
+                availability_date_time.hour = time.hour
+                availability_date_time.minute = time.minute
+                requested_week_availabilities_dict[availability_date_time] = walk_in
 
-        event_source = Tools.json_from_available_slots_doctor_available(availabilities)
-        event_source2 = Tools.json_from_available_slots_doctor_scheduled(new_scheduled_appointments)
+            for adjustment in doctor.adjustment_list:
+                if adjustment.date_time > week_start_time and adjustment.date_time < week_end_time:
+                    if adjustment.operation_type_add is True:
+                        requested_week_availabilities_dict[adjustment.date_time] = adjustment.walk_in
+                    else:
+                        if adjustment.date_time in requested_week_availabilities_dict:
+                            del requested_week_availabilities_dict[adjustment.date_time] 
+
+        requested_week_appointments_dict = {}
+        for appointment in doctor.appointment_dict.values():
+            if appointment.date_time > week_start_time and appointment.date_time < week_end_time:
+                requested_week_appointments_dict[appointment.date_time] = appointment.walk_in
+
+        event_source = Tools.json_from_doctor_week_availabilities(requested_week_availabilities_dict)
+        event_source2 = Tools.json_from_doctor_week_appointments(requested_week_appointments_dict)
         for item in event_source2:
             event_source.append(item)
         return json.dumps(event_source)
@@ -228,6 +229,20 @@ class DoctorMapper:
     def delete_appointment(self, doctor_id, appointment_id):
         doctor = self.get_by_id(doctor_id)
         doctor.appointment_ids.remove(appointment_id)
+
+    def week_start_from_date_time(self, date_time):
+        week_start_time = date_time
+        # Monday is 0 and Sunday is 6
+        weekday = date_time.weekday()
+        if weekday is not 0:
+            week_start_time = date_time - timedelta(days=weekday)
+        week_start_time = datetime(week_start_time.year, week_start_time.month, week_start_time.day, 0, 0)
+        return week_start_time
+
+    def week_end_from_week_start(self, week_start_time):
+        week_end_time = week_start_time + timedelta(days=6)
+        week_end_time = datetime(week_end_time.year, week_end_time.month, 23, 40)
+        return week_end_time
 
 
 class PatientMapper:
