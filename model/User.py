@@ -38,45 +38,21 @@ class Nurse(User):
 
 class Doctor(User):
 
-    def __init__(self, id, first_name, last_name, password, permit_number, specialty, city, generic_week_availability: List[Dict[datetime.time, bool]], adjustment_list, appointment_list):
+    def __init__(self, id, first_name, last_name, password, permit_number, specialty, city, generic_week_availability: List[Dict[datetime.time, bool]], adjustment_list, appointment_dict: Dict[datetime, Appointment]):
         User.__init__(self, id, first_name, last_name, password)
         self.permit_number = permit_number
         self.specialty = specialty
         self.city = city
         self.generic_week_availability = generic_week_availability
         self.adjustment_list = adjustment_list
-        self.appointment_list = appointment_list
+        self.appointment_dict = appointment_dict
 
     def get_availability(self, date_time: datetime, walk_in: bool):
-        date_time_to_check = date_time
-        for appointment in self.appointment_list:
-            appointment_date_time = appointment.date_time
-
-            if appointment_date_time == date_time_to_check:
-                return None
-
-            if not appointment.walk_in:
-                date_time_to_check -= timedelta(minutes=20)
-                if appointment_date_time == date_time_to_check:
-                    return None
-
-                date_time_to_check -= timedelta(minutes=20)
-                if appointment_date_time == date_time_to_check:
-                    return None
-
-            if not walk_in:
-                date_time_to_check = date_time + timedelta(minutes=20)
-                if appointment_date_time == date_time_to_check:
-                    return None
-
-                date_time_to_check += timedelta(minutes=20)
-                if appointment_date_time == date_time_to_check:
-                    return None
-
-        date_time_to_check = date_time
+        if date_time in self.appointment_dict:
+            return None
 
         for adjustment in self.adjustment_list:
-            if adjustment.date_time == date_time_to_check:
+            if adjustment.date_time == date_time:
                 if adjustment.operation_type_add:
                     if adjustment.walk_in == walk_in:
                         return self
@@ -85,7 +61,7 @@ class Doctor(User):
 
         generic_day_availability = self.generic_week_availability[date_time.weekday()]
         try:
-            if generic_day_availability[date_time_to_check.time()] == walk_in:
+            if generic_day_availability[date_time.time()] == walk_in:
                 return self
             else:
                 return None
@@ -136,7 +112,9 @@ class DoctorMapper:
                     adjustment_list.append(adjustment)
 
             appointment_list = self.mediator.get_appointments_by_doctor_id(doctor_id)
-            appointment_list = appointment_list if appointment_list is not None else []
+            appointment_dict = {}
+            for appointment in appointment_list:
+                appointment_dict[appointment.date_time] = appointment
 
             doctor_obj = Doctor(
                 doctor['id'],
@@ -148,7 +126,7 @@ class DoctorMapper:
                 doctor['city'],
                 generic_week_availability_list,
                 adjustment_list,
-                appointment_list
+                appointment_dict
             )
 
             self.catalog_dict[doctor_id] = doctor_obj
