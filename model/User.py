@@ -191,10 +191,9 @@ class DoctorMapper:
         requested_week_availabilities_dict = {}
         for day in range(0, len(doctor.generic_week_availability)):
             daily_availability = doctor.generic_week_availability[day]
-            for time, walk_in in daily_availability:
+            for time, walk_in in daily_availability.items():
                 availability_date_time = week_start_time + timedelta(days=day)
-                availability_date_time.hour = time.hour
-                availability_date_time.minute = time.minute
+                availability_date_time = (availability_date_time.year, availability_date_time.month, availability_date_time.day, time.hour, time.minute)
                 requested_week_availabilities_dict[availability_date_time] = walk_in
 
             for adjustment in doctor.adjustment_list:

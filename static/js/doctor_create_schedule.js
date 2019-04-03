@@ -59,6 +59,7 @@ $(document).ready(function() {
         defaultView: 'agendaWeek',
         columnHeaderFormat: 'dddd',
         eventLimit: true, // allow "more" link when too many events
+        firstDay: 1, // start week on Monday
 
         // Limit hours visible per day
         minTime: "08:00:00",
