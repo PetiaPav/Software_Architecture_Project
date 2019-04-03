@@ -1,5 +1,4 @@
 from datetime import timedelta
-from model.Year import Year, SlotType
 from enum import Enum
 
 

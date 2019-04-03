@@ -21,13 +21,13 @@ class ClinicRegistry:
 
     def populate(self):
         tdg_clinic_dict = self.tdg.get_all_clinics()
-        tdg_doctor_clinic_assignments = self.tdg.get_doctor_clinic_assignments()
+        tdg_doctor_clinic_assignments = self.tdg.get_all_doctor_clinic_assignments()
         for clinic in tdg_clinic_dict:
             clinic_id = clinic['id']
             clinic_physical_address = clinic['physical_address']
             clinic_name = clinic['name']
-            opening_time = datetime.fromtimestamp(clinic['start_time'])
-            closing_time = datetime.fromtimestamp(clinic['end_time'])
+            opening_time = clinic['start_time']
+            closing_time = clinic['end_time']
             clinic_name = clinic['name']
             clinic_physical_address = clinic['physical_address']
 
@@ -35,7 +35,7 @@ class ClinicRegistry:
             dict_of_doctors = {}
             for doctor_assignment in tdg_doctor_clinic_assignments:
                 if int(doctor_assignment['clinic_id']) == clinic_id:
-                    doctor_id = int(doctor_assignment('doctor_id'))
+                    doctor_id = int(doctor_assignment['doctor_id'])
                     doctor = self.mediator.get_doctor_by_id(doctor_id)
                     if doctor is not None:
                         dict_of_doctors[doctor_id] = doctor
@@ -46,10 +46,10 @@ class ClinicRegistry:
                 for room in tdg_dict_of_rooms:
                     room_id = room['id']
                     bookings_dict = {}
-                    tdg_room_bookings = self.tdg.get_room_booking(room_id)
+                    tdg_room_bookings = self.tdg.get_room_bookings_by_room_id(room_id)
                     if tdg_room_bookings is not None:
                         for room_booking in tdg_room_bookings:
-                            date_time = datetime.fromtimestamp(room_booking['date_time'])
+                            date_time = room_booking['date_time']
                             walk_in = True if int(room_booking['walk_in']) == 1 else False
                             bookings_dict[date_time] = walk_in
                     dict_of_rooms[room_id] = Room(room['name'], bookings_dict)
