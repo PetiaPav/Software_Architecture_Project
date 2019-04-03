@@ -5,7 +5,6 @@ from model.Forms import PatientForm, DoctorForm, NurseForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
-from model.Scheduler import Scheduler
 from model.Tool import Tools
 from datetime import datetime
 from model.Payment import Payment
@@ -335,8 +334,7 @@ def create_app(db_env="ubersante", debug=False):
     @app.route('/data', methods=["GET", "POST"])
     @is_logged_in
     def return_weekly_availabilities():
-        clinic = mediator.get_clinic_by_id(session['selected_clinic'])
-        return Scheduler.availability_finder(clinic, str(request.args.get('start')), session['has_selected_walk_in'])
+        return mediator.find_availability(int(session['selected_clinic']), Tools.convert_to_python_datetime(str(request.args.get('start'))), session['has_selected_walk_in'])
 
     @app.route('/event', methods=["POST"])
     @is_logged_in

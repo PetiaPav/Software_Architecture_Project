@@ -160,5 +160,8 @@ class Mediator:
 
     # # Scheduler calls
 
+    def find_availability(self, clinic_id, date_time, walk_in):
+        return self.__scheduler.find_availability(clinic_id, date_time, walk_in)
+
     def confirm_availability(self, clinic_id, date_time, walk_in):
         return self.__scheduler.confirm_availability(clinic_id, date_time, walk_in)

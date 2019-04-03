@@ -67,6 +67,7 @@ class Doctor(User):
             else:
                 return None
         except KeyError:
+            print("There was a key error at: " + date_time.strftime("%Y-%m-%d %H:%M"))
             return None
 
 
