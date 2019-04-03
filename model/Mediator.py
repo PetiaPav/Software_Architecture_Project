@@ -14,6 +14,8 @@ class Mediator:
 
         self.__tdg = Tdg(app, db_env)
 
+        # Registy loading order matters
+
         print("Loading Appointment Registry . . . ")
         self.__appointment_registry = AppointmentRegistry.get_instance(self, self.__tdg)
 
@@ -23,7 +25,7 @@ class Mediator:
         print("Loading Clinic Registry . . . ")
         self.__clinic_registry = ClinicRegistry.get_instance(self, self.__tdg)
 
-        self._scheduler = Scheduler(self)
+        self.__scheduler = Scheduler(self)
 
     @staticmethod
     def get_instance(app, db_env):
@@ -76,7 +78,6 @@ class Mediator:
     def delete_patient_appointment(self, patient_id, appointment_id):
         self.__user_registry.patient.delete_appointment(int(patient_id), int(appointment_id))
 
-
     # # # Doctor calls
 
     def get_all_doctors(self):
@@ -94,8 +95,8 @@ class Mediator:
     def get_doctor_schedule_by_week(self, doctor_id, date_time):
         return self.__user_registry.doctor.get_schedule_by_week(doctor_id, date_time, self.__appointment_registry.get_appointments_by_doctor_id_and_week(doctor_id, Tools.get_week_index_from_date(date_time)))
 
-    def set_doctor_availability_from_json(self, doctor_id, json):
-        self.__user_registry.doctor.set_availability_from_json(doctor_id, json)
+    def set_doctor_generic_availability_from_json(self, doctor_id, json):
+        self.__user_registry.doctor.set_generic_availability_from_json(doctor_id, json)
 
     def set_doctor_special_availability_from_json(self, doctor_id, json):
         self.__user_registry.doctor.set_special_availability_from_json(doctor_id, json)
@@ -147,6 +148,9 @@ class Mediator:
 
     def get_appointments_by_doctor_id(self, doctor_id):
         return self.__appointment_registry.get_appointments_by_doctor_id(doctor_id)
+
+    def get_appointments_by_patient_id(self, patient_id):
+        return self.__appointment_registry.get_appointments_by_patient_id(patient_id)
 
     def delete_appointment(self, appointment_id):
         self.__appointment_registry.delete_appointment(int(appointment_id))

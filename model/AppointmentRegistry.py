@@ -23,7 +23,7 @@ class AppointmentRegistry:
         appointments = self.tdg.get_all_appointments()
         for appointment in appointments:
             walk_in = True if appointment['walk_in'] == 1 else False
-            new_appointment = Appointment(int(appointment['id']), int(appointment['clinic_id']), int(appointment['room_id']), int(appointment['doctor_id']), int(appointment['patient_id']), datetime.fromtimestamp(appointment['date_time']), walk_in)
+            new_appointment = Appointment(int(appointment['id']), int(appointment['clinic_id']), int(appointment['room_id']), int(appointment['doctor_id']), int(appointment['patient_id']), appointment['date_time'], walk_in)
             self.catalog_dict[new_appointment.id] = new_appointment
 
     def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
@@ -69,7 +69,7 @@ class AppointmentRegistry:
     def get_appointments_by_patient_id(self, patient_id):
         appointments_by_patient = []
         for appointment in self.catalog_dict:
-            if appointment.appointment_slot.patient_id == patient_id:
+            if appointment.patient_id == int(patient_id):
                 appointments_by_patient.append(appointment)
         if len(appointments_by_patient) > 0:
             return appointments_by_patient

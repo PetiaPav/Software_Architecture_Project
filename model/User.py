@@ -78,27 +78,30 @@ class DoctorMapper:
         doctor_dict = self.tdg.get_all_doctors()
         for doctor in doctor_dict:
             doctor_id = int(doctor['id'])
-            doctor_generic_availabilities = self.tdg.get_doctor_generic_availabilities(doctor_id)
+            doctor_generic_availabilities = self.tdg.get_doctor_generic_availabilities_by_id(doctor_id)
             generic_week_availability_list = [{}, {}, {}, {}, {}, {}, {}]
-            for gen_availabiliy_row in doctor_generic_availabilities:
-                date_time = datetime.fromtimestamp(gen_availabiliy_row['date_time'])
-                walk_in = True if gen_availabiliy_row['walk_in'] == 1 else False
-                # Monday is 0, Sunday is 6 generic availabilities are stored in the week of September 30th, 2019
-                if date_time.day == 30:
-                    generic_week_availability_list[0][date_time] = walk_in
-                else:
-                    generic_week_availability_list[date_time.day][date_time] = walk_in
+            if doctor_generic_availabilities is not None:
+                for generic_availability_row in doctor_generic_availabilities:
+                    date_time = generic_availability_row['date_time']
+                    walk_in = True if generic_availability_row['walk_in'] == 1 else False
+                    # Monday is 0, Sunday is 6 generic availabilities are stored in the week of September 30th, 2019
+                    if date_time.day == 30:
+                        generic_week_availability_list[0][date_time] = walk_in
+                    else:
+                        generic_week_availability_list[date_time.day][date_time] = walk_in
 
             doctor_adjustments = self.tdg.get_doctor_adjustments(doctor_id)
             adjustment_list = []
 
-            for adjustment_row in doctor_adjustments:
-                opperation_type_add = True if adjustment_row['opp_type_add'] == 1 else False
-                walk_in = True if adjustment_row['walk_in'] == 1 else False
-                adjustment = Adjustment(int(adjustment_row['id']), datetime.fromtimestamp(adjustment_row['date_time']), opperation_type_add, walk_in)
-                adjustment_list.append(adjustment)
+            if doctor_adjustments is not None:
+                for adjustment_row in doctor_adjustments:
+                    operation_type_add = True if adjustment_row['operation_type_add'] == 1 else False
+                    walk_in = True if adjustment_row['walk_in'] == 1 else False
+                    adjustment = Adjustment(int(adjustment_row['id']), adjustment_row['date_time'], operation_type_add, walk_in)
+                    adjustment_list.append(adjustment)
 
             appointment_list = self.mediator.get_appointments_by_doctor_id(doctor_id)
+            appointment_list = appointment_list if appointment_list is not None else []
 
             doctor_obj = Doctor(
                 doctor['id'],
@@ -131,27 +134,16 @@ class DoctorMapper:
         # record this doctor in the database and get a new id
         new_doctor_id = self.tdg.insert_doctor(first_name, last_name, password, permit_number, specialty, city)
         if new_doctor_id is not None:
-            self.catalog_dict[new_doctor_id] = Doctor(new_doctor_id, first_name, last_name, password, permit_number, specialty, city, None, None)
+            self.catalog_dict[new_doctor_id] = Doctor(new_doctor_id, first_name, last_name, password, permit_number, specialty, city, None, None, None)
 
-    def set_availability_from_json(self, doctor_id, json):
-        doctor = self.get_by_id(doctor_id)
-        # reset the current availability in working memory
-        doctor.availability = Week(SlotType.DOCTOR)
+    def set_generic_availability_from_json(self, doctor_id, json):
+        doctor = self.get_by_id(int(doctor_id))
+        # reset the current generic availability in working memory
+        doctor.generic_week_availability_list = []
         list_for_tdg = []
         for event in json:
             walk_in = True if event['title'] == 'Walk-in' else False
-            slot_index = Tools.get_slot_index_from_time(event['time'])
-            current_slot = doctor.availability.day[int(event['day'])].slot[slot_index]
-            current_slot.available = True
-            current_slot.walk_in = walk_in
-            list_for_tdg.append({'doctor_id': int(doctor_id), 'day': int(event['day']), 'slot_index': slot_index, 'walk_in': walk_in })
-            if walk_in is False:
-                for inner_slot_index in range(slot_index + 1, slot_index + 3):
-                    current_slot = doctor.availability.day[int(event['day'])].slot[inner_slot_index]
-                    current_slot.available = True
-                    current_slot.walk_in = walk_in
-        # update the tdg
-        self.tdg.update_doctor_availability(int(doctor_id), list_for_tdg)
+            # TODO
 
     def set_special_availability_from_json(self, doctor_id, json):
         list_for_tdg = []
@@ -222,7 +214,8 @@ class DoctorMapper:
 
 
 class PatientMapper:
-    def __init__(self, tdg):
+    def __init__(self, mediator, tdg):
+        self.mediator = mediator
         self.tdg = tdg
         self.catalog_dict = {}
         self.populate()
@@ -230,8 +223,11 @@ class PatientMapper:
     def populate(self):
         patient_dict = self.tdg.get_all_patients()
         for patient in patient_dict:
+            patient_id = int(patient['id'])
+            appointment_list = self.mediator.get_appointments_by_patient_id(patient_id)
+            appointment_list = appointment_list if appointment_list is not None else []
             patient_obj = Patient(
-                patient['id'],
+                patient_id,
                 patient['first_name'],
                 patient['last_name'],
                 patient['password'],
@@ -241,7 +237,8 @@ class PatientMapper:
                 patient['phone_number'],
                 patient['physical_address'],
                 patient['email'],
-                Cart()
+                Cart(),
+                appointment_list
             )
             self.catalog_dict[patient['id']] = patient_obj
 
@@ -294,6 +291,7 @@ class PatientMapper:
         patient.appointment_ids = patient.appointment_ids + appointment_ids
 
     def insert_patient(self, patient_id, email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address):
+        appointment_list = []
         patient_obj = Patient(
             patient_id,
             first_name,
@@ -305,7 +303,8 @@ class PatientMapper:
             phone_number,
             physical_address,
             email,
-            Cart()
+            Cart(),
+            appointment_list
         )
         self.catalog_dict[patient_id] = patient_obj
 
