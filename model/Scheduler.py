@@ -3,7 +3,6 @@ from model.Tool import Tools
 import random
 
 
-
 class Scheduler:
     # walk-in appointment duration in minutes
     WALK_IN_DURATION = 20
@@ -61,14 +60,14 @@ class Scheduler:
         minute = clinic.business_hours.opening_time.minute
         return datetime(week_start.year, week_start.month, week_start.day, hour, minute)
 
-    def __check_room_availabilities(self, clinic, date_time, walk_in) -> bool:
+    def __check_room_availabilities(self, clinic, date_time: datetime, walk_in: bool) -> bool:
         for room in clinic.rooms.values():
             if room.get_availability(date_time, walk_in) is not None:
                 return True
         return False
 
-    def __check_doctor_availabilities(self, clinic, date_time, walk_in) -> bool:
+    def __check_doctor_availabilities(self, clinic, date_time: datetime, walk_in: bool) -> bool:
         for doctor in clinic.doctors.values():
-            if doctor.get_week_availability(date_time, walk_in) is not None:
+            if doctor.get_availability(date_time, walk_in) is not None:
                 return True
         return False
