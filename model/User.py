@@ -160,7 +160,7 @@ class DoctorMapper:
             doctor.generic_week_availability[event.day][event.time] = event.walk_in
 
         # update the tdg
-        self.tdg.update_doctor_availability(doctor.id, doctor.generic_week_availability)
+        self.tdg.update_doctor_generic_availabilities(doctor.id, doctor.generic_week_availability)
 
     def set_special_availability_from_json(self, doctor_id, json):
         list_for_tdg = []
@@ -241,7 +241,7 @@ class DoctorMapper:
 
     def week_end_from_week_start(self, week_start_time):
         week_end_time = week_start_time + timedelta(days=6)
-        week_end_time = datetime(week_end_time.year, week_end_time.month, 23, 40)
+        week_end_time = datetime(week_end_time.year, week_end_time.month, week_end_time.day, 23, 40)
         return week_end_time
 
 
