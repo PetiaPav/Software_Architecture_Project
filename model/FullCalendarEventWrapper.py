@@ -19,11 +19,8 @@ class WrapDoctorEvent():
 class WrapDoctorGenericEvent(WrapDoctorEvent):
     def __init__(self, fullcalendar_event):
         WrapDoctorEvent.__init__(self, fullcalendar_event)
-        self.date_time = self.create_generic_week_date_time(fullcalendar_event)
+        self.time = self.create_generic_week_date_time(fullcalendar_event)
 
     # Monday is 0, Sunday is 6 generic availabilities are stored in the week of September 30th, 2019
     def create_generic_week_date_time(self, fullcalendar_event):
-        if self.day == 0:
-            return datetime(2019, 9, 30, int(fullcalendar_event['time'][0:2]), int(fullcalendar_event['time'][3:5]))
-        else:
-            return datetime(2019, 10, self.day, int(fullcalendar_event['time'][0:2]), int(fullcalendar_event['time'][3:5]))
+            return datetime(2019, 1, 1, int(fullcalendar_event['time'][0:2]), int(fullcalendar_event['time'][3:5])).time()

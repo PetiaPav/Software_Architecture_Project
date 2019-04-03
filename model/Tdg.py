@@ -254,7 +254,8 @@ class Tdg:
         cur.execute("DELETE FROM DOCTOR_GENERIC_AVAILABILITIES WHERE doctor_id=%s", [doctor_id])
         # populate with new availabilities
         for daily_dict_of_generic_availabilities in list_of_generic_availabilities:
-            for date_time, walk_in in daily_dict_of_generic_availabilities:
+            for time, walk_in in daily_dict_of_generic_availabilities:
+                date_time = datetime(2019, 1, 1, time.hour, time.minute)
                 cur.execute("INSERT INTO DOCTOR_GENERIC_AVAILABILITIES (id, doctor_id, date_time, walk_in) VALUES (NULL, %s, %s, %s)", (doctor_id, date_time, walk_in))
         cur.close()
 

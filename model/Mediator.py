@@ -93,7 +93,7 @@ class Mediator:
         self.__user_registry.doctor.register(first_name, last_name, password, permit_number, specialty, city)
 
     def get_doctor_schedule_by_week(self, doctor_id, date_time):
-        return self.__user_registry.doctor.get_schedule_by_week(doctor_id, date_time, self.__appointment_registry.get_appointments_by_doctor_id_and_week(doctor_id, Tools.get_week_index_from_date(date_time)))
+        return self.__user_registry.doctor.get_schedule_by_week(doctor_id, date_time)
 
     def set_doctor_generic_availability_from_json(self, doctor_id, json):
         self.__user_registry.doctor.set_generic_availability_from_json(doctor_id, json)

@@ -1,7 +1,7 @@
 
 from datetime import timedelta, datetime
 from model.Tool import Tools
-from model.FullCalendarEventWrapper import WrapDoctorGenericEvent
+from model.FullcalendarEventWrapper import WrapDoctorGenericEvent
 import copy
 from flask import flash
 import json
@@ -169,15 +169,13 @@ class DoctorMapper:
         doctor = self.get_by_id(int(doctor_id))
         # reset the current generic availability in working memory
         doctor.generic_week_availability_list = [{}, {}, {}, {}, {}, {}, {}]
-        
-        list_for_tdg = []
+
         for event in json:
             event = WrapDoctorGenericEvent(event)
-            doctor.generic_week_availability_list[event.day][event.date_time] = event.walk_in
+            doctor.generic_week_availability_list[event.day][event.time] = event.walk_in
 
-        # # update the tdg
-        # self.tdg.update_doctor_availability(int(doctor_id), list_for_tdg)
-
+        # update the tdg
+        self.tdg.update_doctor_availability(doctor.id, doctor.generic_week_availability_list)
 
     def set_special_availability_from_json(self, doctor_id, json):
         list_for_tdg = []
