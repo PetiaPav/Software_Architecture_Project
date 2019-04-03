@@ -26,23 +26,33 @@ class AppointmentRegistry:
             new_appointment = Appointment(int(appointment['id']), int(appointment['clinic_id']), int(appointment['room_id']), int(appointment['doctor_id']), int(appointment['patient_id']), appointment['date_time'], walk_in)
             self.catalog_dict[new_appointment.id] = new_appointment
 
+
     def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
         room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in)
-        if new_appointment_slot is not None:
-            new_appointment_id = AppointmentRegistry.get_new_id()
-            self.catalog_dict[new_appointment_id] = (Appointment(new_appointment_id, clinic_id, new_appointment_slot))
-            # update the database
-            self.tdg.update_room_slot(clinic_id, new_appointment_slot)
-            # update the patient's appointment list
-            self.mediator.insert_patient_appointment_id(int(patient_id), new_appointment_id)
-            # update the doctor's appointment list
-            self.mediator.add_doctor_appointment_id(int(new_appointment_slot.doctor_id), new_appointment_id)
+        if room_doctor_tuple is not None:
+            room_id = room_doctor_tuple[0]
+            doctor_id = room_doctor_tuple[1]
 
-            return new_appointment_id
+            # Create new appointment with default id -1
+            appointment = Appointment(-1, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in)
+
+            # Add new appointment in APPOINTMENTS table in database
+            appointment.id = self.tdg.insert_appointment(clinic_id, room_id, doctor_id, patient_id. date_time, walk_in)
+
+            # Insert new appointment in catalog
+            self.catalog_dict[appointment.id] = appointment
+
+            # Add new appointment to the patient's list of appointments
+            self.mediator.insert_patient_appointment_id(int(patient_id), appointment.id)
+
+            # Add new appointment to the doctor's list of appointments
+            self.mediator.add_doctor_appointment_id(doctor_id, appointment.id)
+
+            return appointment.id
         return None
 
-    def add_appointment_batch(self, accepted_ids):
-        self.mediator.insert_patient_batch_appointment_ids(self.catalog_dict[accepted_ids[0]].appointment_slot.patient_id, accepted_ids)
+    def add_appointment_batch(self, patient_id, accepted_ids):
+        self.mediator.insert_patient_batch_appointment_ids(patient_id, accepted_ids)
 
         appointments_created = []
         for appt_id in accepted_ids:
@@ -87,10 +97,14 @@ class AppointmentRegistry:
             return None
 
     def get_appointments_by_doctor_id_and_week(self, doctor_id, week_index):
-        appointments_by_doctor_and_week = self.get_appointments_by_doctor_id(int(doctor_id))
-        if appointments_by_doctor_and_week is not None:
-            appointments_by_doctor_and_week[:] = [appointment for appointment in appointments_by_doctor_and_week if Tools.get_week_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index) == week_index]
-        return appointments_by_doctor_and_week
+        print("@@@@ get_appointments_by_doctor_id_and_week() has been commented out")
+
+        # This method is to be removed. Doctors will have a list of their appointments
+
+        # appointments_by_doctor_and_week = self.get_appointments_by_doctor_id(int(doctor_id))
+        # if appointments_by_doctor_and_week is not None:
+        #     appointments_by_doctor_and_week[:] = [appointment for appointment in appointments_by_doctor_and_week if Tools.get_week_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index) == week_index]
+        # return appointments_by_doctor_and_week
 
     def delete_appointment(self, appointment_id):
         if int(appointment_id) in self.catalog_dict:
