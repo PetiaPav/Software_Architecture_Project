@@ -2,6 +2,7 @@
 from datetime import timedelta, datetime
 from typing import List, Dict
 
+from model.Appointment import Appointment
 from model.Tool import Tools
 import copy
 from flask import flash
@@ -9,7 +10,7 @@ import json
 
 
 class User:
-    def __init__(self, id, first_name, last_name, password):
+    def __init__(self, id, first_name: str, last_name: str, password):
         self.id = id
         self.first_name = first_name
         self.last_name = last_name
@@ -17,7 +18,7 @@ class User:
 
 
 class Patient(User):
-    def __init__(self, id, first_name, last_name, password, health_card, birthday, gender, phone_number, physical_address, email, cart, appointment_list):
+    def __init__(self, id, first_name: str, last_name: str, password, health_card, birthday, gender, phone_number, physical_address, email, cart, appointment_list):
         User.__init__(self, id, first_name, last_name, password)
         self.health_card = health_card
         self.birthday = birthday
@@ -37,25 +38,59 @@ class Nurse(User):
 
 class Doctor(User):
 
-    def __init__(self, id, first_name, last_name, password, permit_number, specialty, city, generic_week_availability: List[Dict[datetime, bool]], adjustment_list, appointment_list):
+    def __init__(self, id, first_name, last_name, password, permit_number, specialty, city, generic_week_availability: List[Dict[datetime.time, bool]], adjustment_list, appointment_list):
         User.__init__(self, id, first_name, last_name, password)
         self.permit_number = permit_number
         self.specialty = specialty
         self.city = city
-        # generic_week_availability_list contains dicts of datetime, walk_in-boolean pairs, index 0 is Monday, 6 is Sunday
         self.generic_week_availability = generic_week_availability
-        # adjustments are objects defined in the Adjustment class below
         self.adjustment_list = adjustment_list
         self.appointment_list = appointment_list
 
     def get_availability(self, date_time: datetime, walk_in: bool):
+        date_time_to_check = date_time
+        for appointment in self.appointment_list:
+            appointment_date_time = appointment.date_time
+
+            if appointment_date_time == date_time_to_check:
+                return None
+
+            if not appointment.walk_in:
+                date_time_to_check -= timedelta(minutes=20)
+                if appointment_date_time == date_time_to_check:
+                    return None
+
+                date_time_to_check -= timedelta(minutes=20)
+                if appointment_date_time == date_time_to_check:
+                    return None
+
+            if not walk_in:
+                date_time_to_check = date_time + timedelta(minutes=20)
+                if appointment_date_time == date_time_to_check:
+                    return None
+
+                date_time_to_check += timedelta(minutes=20)
+                if appointment_date_time == date_time_to_check:
+                    return None
+
+        date_time_to_check = date_time
+
+        for adjustment in self.adjustment_list:
+            if adjustment.date_time == date_time_to_check:
+                if adjustment.operation_type_add:
+                    if adjustment.walk_in == walk_in:
+                        return self
+                else:
+                    return None
+
         generic_day_availability = self.generic_week_availability[date_time.weekday()]
         try:
-            appointment_type = generic_day_availability[date_time.time()]
+            if generic_day_availability[date_time_to_check.time()] == walk_in:
+                return self
+            else:
+                return None
         except KeyError:
-            print('hi')
-
-
+            return None
 
 
 class Adjustment:
