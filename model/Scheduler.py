@@ -12,7 +12,7 @@ class Scheduler:
 
     # expects date_time as python datetime object(year, month, day, 24hr, min), any day in the week will work
 
-    def find_availablity(self, clinic_id, date_time, walk_in):
+    def find_availablity(self, clinic_id: int, date_time: datetime, walk_in: bool):
         if clinic_id is None or date_time is None or walk_in is None:
             return None
 
@@ -35,7 +35,7 @@ class Scheduler:
         # now we need to make our availablities into a format valid for fullcalendar
         return Tools.json_from_available_slots(available_date_times, walk_in)
 
-    def confirm_availability(self, clinic_id, date_time, walk_in):
+    def confirm_availability(self, clinic_id: int, date_time: datetime, walk_in: bool):
         # step 1: get clinic
         clinic = self.mediator.get_clinic_by_id(clinic_id)
 
@@ -51,8 +51,8 @@ class Scheduler:
                         return (room_list[room], doctor_list[doctor])
         return None
 
-    def __get_week_start(self, clinic, date_time) -> datetime:
-        week_start = date_time.date
+    def __get_week_start(self, clinic, date_time: datetime) -> datetime:
+        week_start = date_time.date()
         weekday = week_start.weekday()  # Monday is 0 and Sunday is 6
         if weekday is not 0:
             week_start = week_start - timedelta(days=weekday)  # Go to Monday of week

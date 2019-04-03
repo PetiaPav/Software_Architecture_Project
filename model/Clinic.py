@@ -1,5 +1,6 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from enum import Enum
+from typing import Dict
 
 
 class Clinic:
@@ -15,24 +16,24 @@ class Clinic:
 
 
 class Room:
-    def __init__(self, name: str, bookings_dict):
+    def __init__(self, name: str, bookings_dict: Dict[datetime, bool]):
         self.name = name
-        # booking dict is a key, value pair of datetime (appointment time), boolean (appointment is walk-in)
         self.bookings_dict = bookings_dict
 
-    def get_availability(self, date_time, walk_in):
+    def get_availability(self, date_time: datetime, walk_in: bool):
         date_time_to_check = date_time
         if date_time_to_check in self.bookings_dict:  # Checking the requested time
             return None
 
         #  Checking if there are annual appointments in the next two slots
         date_time_to_check -= timedelta(minutes=20)
-        if date_time_to_check in self.bookings_dict and self.bookings_dict[date_time_to_check] is False:
-            return None
-
-        date_time_to_check -= timedelta(minutes=20)
-        if date_time_to_check in self.bookings_dict and self.bookings_dict[date_time_to_check] is False:
-            return None
+        if date_time_to_check in self.bookings_dict:
+            if self.bookings_dict[date_time_to_check] is False:
+                return None
+        else:
+            date_time_to_check -= timedelta(minutes=20)
+            if date_time_to_check in self.bookings_dict and self.bookings_dict[date_time_to_check] is False:
+                return None
 
         if not walk_in:  # If appointment to be booked is annual, must also check two slots ahead
             date_time_to_check = date_time + timedelta(minutes=20)
@@ -41,7 +42,6 @@ class Room:
             date_time_to_check += timedelta(minutes=20)
             if date_time_to_check in self.bookings_dict:
                 return None
-
         return self
 
 
