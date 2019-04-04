@@ -62,6 +62,7 @@ $(document).ready(function() {
 
         // Default view upon opening calendar is weekly view
         defaultView: 'agendaWeek',
+        firstDay: 1, // start week on Monday
 
         eventLimit: true, // allow "more" link when too many events
 

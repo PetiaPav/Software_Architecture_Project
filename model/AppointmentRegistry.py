@@ -81,10 +81,7 @@ class AppointmentRegistry:
         for appointment in self.catalog_dict:
             if appointment.doctor_id == int(doctor_id):
                 appointments_by_doctor.append(appointment)
-        if len(appointments_by_doctor) > 0:
-            return appointments_by_doctor
-        else:
-            return None
+        return appointments_by_doctor
 
     def get_appointments_by_doctor_id_and_week(self, doctor_id, week_index):
         appointments_by_doctor_and_week = self.get_appointments_by_doctor_id(int(doctor_id))

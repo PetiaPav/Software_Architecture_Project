@@ -93,13 +93,13 @@ class Mediator:
         self.__user_registry.doctor.register(first_name, last_name, password, permit_number, specialty, city)
 
     def get_doctor_schedule_by_week(self, doctor_id, date_time):
-        return self.__user_registry.doctor.get_schedule_by_week(doctor_id, date_time, self.__appointment_registry.get_appointments_by_doctor_id_and_week(doctor_id, Tools.get_week_index_from_date(date_time)))
+        return self.__user_registry.doctor.get_schedule_by_week(doctor_id, date_time)
 
     def set_doctor_generic_availability_from_json(self, doctor_id, json):
         self.__user_registry.doctor.set_generic_availability_from_json(doctor_id, json)
 
-    def set_doctor_special_availability_from_json(self, doctor_id, json):
-        self.__user_registry.doctor.set_special_availability_from_json(doctor_id, json)
+    def set_doctor_adjustments_from_json(self, doctor_id, json):
+        self.__user_registry.doctor.set_adjustments_from_json(doctor_id, json)
 
     def add_doctor_appointment_id(self, doctor_id, new_appointment_id):
         self.__user_registry.doctor.add_appointment_id(int(doctor_id), new_appointment_id)
@@ -156,6 +156,9 @@ class Mediator:
         return self.__appointment_registry.checkout_cart(cart_items, patient_id)
 
     # # Scheduler calls
+
+    def find_availability(self, clinic_id, date_time, walk_in):
+        return self.__scheduler.find_availability(clinic_id, date_time, walk_in)
 
     def confirm_availability(self, clinic_id, date_time, walk_in):
         return self.__scheduler.confirm_availability(clinic_id, date_time, walk_in)

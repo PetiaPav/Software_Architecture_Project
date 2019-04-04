@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class Tools:
@@ -17,12 +17,12 @@ class Tools:
         id_counter = 0
         pydict = []
         # available slots are tuples of (week_index, day_index, slot_index)
-        for tup in available_slots:
-            start_time = "2019-" + year_2019_dict[tup[0]][tup[1]] + "T" + time_dict[tup[2]] + ":00"
+        for date_time in available_slots:
+            start_time = date_time.strftime("%Y-%m-%dT%H:%M:%S")
             if walk_in:
-                end_time = "2019-" + year_2019_dict[tup[0]][tup[1]] + "T" + time_dict[tup[2]+1] + ":00"
+                end_time = (date_time + timedelta(minutes=20)).strftime("%Y-%m-%dT%H:%M:%S")
             else:
-                end_time = "2019-" + year_2019_dict[tup[0]][tup[1]] + "T" + time_dict[tup[2]+3] + ":00"
+                end_time = (date_time + timedelta(minutes=60)).strftime("%Y-%m-%dT%H:%M:%S")
             pydict.append({
                 "id": id_counter,
                 "title": 'available',
@@ -33,43 +33,45 @@ class Tools:
         return json.dumps(pydict)
 
     @staticmethod
-    def json_from_available_slots_doctor_available(availability_list):
+    def json_from_doctor_week_availabilities(availability_dict):
         pydict = []
         counter = 0
-        for availability in availability_list:
+        for date_time, walk_in in availability_dict.items():
             counter += 1
             generated_id = "generated_available_" + str(counter)
-            available_slot = availability[0]
-            walk_in = availability[1]
-
-            start_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2]] + ":00"
+            start_time = date_time.strftime("%Y-%m-%dT%H:%M:%S")
             if walk_in:
-                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2] + 1] + ":00"
+                end_time = (date_time + timedelta(minutes=20)).strftime("%Y-%m-%dT%H:%M:%S")
                 event_title = "Walk-in"
             else:
-                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2] + 3] + ":00"
+                end_time = (date_time + timedelta(minutes=60)).strftime("%Y-%m-%dT%H:%M:%S")
                 event_title = "Annual"
             pydict.append({"title": event_title, "start": start_time, "end": end_time, "id": generated_id})
         return pydict
 
     @staticmethod
-    def json_from_available_slots_doctor_scheduled(availability_list):
+    def json_from_doctor_week_appointments(schedule_dict):
         pydict = []
         counter = 0
-        for availability in availability_list:
+        for date_time, walk_in in schedule_dict.items():
             counter += 1
             generated_id = "generated_booked_" + str(counter)
-            available_slot = availability[0]
-            walk_in = availability[1]
-            
-            start_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2]] + ":00"
+            start_time = date_time.strftime("%Y-%m-%dT%H:%M:%S")
+            event_color = "orange"
             if walk_in:
-                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2] + 1] + ":00"
+                end_time = (date_time + timedelta(minutes=20)).strftime("%Y-%m-%dT%H:%M:%S")
                 event_title = "Walk-in"
-                event_color = "orange"
             else:
-                end_time = "2019-" + year_2019_dict[available_slot[0]][available_slot[1]] + "T" + time_dict[available_slot[2] + 3] + ":00"
+                end_time = (date_time + timedelta(minutes=60)).strftime("%Y-%m-%dT%H:%M:%S")
                 event_title = "Annual"
-                event_color = "orange"
             pydict.append({"title": event_title, "start": start_time, "end": end_time, "color": event_color, "id": generated_id})
         return pydict
+
+    @staticmethod
+    def convert_to_python_datetime(fullcalendar_datetime):
+        hour = 0
+        minute = 0
+        if len(fullcalendar_datetime) > len("2019-04-01T00:"):
+            hour = int(fullcalendar_datetime[11:13])
+            minute = int(fullcalendar_datetime[14:16])
+        return datetime(int(fullcalendar_datetime[0:4]), int(fullcalendar_datetime[5:7]), int(fullcalendar_datetime[8:10]), hour, minute)
