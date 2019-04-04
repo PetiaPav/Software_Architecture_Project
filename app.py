@@ -443,8 +443,8 @@ def create_app(db_env="ubersante", debug=False):
     @is_logged_in
     def return_doctor_schedule():
         if request.method == 'GET':
-            return mediator.get_doctor_schedule_by_week(session['id'], request.args['start'])
-
+            doctor = mediator.get_doctor_by_id(session['id'])
+            return doctor.generic_week_availability_list
         if request.method == 'POST':
             mediator.set_doctor_generic_availability_from_json(session['id'], request.json)
             result = {'url': url_for('doctor_view_schedule')}

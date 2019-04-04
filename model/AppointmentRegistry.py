@@ -81,16 +81,6 @@ class AppointmentRegistry:
                 room_bookings[appointment.date_time] = appointment.walk_in
         return room_bookings
 
-    def get_appointments_by_doctor_id_and_week(self, doctor_id, week_index):
-        print("@@@@ get_appointments_by_doctor_id_and_week() has been commented out")
-
-        # This method is to be removed. Doctors will have a list of their appointments
-
-        # appointments_by_doctor_and_week = self.get_appointments_by_doctor_id(int(doctor_id))
-        # if appointments_by_doctor_and_week is not None:
-        #     appointments_by_doctor_and_week[:] = [appointment for appointment in appointments_by_doctor_and_week if Tools.get_week_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index) == week_index]
-        # return appointments_by_doctor_and_week
-
     def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
         room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in)
         if room_doctor_tuple is not None:
