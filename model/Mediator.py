@@ -110,7 +110,6 @@ class Mediator:
     def update_doctor_appointment_ids(self, appointments_created):
         self.__user_registry.doctor.update_appointment_ids(appointments_created)
 
-
     # # # Nurse calls
 
     def get_all_nurses(self):
@@ -125,7 +124,6 @@ class Mediator:
     def register_nurse(self, first_name, last_name, password, access_id):
         self.__user_registry.nurse.register(first_name, last_name, password, access_id)
 
-
     # # Clinic calls
 
     def get_all_clinics(self):
@@ -133,7 +131,6 @@ class Mediator:
 
     def get_clinic_by_id(self, clinic_id):
         return self.__clinic_registry.get_by_id(clinic_id)
-
 
     # # Appointment calls
 
