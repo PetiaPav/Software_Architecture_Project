@@ -15,7 +15,8 @@ class Clinic:
 
 
 class Room:
-    def __init__(self, name, bookings_dict):
+    def __init__(self, id, name, bookings_dict):
+        self.id = id
         self.name = name
         # booking dict is a key, value pair of datetime (appointment time), boolean (appointment is walk-in)
         self.bookings_dict = bookings_dict

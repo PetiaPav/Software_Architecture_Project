@@ -30,8 +30,8 @@ class AppointmentRegistry:
     def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
         room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in)
         if room_doctor_tuple is not None:
-            room_id = room_doctor_tuple[0]
-            doctor_id = room_doctor_tuple[1]
+            room_id = room_doctor_tuple[0].id
+            doctor_id = room_doctor_tuple[1].id
 
             # Create new appointment with default id -1
             appointment = Appointment(-1, clinic_id, room_id, doctor_id, patient_id, date_time, walk_in)
