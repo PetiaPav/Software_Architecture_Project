@@ -45,13 +45,8 @@ class ClinicRegistry:
             if tdg_dict_of_rooms is not None:
                 for room in tdg_dict_of_rooms:
                     room_id = room['id']
-                    bookings_dict = {}
-                    tdg_room_bookings = self.tdg.get_room_bookings_by_room_id(room_id)
-                    if tdg_room_bookings is not None:
-                        for room_booking in tdg_room_bookings:
-                            date_time = room_booking['date_time']
-                            walk_in = True if int(room_booking['walk_in']) == 1 else False
-                            bookings_dict[date_time] = walk_in
+                    bookings_dict = self.mediator.get_room_bookings_by_room_id(room_id)
+                    bookings_dict = bookings_dict if bookings_dict is not None else {}
                     dict_of_rooms[room_id] = Room(room_id, room['name'], bookings_dict)
 
             business_hours = BusinessHours(BusinessDays.SEVEN_DAYS, opening_time, closing_time)

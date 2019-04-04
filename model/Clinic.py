@@ -13,6 +13,8 @@ class Clinic:
         self.rooms = dict_of_rooms
         self.business_hours = business_hours
 
+    def get_room_by_id(self, id):
+        return self.rooms[int(id)]
 
 class Room:
     def __init__(self, id, name, bookings_dict):
@@ -20,6 +22,10 @@ class Room:
         self.name = name
         # booking dict is a key, value pair of datetime (appointment time), boolean (appointment is walk-in)
         self.bookings_dict = bookings_dict
+
+    def add_booking(self, date_time, walk_in):
+        if date_time is not None:
+            self.bookings_dict[date_time] = walk_in
 
     def get_availability(self, date_time, walk_in):
         date_time_to_check = date_time

@@ -22,9 +22,21 @@ class AppointmentRegistry:
     def populate(self):
         appointments = self.tdg.get_all_appointments()
         for appointment in appointments:
+
+            appointment_id = int(appointment['id'])
+            clinic = self.mediator.get_clinic_by_id(int(appointment['clinic_id']))
+            room = clinic.get_room_by_id(int(appointment['room_id']))
+            doctor = self.mediator.get_doctor_by_id(int(appointment['doctor_id']))
+            patient = self.mediator.get_patient_by_id(int(appointment['patient_id']))
+            date_time = appointment['date_time']
             walk_in = True if appointment['walk_in'] == 1 else False
-            new_appointment = Appointment(int(appointment['id']), int(appointment['clinic_id']), int(appointment['room_id']), int(appointment['doctor_id']), int(appointment['patient_id']), appointment['date_time'], walk_in)
-            self.catalog_dict[new_appointment.id] = new_appointment
+
+            new_appointment = Appointment(appointment_id, clinic, room, doctor, patient, date_time, walk_in)
+            self.catalog_dict[appointment_id] = new_appointment
+
+            doctor.add_appointment(new_appointment)
+            patient.add_appointment(new_appointment)
+            room.add_booking(date_time, walk_in)
 
 
     def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
@@ -149,3 +161,10 @@ class AppointmentRegistry:
             else:
                 result['rejected_items'].append(item)
         return result
+
+    def get_room_bookings_by_room_id(self, room_id):
+        room_bookings = {}
+        for appointment in self.catalog_dict.values():
+            if appointment.room.id == room_id:
+                room_bookings[appointment.date_time] = appointment.walk_in
+        return room_bookings

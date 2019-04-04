@@ -26,6 +26,9 @@ class Patient(User):
         self.cart = cart
         self.appointment_list = appointment_list
 
+    def add_appointment(self, appointment):
+        if appointment is not None:
+            self.appointment_list.extend(appointment)
 
 class Nurse(User):
     def __init__(self, id, first_name, last_name, password, access_id):
@@ -45,6 +48,10 @@ class Doctor(User):
         # adjustments are objects defined in the Adjustment class below
         self.adjustment_list = adjustment_list
         self.appointment_list = appointment_list
+
+    def add_appointment(self, appointment):
+        if appointment is not None:
+            self.appointment_list.extend(appointment)
 
     def get_week_availability_walk_in(self, doctor_truth_table):
         # step 1: create an array to store the current doctors availabilities

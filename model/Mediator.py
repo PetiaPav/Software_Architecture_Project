@@ -15,15 +15,14 @@ class Mediator:
         self.__tdg = Tdg(app, db_env)
 
         # Registy loading order matters
-
-        print("Loading Appointment Registry . . . ")
-        self.__appointment_registry = AppointmentRegistry.get_instance(self, self.__tdg)
-
         print("Loading User Registry . . . ")
         self.__user_registry = UserRegistry.get_instance(self, self.__tdg)
 
         print("Loading Clinic Registry . . . ")
         self.__clinic_registry = ClinicRegistry.get_instance(self, self.__tdg)
+
+        print("Loading Appointment Registry . . . ")
+        self.__appointment_registry = AppointmentRegistry.get_instance(self, self.__tdg)
 
         self.__scheduler = Scheduler(self)
 
@@ -157,6 +156,9 @@ class Mediator:
 
     def checkout_cart(self, cart_items, patient_id):
         return self.__appointment_registry.checkout_cart(cart_items, patient_id)
+
+    def get_room_bookings_by_room_id(self, room_id):
+        return self.__appointment_registry.get_room_bookings_by_room_id(room_id)
 
     # # Scheduler calls
 
