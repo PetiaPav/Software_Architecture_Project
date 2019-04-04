@@ -8,10 +8,10 @@ class WrapDoctorEvent():
 
         self.walk_in = self.convert_fullcalendar_Walk_in(fullcalendar_event['title'])
 
-    def convert_fullcalendar_day(self, fullcalenday_day):
-        fullcalenday_day = int(fullcalenday_day)
-        fullcalenday_day = 6 if fullcalenday_day == 0 else fullcalenday_day - 1
-        return fullcalenday_day
+    def convert_fullcalendar_day(self, fullcalendar_day):
+        fullcalendar_day = int(fullcalendar_day)
+        fullcalendar_day = 6 if fullcalendar_day == 0 else fullcalendar_day - 1
+        return fullcalendar_day
 
     def convert_fullcalendar_Walk_in(self, fullcalendar_Walkin):
         return True if fullcalendar_Walkin == 'Walk-in' else False
