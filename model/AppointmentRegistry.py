@@ -121,18 +121,26 @@ class AppointmentRegistry:
     def delete_appointment(self, appointment_id):
         if int(appointment_id) in self.catalog_dict:
             appointment_to_delete = self.catalog_dict[int(appointment_id)]
-            if appointment_to_delete.appointment_slot.id is not None:
-                self.tdg.delete_room_slot(appointment_to_delete.appointment_slot.id)
-            clinic_id = appointment_to_delete.clinic_id
-            appointment_slot = appointment_to_delete.appointment_slot
-            # remove from the appointment registry
-            del self.catalog_dict[int(appointment_id)]
-            # remove from the patient's appointment list
-            self.mediator.delete_patient_appointment(appointment_slot.patient_id, appointment_id)
-            # remove from the doctor's appointment list
-            self.mediator.delete_doctor_appointment(appointment_slot.doctor_id, appointment_id)
-            # clear the room schedule
-            return Scheduler.mark_as_available(self.mediator.get_clinic_by_id(clinic_id), appointment_slot)
+            if appointment_to_delete is not None:
+                # Remove room booking
+                room = appointment_to_delete.room
+                date_time = appointment_to_delete.date_time
+                room.remove_booking(date_time)
+
+                # Remove appointment from doctor's appointment list
+                doctor = appointment_to_delete.doctor
+                doctor.remove_appointment(appointment_to_delete)
+
+                # Remove appointment from patient's appointment list
+                patient = appointment_to_delete.patient
+                patient.remove_appointment(appointment_to_delete)
+
+                # Remove appointment from APPOINTMENTS table in db
+                self.tdg.remove_appointment(appointment_to_delete.id)
+
+                # Remove appointment from memory
+                self.catalog_dict.pop(appointment_to_delete.id)
+                return True
         return False
 
     def modify_appointment(self, appointment_id, new_date_time, walk_in):

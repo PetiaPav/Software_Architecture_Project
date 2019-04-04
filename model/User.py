@@ -30,6 +30,10 @@ class Patient(User):
         if appointment is not None:
             self.appointment_list.extend(appointment)
 
+    def remove_appointment(self, appointment):
+        if appointment in self.appointment_list:
+            self.appointment_list.remove(appointment)
+
 class Nurse(User):
     def __init__(self, id, first_name, last_name, password, access_id):
         User.__init__(self, id, first_name, last_name, password)
@@ -52,6 +56,10 @@ class Doctor(User):
     def add_appointment(self, appointment):
         if appointment is not None:
             self.appointment_list.extend(appointment)
+
+    def remove_appointment(self, appointment):
+        if appointment in self.appointment_list:
+            self.appointment_list.remove(appointment)
 
     def get_week_availability_walk_in(self, doctor_truth_table):
         # step 1: create an array to store the current doctors availabilities
@@ -243,10 +251,6 @@ class DoctorMapper:
         if appointment_id not in doctor.appointment_ids:
             doctor.appointment_ids.append(appointment_id)
 
-    def delete_appointment(self, doctor_id, appointment_id):
-        doctor = self.get_by_id(doctor_id)
-        doctor.appointment_ids.remove(appointment_id)
-
 
 class PatientMapper:
     def __init__(self, mediator, tdg):
@@ -342,10 +346,6 @@ class PatientMapper:
             appointment_list
         )
         self.catalog_dict[patient_id] = patient_obj
-
-    def delete_appointment(self, patient_id, appointment_id):
-        patient = self.get_by_id(patient_id)
-        patient.appointment_ids.remove(appointment_id)
 
 
 class NurseMapper:

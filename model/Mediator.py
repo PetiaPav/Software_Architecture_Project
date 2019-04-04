@@ -74,9 +74,6 @@ class Mediator:
     def insert_patient_batch_appointment_ids(self, patient_id, appointment_ids):
         self.__user_registry.patient.insert_appointment_ids(int(patient_id), appointment_ids)
 
-    def delete_patient_appointment(self, patient_id, appointment_id):
-        self.__user_registry.patient.delete_appointment(int(patient_id), int(appointment_id))
-
     # # # Doctor calls
 
     def get_all_doctors(self):
@@ -102,9 +99,6 @@ class Mediator:
 
     def add_doctor_appointment_id(self, doctor_id, new_appointment_id):
         self.__user_registry.doctor.add_appointment_id(int(doctor_id), new_appointment_id)
-
-    def delete_doctor_appointment(self, doctor_id, appointment_id):
-        self.__user_registry.doctor.delete_appointment(int(doctor_id), int(appointment_id))
 
     def update_doctor_appointment_ids(self, appointments_created):
         self.__user_registry.doctor.update_appointment_ids(appointments_created)

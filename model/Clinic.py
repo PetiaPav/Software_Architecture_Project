@@ -27,6 +27,10 @@ class Room:
         if date_time is not None:
             self.bookings_dict[date_time] = walk_in
 
+    def remove_booking(self, date_time):
+        # Removes booking from dictionary if it exists otherwise None
+        return self.bookings_dict.pop(date_time, None)
+
     def get_availability(self, date_time, walk_in):
         date_time_to_check = date_time
         if date_time_to_check in self.bookings_dict:  # Checking the requested time
