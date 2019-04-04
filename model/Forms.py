@@ -48,6 +48,7 @@ def permit_number(form, field):
     if data < 1000000 or data > 9999999:
         raise ValidationError('Please enter a valid 7-digit licence number.')
 
+
 def nurse_access(form, field):
     if len(field.data) == 0:
         raise ValidationError('Please enter a nurse access id number.')
@@ -131,3 +132,4 @@ def generate_nurse_form(selected_object, request):
     form.access_id.data = selected_object.access_id
 
     return form
+    
