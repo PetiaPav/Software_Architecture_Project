@@ -406,7 +406,7 @@ def create_app(db_env="ubersante", debug=False):
         patient = mediator.get_patient_by_id(session['id'])  # Get patient from user registry
         checkout_result = mediator.checkout_cart(patient.cart.get_all(), patient.id)  # Save checkout result
 
-        mediator.add_appointment_batch(patient.id, checkout_result['accepted_appt_ids'])
+        mediator.add_appointment_batch(patient.id, checkout_result['accepted_appointments'])
 
         patient.cart.batch_remove(checkout_result['accepted_items'])  # Removing successfully added items from cart
         patient.cart.batch_mark_booked(checkout_result['rejected_items'])  # Mark unavailable items in cart for frontend
