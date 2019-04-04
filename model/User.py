@@ -143,8 +143,7 @@ class DoctorMapper:
                     adjustment = Adjustment(int(adjustment_row['id']), adjustment_row['date_time'], operation_type_add, walk_in)
                     adjustment_list.append(adjustment)
 
-            appointment_list = self.mediator.get_appointments_by_doctor_id(doctor_id)
-            appointment_list = appointment_list if appointment_list is not None else []
+            appointment_list = []
 
             doctor_obj = Doctor(
                 doctor['id'],
@@ -263,8 +262,7 @@ class PatientMapper:
         patient_dict = self.tdg.get_all_patients()
         for patient in patient_dict:
             patient_id = int(patient['id'])
-            appointment_list = self.mediator.get_appointments_by_patient_id(patient_id)
-            appointment_list = appointment_list if appointment_list is not None else []
+            appointment_list = []
             patient_obj = Patient(
                 patient_id,
                 patient['first_name'],

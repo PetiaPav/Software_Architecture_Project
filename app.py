@@ -288,21 +288,15 @@ def create_app(db_env="ubersante", debug=False):
 
     def view_appointments_for_user(id):
         selected_patient = mediator.get_patient_by_id(id)
-        appointments_ids = selected_patient.appointment_ids
-        patient_appointments = []
+        patient_appointments = selected_patient.appointment_list
         appointment_clinics = []
         date_list = []
         time_list = []
-        for id in appointments_ids:
-            appointment = mediator.get_appointment_by_id(id)
-            patient_appointments.append(appointment)
-            appointment_clinics.append(mediator.get_clinic_by_id(appointment.clinic_id))
-            appointment_date_time = Tools.get_date_time_from_slot_yearly_index(int(appointment.appointment_slot.slot_yearly_index))
-
-            appointment_datetime = datetime.strptime(appointment_date_time, '%Y-%m-%dT%H:%M:%S')
+        for appointment in patient_appointments:
+            appointment_clinics.append(appointment.clinic)
+            appointment_datetime = datetime.strptime(appointment.date_time, '%Y-%m-%dT%H:%M:%S')
             appointment_date = appointment_datetime.date().isoformat()
             appointment_time = appointment_datetime.time().isoformat()
-
             date_list.append(appointment_date)
             time_list.append(appointment_time)
 
