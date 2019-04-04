@@ -250,7 +250,7 @@ def create_app(db_env="ubersante", debug=False):
 
     def view_appointments_for_user(id):
         selected_patient = mediator.get_patient_by_id(id)
-        patient_appointments = selected_patient.appointment_list
+        patient_appointments = selected_patient.appointment_dict.values()
         appointment_clinics = []
         date_list = []
         time_list = []

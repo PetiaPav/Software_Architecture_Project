@@ -30,7 +30,7 @@ class Patient(User):
 
     def add_appointment(self, appointment):
         if appointment is not None:
-            self.appointment_dict[appointment.id] = appointment
+            self.appointment_dict[appointment.date_time] = appointment
 
     def remove_appointment(self, appointment):
         return self.appointment_dict.pop(appointment, None)
@@ -54,7 +54,7 @@ class Doctor(User):
 
     def add_appointment(self, appointment):
         if appointment is not None:
-            self.appointment_dict[appointment.id] = appointment
+            self.appointment_dict[appointment.date_time] = appointment
 
     def remove_appointment(self, appointment):
         return self.appointment_dict.pop(appointment, None)
@@ -331,7 +331,7 @@ class PatientMapper:
         patient.appointment_ids = patient.appointment_ids + appointment_ids
 
     def insert_patient(self, patient_id, email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address):
-        appointment_list = []
+        appointment_dict = {}
         patient_obj = Patient(
             patient_id,
             first_name,
@@ -344,7 +344,7 @@ class PatientMapper:
             physical_address,
             email,
             Cart(),
-            appointment_list
+            appointment_dict
         )
         self.catalog_dict[patient_id] = patient_obj
 

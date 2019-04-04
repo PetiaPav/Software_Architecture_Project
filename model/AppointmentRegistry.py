@@ -138,10 +138,10 @@ class AppointmentRegistry:
         if existing_appointment is not None:
             patient_id = existing_appointment.patent.id
             clinic_id = existing_appointment.clinic.id
-            new_appointment_id = self.add_appointment(patient_id, clinic_id, new_date_time, walk_in)
-            if new_appointment_id is not None:
+            new_appointment = self.add_appointment(patient_id, clinic_id, new_date_time, walk_in)
+            if new_appointment is not None:
                 self.delete_appointment(int(appointment_id))
-                return new_appointment_id
+                return new_appointment
         return None
 
     def checkout_cart(self, item_list, patient_id):
