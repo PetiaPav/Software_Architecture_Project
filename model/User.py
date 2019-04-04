@@ -1,13 +1,15 @@
 
 from datetime import timedelta, datetime
+from typing import List, Dict
+from model.Appointment import Appointment
 from model.Tool import Tools
-import copy
+from model.FullCalendarEventWrapper import WrapDoctorGenericEvent, WrapDoctorAdjustmentEvent
 from flask import flash
 import json
 
 
 class User:
-    def __init__(self, id, first_name, last_name, password):
+    def __init__(self, id, first_name: str, last_name: str, password):
         self.id = id
         self.first_name = first_name
         self.last_name = last_name
@@ -15,7 +17,7 @@ class User:
 
 
 class Patient(User):
-    def __init__(self, id, first_name, last_name, password, health_card, birthday, gender, phone_number, physical_address, email, cart, appointment_list):
+    def __init__(self, id, first_name: str, last_name: str, password, health_card, birthday, gender, phone_number, physical_address, email, cart, appointment_dict):
         User.__init__(self, id, first_name, last_name, password)
         self.health_card = health_card
         self.birthday = birthday
@@ -24,15 +26,15 @@ class Patient(User):
         self.physical_address = physical_address
         self.email = email
         self.cart = cart
-        self.appointment_list = appointment_list
+        self.appointment_dict = appointment_dict
 
     def add_appointment(self, appointment):
         if appointment is not None:
-            self.appointment_list.extend(appointment)
+            self.appointment_dict[appointment.id] = appointment
 
     def remove_appointment(self, appointment):
-        if appointment in self.appointment_list:
-            self.appointment_list.remove(appointment)
+        return self.appointment_dict.pop(appointment, None)
+
 
 class Nurse(User):
     def __init__(self, id, first_name, last_name, password, access_id):
@@ -41,67 +43,45 @@ class Nurse(User):
 
 
 class Doctor(User):
-
-    def __init__(self, id, first_name, last_name, password, permit_number, specialty, city, generic_week_availability_list, adjustment_list, appointment_list):
+    def __init__(self, id, first_name, last_name, password, permit_number, specialty, city, generic_week_availability: List[Dict[datetime.time, bool]], adjustment_list, appointment_dict: Dict[datetime, Appointment]):
         User.__init__(self, id, first_name, last_name, password)
         self.permit_number = permit_number
         self.specialty = specialty
         self.city = city
-        # generic_week_availability_list contains dicts of datetime, walk_in-boolean pairs, index 0 is Monday, 6 is Sunday
-        self.generic_week_availability_list = generic_week_availability_list
-        # adjustments are objects defined in the Adjustment class below
+        self.generic_week_availability = generic_week_availability
         self.adjustment_list = adjustment_list
-        self.appointment_list = appointment_list
+        self.appointment_dict = appointment_dict
 
     def add_appointment(self, appointment):
         if appointment is not None:
-            self.appointment_list.extend(appointment)
+            self.appointment_dict[appointment.id] = appointment
 
     def remove_appointment(self, appointment):
-        if appointment in self.appointment_list:
-            self.appointment_list.remove(appointment)
+        return self.appointment_dict.pop(appointment, None)
 
-    def get_week_availability_walk_in(self, doctor_truth_table):
-        # step 1: create an array to store the current doctors availabilities
-        doctor_availabilities = []
+    def get_availability(self, date_time: datetime, walk_in: bool):
+        if date_time in self.appointment_dict:
+            return None
 
-        # step 2: add generic availabilities, converted to the requested week, if they are walk-ins
-        week_start_time = doctor_truth_table[0][1]
-        for day in range(0, self.generic_week_availability_list):
-            current_date_time = week_start_time + timedelta(days=day)
-            # loop through the dict of availabilities looking for walk-in availabilities
-            for date_time, walk_in in self.generic_week_availability_list[day]:
-                if walk_in is True:
-                    date_to_add = datetime(current_date_time.year, current_date_time.month, current_date_time.day, date_time.hour, date_time.minute)
-                    doctor_availabilities.append(date_to_add)
-
-        # step 3: add / remove adjustments
         for adjustment in self.adjustment_list:
-            if adjustment.walk_in is True and week_start_time < adjustment.date_time and adjustment.date_time < week_start_time + timedelta(days=7):
-                if adjustment.operation_type_add is True:
-                    if adjustment.date_time not in doctor_availabilities:
-                        doctor_availabilities.append(adjustment.date_time)
+            if adjustment.date_time == date_time:
+                if adjustment.operation_type_add:
+                    if adjustment.walk_in == walk_in:
+                        return self
                 else:
-                    if adjustment.date_time in doctor_availabilities:
-                        doctor_availabilities.remove(adjustment.date_time)
+                    return None
 
-        # step 4: remove bookings
-        if len(self.appointment_list) > 0:
-            for appointment in self.appointment_list:
-                if week_start_time < appointment.date_time and appointment.date_time < week_start_time + timedelta(days=7):
-                    if appointment.date_time in doctor_availabilities:
-                        doctor_availabilities.remove(appointment.date_time)
-
-        # step 5: merge the availabilitis to the truth table
-        for truth_table_iterator in range(0, len(doctor_truth_table)):
-            if doctor_truth_table[truth_table_iterator][0] is False:
-                if doctor_truth_table[truth_table_iterator][1] in doctor_availabilities:
-                    doctor_truth_table[truth_table_iterator][0] = True
-
-        return doctor_truth_table
+        generic_day_availability = self.generic_week_availability[date_time.weekday()]
+        try:
+            if generic_day_availability[date_time.time()] == walk_in:
+                return self
+            else:
+                return None
+        except KeyError:
+            return None
 
 
-class Adjustment():
+class Adjustment:
     def __init__(self, id, date_time, operation_type_add, walk_in):
         self.id = id
         self.date_time = date_time
@@ -129,9 +109,9 @@ class DoctorMapper:
                     walk_in = True if generic_availability_row['walk_in'] == 1 else False
                     # Monday is 0, Sunday is 6 generic availabilities are stored in the week of September 30th, 2019
                     if date_time.day == 30:
-                        generic_week_availability_list[0][date_time] = walk_in
+                        generic_week_availability_list[0][date_time.time()] = walk_in
                     else:
-                        generic_week_availability_list[date_time.day][date_time] = walk_in
+                        generic_week_availability_list[date_time.day][date_time.time()] = walk_in
 
             doctor_adjustments = self.tdg.get_doctor_adjustments(doctor_id)
             adjustment_list = []
@@ -143,7 +123,7 @@ class DoctorMapper:
                     adjustment = Adjustment(int(adjustment_row['id']), adjustment_row['date_time'], operation_type_add, walk_in)
                     adjustment_list.append(adjustment)
 
-            appointment_list = []
+            appointment_dict = {}
 
             doctor_obj = Doctor(
                 doctor['id'],
@@ -155,7 +135,7 @@ class DoctorMapper:
                 doctor['city'],
                 generic_week_availability_list,
                 adjustment_list,
-                appointment_list
+                appointment_dict
             )
 
             self.catalog_dict[doctor_id] = doctor_obj
@@ -181,74 +161,97 @@ class DoctorMapper:
     def set_generic_availability_from_json(self, doctor_id, json):
         doctor = self.get_by_id(int(doctor_id))
         # reset the current generic availability in working memory
-        doctor.generic_week_availability_list = []
-        list_for_tdg = []
+        doctor.generic_week_availability = [{}, {}, {}, {}, {}, {}, {}]
+
         for event in json:
-            walk_in = True if event['title'] == 'Walk-in' else False
-            # TODO
+            event = WrapDoctorGenericEvent(event)
+            doctor.generic_week_availability[event.day][event.time] = event.walk_in
 
-    def set_special_availability_from_json(self, doctor_id, json):
-        list_for_tdg = []
-        list_of_ids_to_delete = []
-        doctor = self.get_by_id(doctor_id)
+        # update the db
+        self.tdg.update_doctor_generic_availabilities(doctor.id, doctor.generic_week_availability)
+
+    def set_adjustments_from_json(self, doctor_id, json):
+        doctor = self.get_by_id(int(doctor_id))
+        adjustments_to_delete = []
         for event in json:
-            walk_in = True if event['title'] == "Walk-in" else False
-            week_index = Tools.get_week_index_from_date(event['time'])
-            day_index = int(event['day'])
-            slot_index = Tools.get_slot_index_from_time((event['time'])[11:16])
-            available = True if event['id'] == 'new-availability' else False
-            if event['id'] == 'removed-availability':
-                for special_availability in doctor.availability_special:
-                    if special_availability.slot_index == slot_index and special_availability.day_index == day_index and special_availability.week_index == week_index:
-                        if special_availability.id is not None:
-                            list_of_ids_to_delete.append(special_availability.id)
-                        doctor.availability_special.remove(special_availability)
-            doctor.availability_special.append(SpecialAvailability(None, week_index, day_index, slot_index, available, walk_in))
-            list_for_tdg.append(SpecialAvailability("NULL", week_index, day_index, slot_index, available, walk_in))
-        self.tdg.update_doctor_availabilities_special(int(doctor_id), list_for_tdg, list_of_ids_to_delete)
+            event = WrapDoctorAdjustmentEvent(event)
+            for adjustment in doctor.adjustment_list:
+                # remove any existing adjustments for the same datetime
+                if adjustment.date_time == event.date_time:
+                    if adjustment.id != -1:
+                        adjustments_to_delete.append(adjustment)
+                    doctor.adjustment_list.remove(adjustment)
+            adjustment_to_add = Adjustment(-1, event.date_time, event.operation_type_add, event.walk_in)
+            # update the db
+            adjustment_to_add.id = self.tdg.insert_doctor_adjustment(doctor.id, adjustment_to_add)
+            # update working memory with a valid db id
+            doctor.adjustment_list.append(adjustment_to_add)
+        # batch remove over-written adjustments
+        self.tdg.remove_doctor_adjustments(doctor.id, adjustments_to_delete)
 
-    def get_schedule_by_week(self, doctor_id, date_time, scheduled_appointments):
+    def get_schedule_by_week(self, doctor_id, fullcalendar_datetime):
         doctor = self.get_by_id(doctor_id)
-        availabilities = []
-        new_scheduled_appointments = []
-        week_index = Tools.get_week_index_from_date(date_time)
-        week_availabilities = doctor.get_week_availability(week_index)
-        if scheduled_appointments is not None:
-            for appointment in scheduled_appointments:
-                day_index = Tools.get_day_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index)
-                slot_index = Tools.get_slot_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index)
-                walk_in = appointment.appointment_slot.walk_in
-                week_availabilities.day[day_index].slot[slot_index].available = False
-                if walk_in is False:
-                    for inner_slot_index in range(slot_index + 1, slot_index + 2):
-                        week_availabilities.day[day_index].slot[inner_slot_index].available = False
-                new_scheduled_appointments.append(((week_index, day_index, slot_index), walk_in))
+        date_time = Tools.convert_to_python_datetime(fullcalendar_datetime)
+        week_start_time = self.week_start_from_date_time(date_time)
+        week_end_time = self.week_end_from_week_start(week_start_time)
 
-        for day in range(0, 7):
-            inner_slot_index = 0
-            while inner_slot_index < 72:
-                current_slot = week_availabilities.day[day].slot[inner_slot_index]
-                if current_slot.available is True:
-                    availabilities.append(((week_index, day, inner_slot_index), current_slot.walk_in))
-                if current_slot.walk_in is False:
-                    inner_slot_index += 2
-                inner_slot_index += 1
+        requested_week_availabilities_dict = {}
+        for day in range(0, len(doctor.generic_week_availability)):
+            daily_availability = doctor.generic_week_availability[day]
+            for time, walk_in in daily_availability.items():
+                availability_date_time = week_start_time + timedelta(days=day)
+                availability_date_time = datetime(availability_date_time.year, availability_date_time.month, availability_date_time.day, time.hour, time.minute)
+                requested_week_availabilities_dict[availability_date_time] = walk_in
 
-        event_source = Tools.json_from_available_slots_doctor_available(availabilities)
-        event_source2 = Tools.json_from_available_slots_doctor_scheduled(new_scheduled_appointments)
+        for adjustment in doctor.adjustment_list:
+            if adjustment.date_time > week_start_time and adjustment.date_time < week_end_time:
+                if adjustment.operation_type_add is True:
+                    requested_week_availabilities_dict[adjustment.date_time] = adjustment.walk_in
+                else:
+                    if adjustment.date_time in requested_week_availabilities_dict:
+                        del requested_week_availabilities_dict[adjustment.date_time]
+
+        requested_week_appointments_dict = {}
+        for appointment in doctor.appointment_dict.values():
+            if appointment.date_time > week_start_time and appointment.date_time < week_end_time:
+                requested_week_appointments_dict[appointment.date_time] = appointment.walk_in
+
+        event_source = Tools.json_from_doctor_week_availabilities(requested_week_availabilities_dict)
+        event_source2 = Tools.json_from_doctor_week_appointments(requested_week_appointments_dict)
         for item in event_source2:
             event_source.append(item)
         return json.dumps(event_source)
 
+    # needs to be updated to support new appointment_dict structure
     def update_appointment_ids(self, appointments):
         for appointment in appointments:
             doctor = self.get_by_id(appointment.appointment_slot.doctor_id)
             doctor.appointment_ids.append(appointment.id)
 
+    # needs to be updated to support new appointment_dict structure
     def add_appointment_id(self, doctor_id, appointment_id):
         doctor = self.get_by_id(doctor_id)
         if appointment_id not in doctor.appointment_ids:
             doctor.appointment_ids.append(appointment_id)
+
+    # needs to be updated to support new appointment_dict structure
+    def delete_appointment(self, doctor_id, appointment_id):
+        doctor = self.get_by_id(doctor_id)
+        doctor.appointment_ids.remove(appointment_id)
+
+    def week_start_from_date_time(self, date_time):
+        week_start_time = date_time
+        # Monday is 0 and Sunday is 6
+        weekday = date_time.weekday()
+        if weekday is not 0:
+            week_start_time = date_time - timedelta(days=weekday)
+        week_start_time = datetime(week_start_time.year, week_start_time.month, week_start_time.day, 0, 0)
+        return week_start_time
+
+    def week_end_from_week_start(self, week_start_time):
+        week_end_time = week_start_time + timedelta(days=6)
+        week_end_time = datetime(week_end_time.year, week_end_time.month, week_end_time.day, 23, 40)
+        return week_end_time
 
 
 class PatientMapper:
@@ -262,7 +265,7 @@ class PatientMapper:
         patient_dict = self.tdg.get_all_patients()
         for patient in patient_dict:
             patient_id = int(patient['id'])
-            appointment_list = []
+            appointment_dict = {}
             patient_obj = Patient(
                 patient_id,
                 patient['first_name'],
@@ -275,7 +278,7 @@ class PatientMapper:
                 patient['physical_address'],
                 patient['email'],
                 Cart(),
-                appointment_list
+                appointment_dict
             )
             self.catalog_dict[patient['id']] = patient_obj
 
@@ -381,16 +384,6 @@ class NurseMapper:
         new_nurse_id = self.tdg.insert_nurse(first_name, last_name, password, access_id)
         if new_nurse_id is not None:
             self.catalog_dict[new_nurse_id] = Nurse(new_nurse_id, first_name, last_name, password, access_id)
-
-
-class SpecialAvailability:
-    def __init__(self, id, week_index, day_index, slot_index, available, walk_in):
-        self.id = id
-        self.week_index = week_index
-        self.day_index = day_index
-        self.slot_index = slot_index
-        self.available = available
-        self.walk_in = walk_in
 
 
 class Cart:

@@ -26,8 +26,8 @@ class ClinicRegistry:
             clinic_id = clinic['id']
             clinic_physical_address = clinic['physical_address']
             clinic_name = clinic['name']
-            opening_time = clinic['start_time']
-            closing_time = clinic['end_time']
+            opening_time = clinic['start_time'].time()
+            closing_time = clinic['end_time'].time()
             clinic_name = clinic['name']
             clinic_physical_address = clinic['physical_address']
 

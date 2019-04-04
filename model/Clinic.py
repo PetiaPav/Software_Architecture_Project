@@ -1,11 +1,11 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from enum import Enum
-
+from typing import Dict
 
 class Clinic:
     SLOT_DURATION = 20
 
-    def __init__(self, id, name, physical_address, dict_of_doctors, dict_of_rooms, business_hours):
+    def __init__(self, id: int, name: str, physical_address: str, dict_of_doctors, dict_of_rooms, business_hours):
         self.id = id
         self.name = name
         self.physical_address = physical_address
@@ -17,10 +17,9 @@ class Clinic:
         return self.rooms[int(id)]
 
 class Room:
-    def __init__(self, id, name, bookings_dict):
+    def __init__(self, id: int, name: str, bookings_dict: Dict[datetime, bool]):
         self.id = id
         self.name = name
-        # booking dict is a key, value pair of datetime (appointment time), boolean (appointment is walk-in)
         self.bookings_dict = bookings_dict
 
     def add_booking(self, date_time, walk_in):
@@ -36,23 +35,27 @@ class Room:
         if date_time_to_check in self.bookings_dict:  # Checking the requested time
             return None
 
-        #  Checking if there are annual appointments in the next two slots
+        #  Checking if there are annual appointments in the previous two slots
         date_time_to_check -= timedelta(minutes=20)
-        if date_time_to_check in self.bookings_dict and self.bookings_dict[date_time_to_check] is False:
-            return None
-
-        date_time_to_check -= timedelta(minutes=20)
-        if date_time_to_check in self.bookings_dict and self.bookings_dict[date_time_to_check] is False:
-            return None
+        if date_time_to_check in self.bookings_dict:
+            if self.bookings_dict[date_time_to_check] is False:
+                return None
+        else:
+            date_time_to_check -= timedelta(minutes=20)
+            if date_time_to_check in self.bookings_dict and self.bookings_dict[date_time_to_check] is False:
+                return None
 
         if not walk_in:  # If appointment to be booked is annual, must also check two slots ahead
+            # First we check if the clinic is open long enough to accomodate for an annual at this time
+            date_time_to_check = date_time + timedelta(minutes=40)
+            if date_time_to_check.time() >= closing_time:
+                return None
             date_time_to_check = date_time + timedelta(minutes=20)
             if date_time_to_check in self.bookings_dict:  # Checking the requested time
                 return None
             date_time_to_check += timedelta(minutes=20)
             if date_time_to_check in self.bookings_dict:
                 return None
-
         return self
 
 
