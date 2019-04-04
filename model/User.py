@@ -171,11 +171,11 @@ class DoctorMapper:
                     if adjustment.id != -1:
                         adjustments_to_delete.append(adjustment)
                     doctor.adjustment_list.remove(adjustment)
-                adjustment_to_add = Adjustment(-1, event.date_time, event.operation_type_add, event.walk_in)
-                # update the db
-                adjustment_to_add.id = self.tdg.insert_doctor_adjustment(doctor.id, adjustment_to_add)
-                # update working memory with a valid db id
-                doctor.adjustment_list.append(adjustment_to_add)
+            adjustment_to_add = Adjustment(-1, event.date_time, event.operation_type_add, event.walk_in)
+            # update the db
+            adjustment_to_add.id = self.tdg.insert_doctor_adjustment(doctor.id, adjustment_to_add)
+            # update working memory with a valid db id
+            doctor.adjustment_list.append(adjustment_to_add)
         # batch remove over-written adjustments
         self.tdg.remove_doctor_adjustments(doctor.id, adjustments_to_delete)
 
@@ -190,16 +190,16 @@ class DoctorMapper:
             daily_availability = doctor.generic_week_availability[day]
             for time, walk_in in daily_availability.items():
                 availability_date_time = week_start_time + timedelta(days=day)
-                availability_date_time = (availability_date_time.year, availability_date_time.month, availability_date_time.day, time.hour, time.minute)
+                availability_date_time = datetime(availability_date_time.year, availability_date_time.month, availability_date_time.day, time.hour, time.minute)
                 requested_week_availabilities_dict[availability_date_time] = walk_in
 
-            for adjustment in doctor.adjustment_list:
-                if adjustment.date_time > week_start_time and adjustment.date_time < week_end_time:
-                    if adjustment.operation_type_add is True:
-                        requested_week_availabilities_dict[adjustment.date_time] = adjustment.walk_in
-                    else:
-                        if adjustment.date_time in requested_week_availabilities_dict:
-                            del requested_week_availabilities_dict[adjustment.date_time] 
+        for adjustment in doctor.adjustment_list:
+            if adjustment.date_time > week_start_time and adjustment.date_time < week_end_time:
+                if adjustment.operation_type_add is True:
+                    requested_week_availabilities_dict[adjustment.date_time] = adjustment.walk_in
+                else:
+                    if adjustment.date_time in requested_week_availabilities_dict:
+                        del requested_week_availabilities_dict[adjustment.date_time] 
 
         requested_week_appointments_dict = {}
         for appointment in doctor.appointment_dict.values():

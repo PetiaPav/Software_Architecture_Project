@@ -39,7 +39,6 @@ class Tools:
         for date_time, walk_in in availability_dict.items():
             counter += 1
             generated_id = "generated_available_" + str(counter)
-            date_time = datetime(date_time[0], date_time[1], date_time[2], date_time[3], date_time[4])
             start_time = date_time.strftime("%Y-%m-%dT%H:%M:%S")
             if walk_in:
                 end_time = (date_time + timedelta(minutes=20)).strftime("%Y-%m-%dT%H:%M:%S")
@@ -70,5 +69,9 @@ class Tools:
 
     @staticmethod
     def convert_to_python_datetime(fullcalendar_datetime):
-        print("fullcalendar_datetime in Tools.convert_to_python_datetime :" + fullcalendar_datetime)
-        return datetime(int(fullcalendar_datetime[0:4]), int(fullcalendar_datetime[5:7]), int(fullcalendar_datetime[8:10]), int(fullcalendar_datetime[11:13]), int(fullcalendar_datetime[14:16]), int(fullcalendar_datetime[17:19]))
+        hour = 0
+        minute = 0
+        if len(fullcalendar_datetime) > len("2019-04-01T00:"):
+            hour = int(fullcalendar_datetime[11:13])
+            minute = int(fullcalendar_datetime[14:16])
+        return datetime(int(fullcalendar_datetime[0:4]), int(fullcalendar_datetime[5:7]), int(fullcalendar_datetime[8:10]), hour, minute)
