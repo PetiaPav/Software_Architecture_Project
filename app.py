@@ -402,14 +402,18 @@ def create_app(db_env="ubersante", debug=False):
 
     @app.route('/checkout', methods={"POST"})
     @is_logged_in
-    def checkout():  # checkout cart
-        patient = mediator.get_patient_by_id(session['id'])  # Get patient from user registry
-        checkout_result = mediator.checkout_cart(patient.cart.get_all(), patient.id)  # Save checkout result
+    def checkout_cart():
+        # Get patient from user registry
+        patient = mediator.get_patient_by_id(session['id'])
 
-        mediator.add_appointment_batch(patient.id, checkout_result['accepted_appointments'])
+        # Save checkout result
+        checkout_result = mediator.checkout_cart(patient.cart.get_all(), patient.id)
 
-        patient.cart.batch_remove(checkout_result['accepted_items'])  # Removing successfully added items from cart
-        patient.cart.batch_mark_booked(checkout_result['rejected_items'])  # Mark unavailable items in cart for frontend
+        # Removing successfully added items from cart
+        patient.cart.batch_remove(checkout_result['accepted_items'])
+
+        # Mark unavailable items in cart for frontend
+        patient.cart.batch_mark_booked(checkout_result['rejected_items'])
 
         # Until appointments are paid, will remain in session
         if 'items_to_pay' in session:

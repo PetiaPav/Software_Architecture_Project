@@ -102,7 +102,7 @@ class AppointmentRegistry:
             # Create new appointment with default id -1
             appointment = Appointment(-1, clinic, room, doctor, patient, date_time, walk_in)
 
-            # Add new appointment in APPOINTMENTS table in database
+            # Insert new appointment in APPOINTMENTS table in database
             appointment.id = self.tdg.insert_appointment(clinic_id, room.id, doctor.id, patient.id, date_time, walk_in)
 
             # Insert new appointment in catalog
@@ -117,15 +117,6 @@ class AppointmentRegistry:
             # Return reference to the newly created appointment
             return appointment
         return None
-
-    def add_appointment_batch(self, patient_id, accepted_ids):
-        self.mediator.insert_patient_batch_appointment_ids(patient_id, accepted_ids)
-
-        appointments_created = []
-        for appt_id in accepted_ids:
-            appointments_created.append(self.catalog_dict[appt_id])
-
-        self.mediator.update_doctor_appointment_ids(appointments_created)
 
     def delete_appointment(self, appointment_id):
         if int(appointment_id) in self.catalog_dict:
@@ -155,8 +146,9 @@ class AppointmentRegistry:
     def modify_appointment(self, appointment_id, new_date_time, walk_in):
         existing_appointment = self.get_by_id(int(appointment_id))
         if existing_appointment is not None:
-            patient_id = existing_appointment.appointment_slot.patient_id
-            new_appointment_id = self.add_appointment(patient_id, existing_appointment.clinic_id, new_date_time, walk_in)
+            patient_id = existing_appointment.patent.id
+            clinic_id = existing_appointment.clinic.id
+            new_appointment_id = self.add_appointment(patient_id, clinic_id, new_date_time, walk_in)
             if new_appointment_id is not None:
                 self.delete_appointment(int(appointment_id))
                 return new_appointment_id
