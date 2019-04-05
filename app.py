@@ -300,7 +300,7 @@ def create_app(db_env="ubersante", debug=False):
 
     @app.route('/selected_appointment/<id>/<start>')
     @is_logged_in
-    def selected_appointment(id, start):
+    def selected_appointment(event_id, start):
         clinic = mediator.get_clinic_by_id(session['selected_clinic'])
         if not session['has_selected_walk_in']:
             appointment_type = "Annual"
@@ -316,7 +316,7 @@ def create_app(db_env="ubersante", debug=False):
         patient_id = session['selected_patient'] if user_type == 'nurse' else session['id']
 
         selected_patient = mediator.get_patient_by_id(patient_id)
-        return render_template('appointment.html', eventid=id, clinic=clinic, walk_in=session['has_selected_walk_in'], date=selected_date, time=selected_time, datetime=str(selected_datetime), user_type=user_type, selected_patient=selected_patient)
+        return render_template('appointment.html', eventid=event_id, clinic=clinic, walk_in=session['has_selected_walk_in'], date=selected_date, time=selected_time, datetime=str(selected_datetime), user_type=user_type, selected_patient=selected_patient)
 
     @app.route('/book_for_patient', methods=["POST"])
     @is_logged_in
