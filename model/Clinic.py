@@ -2,7 +2,6 @@ from datetime import timedelta, datetime
 from enum import Enum
 from typing import Dict
 
-
 class Clinic:
     SLOT_DURATION = 20
 
@@ -14,13 +13,24 @@ class Clinic:
         self.rooms = dict_of_rooms
         self.business_hours = business_hours
 
+    def get_room_by_id(self, id):
+        return self.rooms[int(id)]
 
 class Room:
-    def __init__(self, name: str, bookings_dict: Dict[datetime, bool]):
+    def __init__(self, id: int, name: str, bookings_dict: Dict[datetime, bool]):
+        self.id = id
         self.name = name
         self.bookings_dict = bookings_dict
 
-    def get_availability(self, date_time: datetime, walk_in: bool, closing_time: datetime.time):
+    def add_booking(self, date_time, walk_in):
+        if date_time is not None:
+            self.bookings_dict[date_time] = walk_in
+
+    def remove_booking(self, date_time):
+        # Removes booking from dictionary if it exists otherwise None
+        return self.bookings_dict.pop(date_time, None)
+
+    def get_availability(self, date_time, walk_in):
         date_time_to_check = date_time
         if date_time_to_check in self.bookings_dict:  # Checking the requested time
             return None

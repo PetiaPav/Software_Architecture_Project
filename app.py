@@ -250,21 +250,15 @@ def create_app(db_env="ubersante", debug=False):
 
     def view_appointments_for_user(id):
         selected_patient = mediator.get_patient_by_id(id)
-        appointments_ids = selected_patient.appointment_ids
-        patient_appointments = []
+        patient_appointments = selected_patient.appointment_dict.values()
         appointment_clinics = []
         date_list = []
         time_list = []
-        for id in appointments_ids:
-            appointment = mediator.get_appointment_by_id(id)
-            patient_appointments.append(appointment)
-            appointment_clinics.append(mediator.get_clinic_by_id(appointment.clinic_id))
-            appointment_date_time = Tools.get_date_time_from_slot_yearly_index(int(appointment.appointment_slot.slot_yearly_index))
-
-            appointment_datetime = datetime.strptime(appointment_date_time, '%Y-%m-%dT%H:%M:%S')
+        for appointment in patient_appointments:
+            appointment_clinics.append(appointment.clinic)
+            appointment_datetime = datetime.strptime(appointment.date_time, '%Y-%m-%dT%H:%M:%S')
             appointment_date = appointment_datetime.date().isoformat()
             appointment_time = appointment_datetime.time().isoformat()
-
             date_list.append(appointment_date)
             time_list.append(appointment_time)
 
@@ -363,14 +357,18 @@ def create_app(db_env="ubersante", debug=False):
 
     @app.route('/checkout', methods={"POST"})
     @is_logged_in
-    def checkout():  # checkout cart
-        patient = mediator.get_patient_by_id(session['id'])  # Get patient from user registry
-        checkout_result = mediator.checkout_cart(patient.cart.get_all(), patient.id)  # Save checkout result
+    def checkout_cart():
+        # Get patient from user registry
+        patient = mediator.get_patient_by_id(session['id'])
 
-        mediator.add_appointment_batch(checkout_result['accepted_appt_ids'])
+        # Save checkout result
+        checkout_result = mediator.checkout_cart(patient.cart.get_all(), patient.id)
 
-        patient.cart.batch_remove(checkout_result['accepted_items'])  # Removing successfully added items from cart
-        patient.cart.batch_mark_booked(checkout_result['rejected_items'])  # Mark unavailable items in cart for frontend
+        # Removing successfully added items from cart
+        patient.cart.batch_remove(checkout_result['accepted_items'])
+
+        # Mark unavailable items in cart for frontend
+        patient.cart.batch_mark_booked(checkout_result['rejected_items'])
 
         # Until appointments are paid, will remain in session
         if 'items_to_pay' in session:
@@ -406,8 +404,8 @@ def create_app(db_env="ubersante", debug=False):
     @is_logged_in
     def return_doctor_schedule():
         if request.method == 'GET':
-            return mediator.get_doctor_schedule_by_week(session['id'], request.args['start'])
-
+            doctor = mediator.get_doctor_by_id(session['id'])
+            return doctor.generic_week_availability_list
         if request.method == 'POST':
             mediator.set_doctor_generic_availability_from_json(session['id'], request.json)
             result = {'url': url_for('doctor_view_schedule')}

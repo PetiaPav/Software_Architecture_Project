@@ -1,7 +1,6 @@
 
 from datetime import timedelta, datetime
 from typing import List, Dict
-
 from model.Appointment import Appointment
 from model.Tool import Tools
 from model.FullCalendarEventWrapper import WrapDoctorGenericEvent, WrapDoctorAdjustmentEvent
@@ -18,7 +17,7 @@ class User:
 
 
 class Patient(User):
-    def __init__(self, id, first_name: str, last_name: str, password, health_card, birthday, gender, phone_number, physical_address, email, cart, appointment_list):
+    def __init__(self, id, first_name: str, last_name: str, password, health_card, birthday, gender, phone_number, physical_address, email, cart, appointment_dict):
         User.__init__(self, id, first_name, last_name, password)
         self.health_card = health_card
         self.birthday = birthday
@@ -27,7 +26,14 @@ class Patient(User):
         self.physical_address = physical_address
         self.email = email
         self.cart = cart
-        self.appointment_list = appointment_list
+        self.appointment_dict = appointment_dict
+
+    def add_appointment(self, appointment):
+        if appointment is not None:
+            self.appointment_dict[appointment.date_time] = appointment
+
+    def remove_appointment(self, appointment):
+        return self.appointment_dict.pop(appointment, None)
 
 
 class Nurse(User):
@@ -45,6 +51,13 @@ class Doctor(User):
         self.generic_week_availability = generic_week_availability
         self.adjustment_list = adjustment_list
         self.appointment_dict = appointment_dict
+
+    def add_appointment(self, appointment):
+        if appointment is not None:
+            self.appointment_dict[appointment.date_time] = appointment
+
+    def remove_appointment(self, appointment):
+        return self.appointment_dict.pop(appointment, None)
 
     def get_availability(self, date_time: datetime, walk_in: bool):
         if date_time in self.appointment_dict:
@@ -110,10 +123,7 @@ class DoctorMapper:
                     adjustment = Adjustment(int(adjustment_row['id']), adjustment_row['date_time'], operation_type_add, walk_in)
                     adjustment_list.append(adjustment)
 
-            appointment_list = self.mediator.get_appointments_by_doctor_id(doctor_id)
             appointment_dict = {}
-            for appointment in appointment_list:
-                appointment_dict[appointment.date_time] = appointment
 
             doctor_obj = Doctor(
                 doctor['id'],
@@ -199,7 +209,7 @@ class DoctorMapper:
                     requested_week_availabilities_dict[adjustment.date_time] = adjustment.walk_in
                 else:
                     if adjustment.date_time in requested_week_availabilities_dict:
-                        del requested_week_availabilities_dict[adjustment.date_time] 
+                        del requested_week_availabilities_dict[adjustment.date_time]
 
         requested_week_appointments_dict = {}
         for appointment in doctor.appointment_dict.values():
@@ -255,8 +265,7 @@ class PatientMapper:
         patient_dict = self.tdg.get_all_patients()
         for patient in patient_dict:
             patient_id = int(patient['id'])
-            appointment_list = self.mediator.get_appointments_by_patient_id(patient_id)
-            appointment_list = appointment_list if appointment_list is not None else []
+            appointment_dict = {}
             patient_obj = Patient(
                 patient_id,
                 patient['first_name'],
@@ -269,7 +278,7 @@ class PatientMapper:
                 patient['physical_address'],
                 patient['email'],
                 Cart(),
-                appointment_list
+                appointment_dict
             )
             self.catalog_dict[patient['id']] = patient_obj
 
@@ -322,7 +331,7 @@ class PatientMapper:
         patient.appointment_ids = patient.appointment_ids + appointment_ids
 
     def insert_patient(self, patient_id, email, password, first_name, last_name, health_card, phone_number, birthday, gender, physical_address):
-        appointment_list = []
+        appointment_dict = {}
         patient_obj = Patient(
             patient_id,
             first_name,
@@ -335,13 +344,9 @@ class PatientMapper:
             physical_address,
             email,
             Cart(),
-            appointment_list
+            appointment_dict
         )
         self.catalog_dict[patient_id] = patient_obj
-
-    def delete_appointment(self, patient_id, appointment_id):
-        patient = self.get_by_id(patient_id)
-        patient.appointment_ids.remove(appointment_id)
 
 
 class NurseMapper:

@@ -46,13 +46,7 @@ class ClinicRegistry:
                 for room in tdg_dict_of_rooms:
                     room_id = room['id']
                     bookings_dict = {}
-                    tdg_room_bookings = self.tdg.get_room_bookings_by_room_id(room_id)
-                    if tdg_room_bookings is not None:
-                        for room_booking in tdg_room_bookings:
-                            date_time = room_booking['date_time']
-                            walk_in = True if int(room_booking['walk_in']) == 1 else False
-                            bookings_dict[date_time] = walk_in
-                    dict_of_rooms[room_id] = Room(room['name'], bookings_dict)
+                    dict_of_rooms[room_id] = Room(room_id, room['name'], bookings_dict)
 
             business_hours = BusinessHours(BusinessDays.SEVEN_DAYS, opening_time, closing_time)
             self.catalog_dict[clinic_id] = Clinic(clinic_id, clinic_name, clinic_physical_address, dict_of_doctors, dict_of_rooms, business_hours)

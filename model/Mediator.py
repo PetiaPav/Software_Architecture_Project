@@ -15,15 +15,14 @@ class Mediator:
         self.__tdg = Tdg(app, db_env)
 
         # Registy loading order matters
-
-        print("Loading Appointment Registry . . . ")
-        self.__appointment_registry = AppointmentRegistry.get_instance(self, self.__tdg)
-
         print("Loading User Registry . . . ")
         self.__user_registry = UserRegistry.get_instance(self, self.__tdg)
 
         print("Loading Clinic Registry . . . ")
         self.__clinic_registry = ClinicRegistry.get_instance(self, self.__tdg)
+
+        print("Loading Appointment Registry . . . ")
+        self.__appointment_registry = AppointmentRegistry.get_instance(self, self.__tdg)
 
         self.__scheduler = Scheduler(self)
 
@@ -75,9 +74,6 @@ class Mediator:
     def insert_patient_batch_appointment_ids(self, patient_id, appointment_ids):
         self.__user_registry.patient.insert_appointment_ids(int(patient_id), appointment_ids)
 
-    def delete_patient_appointment(self, patient_id, appointment_id):
-        self.__user_registry.patient.delete_appointment(int(patient_id), int(appointment_id))
-
     # # # Doctor calls
 
     def get_all_doctors(self):
@@ -103,9 +99,6 @@ class Mediator:
 
     def add_doctor_appointment_id(self, doctor_id, new_appointment_id):
         self.__user_registry.doctor.add_appointment_id(int(doctor_id), new_appointment_id)
-
-    def delete_doctor_appointment(self, doctor_id, appointment_id):
-        self.__user_registry.doctor.delete_appointment(int(doctor_id), int(appointment_id))
 
     def update_doctor_appointment_ids(self, appointments_created):
         self.__user_registry.doctor.update_appointment_ids(appointments_created)
@@ -140,8 +133,8 @@ class Mediator:
     def add_appointment(self, patient_id, clinic_id, start_time, is_walk_in):
         return self.__appointment_registry.add_appointment(patient_id, clinic_id, start_time, is_walk_in)
 
-    def add_appointment_batch(self, accepted_ids):
-        self.__appointment_registry.add_appointment_batch(accepted_ids)
+    def add_appointment_batch(self, patient_id, accepted_ids):
+        self.__appointment_registry.add_appointment_batch(patient_id, accepted_ids)
 
     def get_appointments_by_doctor_id(self, doctor_id):
         return self.__appointment_registry.get_appointments_by_doctor_id(doctor_id)
@@ -154,6 +147,9 @@ class Mediator:
 
     def checkout_cart(self, cart_items, patient_id):
         return self.__appointment_registry.checkout_cart(cart_items, patient_id)
+
+    def get_room_bookings_by_room_id(self, room_id):
+        return self.__appointment_registry.get_room_bookings_by_room_id(room_id)
 
     # # Scheduler calls
 
