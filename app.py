@@ -312,7 +312,10 @@ def create_app(db_env="ubersante", debug=False):
         selected_time = selected_datetime.time().isoformat()
 
         user_type = session['user_type']
-        selected_patient = mediator.get_patient_by_id(13)
+        
+        patient_id = session['selected_patient'] if user_type == 'nurse' else session['id']
+
+        selected_patient = mediator.get_patient_by_id(patient_id)
         return render_template('appointment.html', eventid=id, clinic=clinic, walk_in=session['has_selected_walk_in'], date=selected_date, time=selected_time, datetime=str(selected_datetime), user_type=user_type, selected_patient=selected_patient)
 
     @app.route('/book_for_patient', methods=["POST"])

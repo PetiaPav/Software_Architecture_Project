@@ -49,7 +49,7 @@ class Scheduler:
         if room is not None:
             doctor = self.__get_available_doctor(clinic, date_time, walk_in)
             if doctor is not None:
-                return room, doctor
+                return (room, doctor)
         return None
 
     def __get_week_start(self, clinic: Clinic, date_time: datetime) -> datetime:
