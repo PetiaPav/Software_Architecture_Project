@@ -99,10 +99,15 @@ class AppointmentRegistry:
             self.catalog_dict[appointment.id] = appointment
 
             # Add new appointment to the patient's list of appointments
+            appointment.attach(patient)
             patient.add_appointment(appointment)
 
             # Add new appointment to the doctor's list of appointments
+            appointment.attach(doctor)
             doctor.add_appointment(appointment)
+
+            # Notify doctor and patient that their appointment has been created
+            appointment.notify("add")
 
             # Return reference to the newly created appointment
             return appointment
@@ -112,6 +117,9 @@ class AppointmentRegistry:
         if int(appointment_id) in self.catalog_dict:
             appointment_to_delete = self.catalog_dict[int(appointment_id)]
             if appointment_to_delete is not None:
+                # Notify doctor and patient that their appointment is deleted
+                appointment_to_delete.notify("delete")
+
                 # Remove room booking
                 room = appointment_to_delete.room
                 date_time = appointment_to_delete.date_time
@@ -119,10 +127,12 @@ class AppointmentRegistry:
 
                 # Remove appointment from doctor's appointment list
                 doctor = appointment_to_delete.doctor
+                appointment_to_delete.detach(doctor)
                 doctor.remove_appointment(appointment_to_delete)
 
                 # Remove appointment from patient's appointment list
                 patient = appointment_to_delete.patient
+                appointment_to_delete.detach(patient)
                 patient.remove_appointment(appointment_to_delete)
 
                 # Remove appointment from APPOINTMENTS table in db

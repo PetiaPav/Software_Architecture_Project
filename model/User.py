@@ -15,6 +15,8 @@ class User:
         self.last_name = last_name
         self.password = password
 
+    def update(self, subject, operation):
+        print('Subject has changed: ' + operation)
 
 class Patient(User):
     def __init__(self, id, first_name: str, last_name: str, password, health_card, birthday, gender, phone_number, physical_address, email, cart, appointment_dict):
@@ -34,6 +36,14 @@ class Patient(User):
 
     def remove_appointment(self, appointment):
         return self.appointment_dict.pop(appointment, None)
+
+    def update(self, subject, operation):
+        if operation == "add":
+            # print('New appointment scheduled at ' + subject.date_time + " at " + subject.clinic)
+            flash(f'New appointment scheduled at ' + subject.date_time + " at " + subject.clinic, 'success')
+        else:
+            # print('Appointment at ' + subject.clinic + " has been cancelled.")
+            flash(f'Cancelled appointment scheduled at ' + subject.date_time + " at " + subject.clinic, 'success')
 
 
 class Nurse(User):
@@ -81,7 +91,16 @@ class Doctor(User):
             return None
 
 
-class Adjustment:
+    def update(self, subject, operation):
+        if operation == "add":
+            # print('New appointment scheduled at ' + subject.date_time + " at " + subject.clinic)
+            flash(f'New appointment scheduled at ' + subject.date_time + " at " + subject.clinic, 'success')
+
+        else:
+            # print('Appointment at ' + subject.clinic + " has been cancelled.")
+            flash(f'Cancelled appointment scheduled at ' + subject.date_time + " at " + subject.clinic, 'success')
+
+class Adjustment():
     def __init__(self, id, date_time, operation_type_add, walk_in):
         self.id = id
         self.date_time = date_time
