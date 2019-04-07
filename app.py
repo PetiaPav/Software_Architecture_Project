@@ -296,9 +296,9 @@ def create_app(db_env="ubersante", debug=False):
     @app.route('/event', methods=["POST"])
     @is_logged_in
     def show_event_details():
-        return url_for('selected_appointment', id=request.json['id'], start=request.json['start'])
+        return url_for('selected_appointment', event_id=request.json['id'], start=request.json['start'])
 
-    @app.route('/selected_appointment/<id>/<start>')
+    @app.route('/selected_appointment/<event_id>/<start>')
     @is_logged_in
     def selected_appointment(event_id, start):
         clinic = mediator.get_clinic_by_id(session['selected_clinic'])
