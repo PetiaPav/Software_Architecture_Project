@@ -296,7 +296,9 @@ def create_app(db_env="ubersante", debug=False):
     @app.route('/data', methods=["GET", "POST"])
     @is_logged_in
     def return_weekly_availabilities():
-        return mediator.find_availability(int(session['selected_clinic']), Tools.convert_to_python_datetime(str(request.args.get('start'))), session['has_selected_walk_in'])
+        date_time = Tools.convert_to_python_datetime(str(request.args.get('start')))
+        result = mediator.find_availability(int(session['selected_clinic']), date_time, session['has_selected_walk_in']) 
+        return result if result is not None else Tools.get_unavailable_times_message(date_time)
 
     @app.route('/event', methods=["POST"])
     @is_logged_in

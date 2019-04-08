@@ -87,3 +87,21 @@ class Tools:
     @staticmethod
     def get_time_iso_format(input_datetime):
         return input_datetime.time().isoformat()
+
+    @staticmethod
+    def get_unavailable_times_message(date_time):
+        pylist = []
+        week_start = date_time - timedelta(days=date_time.weekday())
+        for day in range(0, 7):
+            start_time = week_start + timedelta(days=day)
+            start_time = datetime(start_time.year, start_time.month, start_time.day, 12, 0)
+            end_time = start_time + timedelta(hours=1)
+            start_time = start_time.strftime("%Y-%m-%dT%H:%M:%S")
+            end_time = end_time.strftime("%Y-%m-%dT%H:%M:%S")
+            pylist.append({
+                "title": 'please select a future date',
+                "start": start_time,
+                "end": end_time,
+                "color": "red"
+            })
+        return json.dumps(pylist)
