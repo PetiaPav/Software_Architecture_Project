@@ -26,6 +26,10 @@ def create_app(db_env="ubersante", debug=False):
     def about():
         return render_template('about.html')
 
+    @app.route('/register')
+    def register():
+        return render_template('register_choice.html')
+
     @app.route('/register/patient', methods=['GET', 'POST'])
     def register_patient():
         form = get_registration_form("patient", request.form)
