@@ -1,6 +1,6 @@
 from model.Appointment import Appointment
 from datetime import datetime
-from model.Tool import Tools
+from model.Tools import Tools
 
 
 class AppointmentRegistry:
@@ -117,11 +117,11 @@ class AppointmentRegistry:
                 date_time = appointment_to_delete.date_time
                 room.remove_booking(date_time)
 
-                # Remove appointment from doctor's appointment list
+                # Remove appointment from doctor's appointment dict
                 doctor = appointment_to_delete.doctor
                 doctor.remove_appointment(appointment_to_delete)
 
-                # Remove appointment from patient's appointment list
+                # Remove appointment from patient's appointment dict
                 patient = appointment_to_delete.patient
                 patient.remove_appointment(appointment_to_delete)
 
@@ -130,6 +130,7 @@ class AppointmentRegistry:
 
                 # Remove appointment from memory
                 self.catalog_dict.pop(appointment_to_delete.id)
+
                 return True
         return False
 

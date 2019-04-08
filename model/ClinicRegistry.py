@@ -1,6 +1,6 @@
 from model.Clinic import Clinic, Room, BusinessHours, BusinessDays
 from datetime import datetime
-from model.Tool import Tools
+from model.Tools import Tools
 
 
 class ClinicRegistry:
