@@ -256,9 +256,10 @@ def create_app(db_env="ubersante", debug=False):
         time_list = []
         for appointment in patient_appointments:
             appointment_clinics.append(appointment.clinic)
-            appointment_datetime = datetime.strptime(appointment.date_time, '%Y-%m-%dT%H:%M:%S')
-            appointment_date = appointment_datetime.date().isoformat()
-            appointment_time = appointment_datetime.time().isoformat()
+
+            appointment_date = appointment.date_time.date().isoformat()
+            appointment_time = appointment.date_time.time().isoformat()
+
             date_list.append(appointment_date)
             time_list.append(appointment_time)
 
@@ -266,7 +267,7 @@ def create_app(db_env="ubersante", debug=False):
 
     @app.route('/delete_appointments/<appointment_id>')
     @is_logged_in
-    def delete_appointments(appointment_id, patient_id, doctor_id):
+    def delete_appointments(appointment_id):
         # Delete the appointment for good
         mediator.delete_appointment(int(appointment_id))
         return redirect(url_for('view_patient_appointments'))
@@ -341,8 +342,12 @@ def create_app(db_env="ubersante", debug=False):
             start_time = request.json['start']
             is_walk_in = (request.json['walk_in'] == 'True')
 
+            # mediator call to a [Tools] class which converts datetime str to datetime obj
+            # pass datetime obj to cart.add
+            selected_datetime = datetime.strptime(start_time.replace(' ', 'T'), '%Y-%m-%dT%H:%M:%S')
+
             cart = mediator.get_patient_cart(session['id'])
-            add_item_status = cart.add(clinic, start_time, is_walk_in)
+            add_item_status = cart.add(clinic, selected_datetime, is_walk_in)
             result = {
                 'url': url_for('cart'),
                 'status': str(add_item_status)

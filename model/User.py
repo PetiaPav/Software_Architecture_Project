@@ -33,7 +33,7 @@ class Patient(User):
             self.appointment_dict[appointment.date_time] = appointment
 
     def remove_appointment(self, appointment):
-        return self.appointment_dict.pop(appointment, None)
+        return self.appointment_dict.pop(appointment.date_time, None)
 
 
 class Nurse(User):
@@ -57,7 +57,7 @@ class Doctor(User):
             self.appointment_dict[appointment.date_time] = appointment
 
     def remove_appointment(self, appointment):
-        return self.appointment_dict.pop(appointment, None)
+        return self.appointment_dict.pop(appointment.date_time, None)
 
     def get_availability(self, date_time: datetime, walk_in: bool):
         if date_time in self.appointment_dict:
