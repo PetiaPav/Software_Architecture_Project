@@ -3,7 +3,7 @@ from model.UserRegistry import UserRegistry
 from model.ClinicRegistry import ClinicRegistry
 from model.AppointmentRegistry import AppointmentRegistry
 from model.Scheduler import Scheduler
-from model.Tool import Tools
+from model.Tools import Tools
 
 
 class Mediator:

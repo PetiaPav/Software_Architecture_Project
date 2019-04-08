@@ -1,6 +1,12 @@
 from datetime import datetime, timedelta
-from model.Tool import Tools
+from typing import Tuple
+
+from model import Clinic
+from model.Clinic import Room
+from model.Tools import Tools
 import random
+
+from model.User import Doctor
 
 
 class Scheduler:
@@ -35,23 +41,18 @@ class Scheduler:
         # now we need to make our availablities into a format valid for fullcalendar
         return Tools.json_from_available_slots(available_date_times, walk_in)
 
-    def confirm_availability(self, clinic_id: int, date_time: datetime, walk_in: bool):
+    def confirm_availability(self, clinic_id: int, date_time: datetime, walk_in: bool) -> Tuple[Room, Doctor]:
         # step 1: get clinic
         clinic = self.mediator.get_clinic_by_id(clinic_id)
 
-        # step 2: find available room (at random)
-        room_list = list(clinic.rooms)
-        doctor_list = list(clinic.doctors)
-        for room in random.sample(range(len(room_list)), len(room_list)):
-            if room_list[room].confirm_availability(date_time, walk_in) is True:
-                # step 3: find available doctor (at random)
-                for doctor in random.sample(range(len(doctor_list)), len(doctor_list)):
-                    if doctor_list[doctor].confirm_availability(date_time, walk_in) is True:
-                        # we return object references so that the appointment registry can add the appointment ids / bookings directly
-                        return (room_list[room], doctor_list[doctor])
+        room = self.__get_available_room(clinic, date_time, walk_in)
+        if room is not None:
+            doctor = self.__get_available_doctor(clinic, date_time, walk_in)
+            if doctor is not None:
+                return (room, doctor)
         return None
 
-    def __get_week_start(self, clinic, date_time: datetime) -> datetime:
+    def __get_week_start(self, clinic: Clinic, date_time: datetime) -> datetime:
         week_start = date_time.date()
         weekday = week_start.weekday()  # Monday is 0 and Sunday is 6
         if weekday is not 0:
@@ -60,14 +61,26 @@ class Scheduler:
         minute = clinic.business_hours.opening_time.minute
         return datetime(week_start.year, week_start.month, week_start.day, hour, minute)
 
-    def __check_room_availabilities(self, clinic, date_time: datetime, walk_in: bool, closing_time: datetime.time) -> bool:
+    def __check_room_availabilities(self, clinic: Clinic, date_time: datetime, walk_in: bool, closing_time: datetime.time) -> bool:
         for room in clinic.rooms.values():
             if room.get_availability(date_time, walk_in, closing_time) is not None:
                 return True
         return False
 
-    def __check_doctor_availabilities(self, clinic, date_time: datetime, walk_in: bool) -> bool:
+    def __check_doctor_availabilities(self, clinic: Clinic, date_time: datetime, walk_in: bool) -> bool:
         for doctor in clinic.doctors.values():
             if doctor.get_availability(date_time, walk_in) is not None:
                 return True
         return False
+
+    def __get_available_doctor(self, clinic, date_time: datetime, walk_in: bool):
+        for doctor in clinic.doctors.values():
+            if doctor.get_availability(date_time, walk_in) is not None:
+                return doctor
+        return None
+
+    def __get_available_room(self, clinic, date_time: datetime, walk_in: bool):
+        for room in clinic.rooms.values():
+            if room.get_availability(date_time, walk_in, clinic.business_hours.closing_time) is not None:
+                return room
+        return None

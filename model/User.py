@@ -2,7 +2,7 @@
 from datetime import timedelta, datetime
 from typing import List, Dict
 from model.Appointment import Appointment
-from model.Tool import Tools
+from model.Tools import Tools
 from model.FullCalendarEventWrapper import WrapDoctorGenericEvent, WrapDoctorAdjustmentEvent
 from flask import flash
 import json
@@ -35,7 +35,7 @@ class Patient(User):
             self.appointment_dict[appointment.date_time] = appointment
 
     def remove_appointment(self, appointment):
-        return self.appointment_dict.pop(appointment, None)
+        return self.appointment_dict.pop(appointment.date_time, None)
 
     def update(self, subject, operation):
         if operation == "add":
@@ -67,7 +67,7 @@ class Doctor(User):
             self.appointment_dict[appointment.date_time] = appointment
 
     def remove_appointment(self, appointment):
-        return self.appointment_dict.pop(appointment, None)
+        return self.appointment_dict.pop(appointment.date_time, None)
 
     def get_availability(self, date_time: datetime, walk_in: bool):
         if date_time in self.appointment_dict:
@@ -419,7 +419,6 @@ class Cart:
 
     def __check_if_item_exists(self, clinic, start_time, is_walk_in):  # Checks if a cart item already exists.
         for item in self.item_dict.values():
-            print(str(clinic.name) + ' ' + str(item.clinic.name) + ' ' + start_time + ' ' + item.start_time + ' ' + str(is_walk_in) + ' ' + str(item.is_walk_in))
             if clinic == item.clinic and start_time == item.start_time and is_walk_in == item.is_walk_in:
                 return True
         return False
