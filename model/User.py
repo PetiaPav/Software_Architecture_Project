@@ -400,7 +400,6 @@ class Cart:
 
     def __check_if_item_exists(self, clinic, start_time, is_walk_in):  # Checks if a cart item already exists.
         for item in self.item_dict.values():
-            print(str(clinic.name) + ' ' + str(item.clinic.name) + ' ' + start_time + ' ' + item.start_time + ' ' + str(is_walk_in) + ' ' + str(item.is_walk_in))
             if clinic == item.clinic and start_time == item.start_time and is_walk_in == item.is_walk_in:
                 return True
         return False
