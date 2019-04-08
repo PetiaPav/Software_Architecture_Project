@@ -75,3 +75,15 @@ class Tools:
             hour = int(fullcalendar_datetime[11:13])
             minute = int(fullcalendar_datetime[14:16])
         return datetime(int(fullcalendar_datetime[0:4]), int(fullcalendar_datetime[5:7]), int(fullcalendar_datetime[8:10]), hour, minute)
+
+    @staticmethod
+    def convert_to_date_time(input_datetime):
+        return datetime.strptime(input_datetime, '%Y-%m-%dT%H:%M:%S')
+
+    @staticmethod
+    def get_date_iso_format(input_datetime):
+        return input_datetime.date().isoformat()
+
+    @staticmethod
+    def get_time_iso_format(input_datetime):
+        return input_datetime.time().isoformat()

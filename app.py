@@ -5,7 +5,7 @@ from model.Forms import PatientForm, DoctorForm, NurseForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
-from model.Tool import Tools
+from model.Tools import Tools
 from datetime import datetime
 from model.Payment import Payment
 from model.Mediator import Mediator
@@ -308,9 +308,9 @@ def create_app(db_env="ubersante", debug=False):
         else:
             appointment_type = "Walk-in"
 
-        selected_datetime = datetime.strptime(start, '%Y-%m-%dT%H:%M:%S')
-        selected_date = selected_datetime.date().isoformat()
-        selected_time = selected_datetime.time().isoformat()
+        selected_datetime = Tools.convert_to_date_time(start)
+        selected_date = Tools.get_date_iso_format(selected_datetime)
+        selected_time = Tools.get_time_iso_format(selected_datetime)
 
         user_type = session['user_type']
         
@@ -342,9 +342,7 @@ def create_app(db_env="ubersante", debug=False):
             start_time = request.json['start']
             is_walk_in = (request.json['walk_in'] == 'True')
 
-            # mediator call to a [Tools] class which converts datetime str to datetime obj
-            # pass datetime obj to cart.add
-            selected_datetime = datetime.strptime(start_time.replace(' ', 'T'), '%Y-%m-%dT%H:%M:%S')
+            selected_datetime = Tools.convert_to_date_time(start_time.replace(' ', 'T'))
 
             cart = mediator.get_patient_cart(session['id'])
             add_item_status = cart.add(clinic, selected_datetime, is_walk_in)

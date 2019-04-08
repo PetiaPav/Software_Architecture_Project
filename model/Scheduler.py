@@ -3,7 +3,7 @@ from typing import Tuple
 
 from model import Clinic
 from model.Clinic import Room
-from model.Tool import Tools
+from model.Tools import Tools
 import random
 
 from model.User import Doctor

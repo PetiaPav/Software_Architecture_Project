@@ -2,7 +2,7 @@
 from datetime import timedelta, datetime
 from typing import List, Dict
 from model.Appointment import Appointment
-from model.Tool import Tools
+from model.Tools import Tools
 from model.FullCalendarEventWrapper import WrapDoctorGenericEvent, WrapDoctorAdjustmentEvent
 from flask import flash
 import json
