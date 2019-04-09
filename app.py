@@ -303,7 +303,10 @@ def create_app(db_env="ubersante", debug=False):
     @app.route('/event', methods=["POST"])
     @is_logged_in
     def show_event_details():
-        return url_for('selected_appointment', event_id=request.json['id'], start=request.json['start'])
+        event_id = request.json['id']
+        if event_id == 'expired':
+            return url_for('make_appointment_calendar')
+        return url_for('selected_appointment', event_id=event_id, start=request.json['start'])
 
     @app.route('/selected_appointment/<event_id>/<start>')
     @is_logged_in

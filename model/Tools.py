@@ -99,7 +99,8 @@ class Tools:
             start_time = start_time.strftime("%Y-%m-%dT%H:%M:%S")
             end_time = end_time.strftime("%Y-%m-%dT%H:%M:%S")
             pylist.append({
-                "title": 'please select a future date',
+                "id": "expired",
+                "title": "please select a future date",
                 "start": start_time,
                 "end": end_time,
                 "color": "red"
