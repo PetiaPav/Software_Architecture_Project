@@ -49,6 +49,7 @@ def permit_number(form, field):
     if data < 1000000 or data > 9999999:
         raise ValidationError('Please enter a valid 7-digit licence number.')
 
+
 def nurse_access(form, field):
     if len(field.data) == 0:
         raise ValidationError('Please enter a nurse access id number.')
@@ -118,13 +119,14 @@ class ClinicForm(Form):
 def get_form_data(type, selected_object, request):
     if type == "patient":
         return generate_patient_form(selected_object, request)
-    elif type =="doctor":
+    elif type == "doctor":
         return generate_doctor_form(selected_object, request)
     elif type == "nurse":
         return generate_nurse_form(selected_object, request)
     else:
         flash('Invalid user type passed as parameter', 'error')
         return None
+
 
 def generate_patient_form(selected_object, request):
     form = PatientForm(request.form)
@@ -140,6 +142,7 @@ def generate_patient_form(selected_object, request):
 
     return form
 
+
 def generate_doctor_form(selected_object, request):
     form = DoctorForm(request.form)
 
@@ -151,6 +154,7 @@ def generate_doctor_form(selected_object, request):
 
     return form
 
+
 def generate_nurse_form(selected_object, request):
     form = NurseForm(request.form)
 
@@ -159,4 +163,4 @@ def generate_nurse_form(selected_object, request):
     form.access_id.data = selected_object.access_id
 
     return form
-
+    

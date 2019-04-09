@@ -12,14 +12,14 @@
             <a class="nav-item nav-link" href="/logout">Logout</a>
             {% else %}
             <a class="nav-item nav-link" href="/login">Login</a>
-            <a class="nav-item nav-link" href="/register/patient">Register</a>
+            <a class="nav-item nav-link" href="/register">Register</a>
             {% endif %}
 
             {% if session.logged_in %}
             <a class="nav-item nav-link" href="/dashboard">Dashboard</a>
             {% endif %}
 
-            {% if session.logged_in and session.user_type != 'doctor' %}
+            {% if session.logged_in and session.user_type == 'patient' %}
             <a class="nav-item nav-link" href="/select_clinic">Make an appointment</a>
             {% endif %}
 
