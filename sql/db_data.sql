@@ -18,8 +18,8 @@ INSERT INTO PATIENTS (id, user_fk, email, health_card, phone_number, birthday, g
 INSERT INTO PATIENTS (id, user_fk, email, health_card, phone_number, birthday, gender, physical_address) VALUES (2, 2, 'michael@gmail.com', 'MGGN 5444 1234', '(514)555-1234', '1997-03-01', 'M', '1211 1st Avenue');
 
 -- Doctors
-INSERT INTO DOCTORS (id, user_fk, permit_number, specialty, city) VALUES (1, 3, 265345, 'Family Doctor', 'Montreal');
-INSERT INTO DOCTORS (id, user_fk, permit_number, specialty, city) VALUES (2, 4, 555666, 'Eyes', 'Laval');
+INSERT INTO DOCTORS (id, user_fk, permit_number, specialty, city) VALUES (1, 3, 2653456, 'Family Doctor', 'Montreal');
+INSERT INTO DOCTORS (id, user_fk, permit_number, specialty, city) VALUES (2, 4, 5556665, 'Eyes', 'Laval');
 
 -- Doctor_Clinic_Assignment
 INSERT INTO DOCTOR_CLINIC_ASSIGNMENT (id, clinic_id, doctor_id) VALUES (1, 1, 1);
