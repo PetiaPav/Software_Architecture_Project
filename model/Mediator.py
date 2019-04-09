@@ -109,7 +109,7 @@ class Mediator:
         return self.__user_registry.nurse.get_all()
 
     def get_nurse_by_id(self, nurse_id):
-        return self.__user_registry.get_nurse_by_id(nurse_id)
+        return self.__user_registry.nurse.get_by_id(nurse_id)
 
     def get_nurse_by_access_id(self, nurse_access_id):
         return self.__user_registry.nurse.get_by_access_id(nurse_access_id)

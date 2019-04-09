@@ -188,6 +188,12 @@ def create_app(db_env="ubersante", debug=False):
         all_patients = mediator.get_all_patients()
         return render_template('includes/_patient_registry.html', all_patients=all_patients)
 
+    @app.route('/dashboard/nurse_info')
+    @is_logged_in
+    def nurset_info():
+        selected_nurse = mediator.get_nurse_by_id(session["id"])
+        return render_template('includes/_nurse_detail_page.html', nurse=selected_nurse)
+
     @app.route('/dashboard/nurse_registry')
     @is_logged_in
     @nurse_login_required
