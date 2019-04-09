@@ -41,13 +41,13 @@ $(document).ready(function() {
         allDay: true,
 
         events: {
-             url: 'data'
+             url: 'return_weekly_availabilities'
         },
 
         // onClick of an event
 		eventClick: function(eventObj) {
             $.ajax({
-                url: 'event',
+                url: 'show_event_details',
                 type: 'POST',
                 contentType: "application/json; charset=utf-8",
                 data: JSON.stringify({

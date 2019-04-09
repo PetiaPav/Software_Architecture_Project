@@ -19,7 +19,7 @@
             <a class="nav-item nav-link" href="/dashboard">Dashboard</a>
             {% endif %}
 
-            {% if session.logged_in and session.user_type != 'doctor' %}
+            {% if session.logged_in and session.user_type == 'patient' %}
             <a class="nav-item nav-link" href="/select_clinic">Make an appointment</a>
             {% endif %}
 
