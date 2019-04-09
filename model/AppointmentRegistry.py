@@ -1,137 +1,164 @@
 from model.Appointment import Appointment
-from model.Scheduler import Scheduler
-from model.Tool import Tools
+from datetime import datetime
+from model.Tools import Tools
 
 
 class AppointmentRegistry:
-    
-    ID_COUNTER = 0
 
     __instance_of_registry = None
 
-    def __init__(self, tdg, clinic_registry, user_registry):
+    def __init__(self, mediator, tdg):
         self.tdg = tdg
-        self.catalog = []
-        self.clinic_registry = clinic_registry
-        self.populate(clinic_registry, user_registry)
+        self.mediator = mediator
+        self.catalog_dict = {}
+        self.populate()
 
     @staticmethod
-    def get_instance(tdg, clinic_registry, user_registry):
+    def get_instance(mediator, tdg):
         if AppointmentRegistry.__instance_of_registry is None:
-            AppointmentRegistry.__instance_of_registry = AppointmentRegistry(tdg, clinic_registry, user_registry)
+            AppointmentRegistry.__instance_of_registry = AppointmentRegistry(mediator, tdg)
         return AppointmentRegistry.__instance_of_registry
 
-    def populate(self, clinic_registry, user_registry):
-        for clinic in clinic_registry.clinics:
-            for room in clinic.rooms:
-                for week in range(0, 54):
-                    for day in range(0, 7):
-                        slot_index = 0
-                        current_slot = room.schedule.week[week].day[day].slot[slot_index]
-                        if current_slot.booked is True:
-                            new_appointment_id = self.get_new_id()
-                            # add this appointment to the catalog
-                            self.catalog.append(Appointment(new_appointment_id, clinic.id, current_slot))
-                            # add the id to the patient associated with the appointment
-                            user_registry.patient.catalog_dict[current_slot.patient_id].appointment_ids.append(new_appointment_id)
-                            # add the id to the doctor asscociated with the appointment
-                            user_registry.doctor.catalog_dict[current_slot.doctor_id].appointment_ids.append(new_appointment_id)
-                            if current_slot.walk_in is False:
-                                slot_index += 2
-                        slot_index += 1
+    def populate(self):
+        appointments = self.tdg.get_all_appointments()
+        for appointment in appointments:
 
-    @staticmethod
-    def get_new_id():
-        AppointmentRegistry.ID_COUNTER += 1
-        return AppointmentRegistry.ID_COUNTER
+            appointment_id = int(appointment['id'])
+            clinic = self.mediator.get_clinic_by_id(int(appointment['clinic_id']))
+            room = clinic.get_room_by_id(int(appointment['room_id']))
+            doctor = self.mediator.get_doctor_by_id(int(appointment['doctor_id']))
+            patient = self.mediator.get_patient_by_id(int(appointment['patient_id']))
+            date_time = appointment['date_time']
+            walk_in = True if appointment['walk_in'] == 1 else False
 
-    # expects date_time as string "2019-01-27T08:00:00"
+            new_appointment = Appointment(appointment_id, clinic, room, doctor, patient, date_time, walk_in)
+            self.catalog_dict[appointment_id] = new_appointment
 
-    def add_appointment(self, patient_id, clinic, date_time, walk_in):
-        new_appointment_slot = Scheduler.book_appointement(clinic, date_time, patient_id, walk_in)
-        if new_appointment_slot is not None:
-            appt_id = AppointmentRegistry.get_new_id()
-            self.catalog.append(Appointment(appt_id, clinic.id, new_appointment_slot))
-            # update the database
-            self.tdg.update_room_slot(clinic.id, new_appointment_slot)
-            return appt_id
-        return None
+            doctor.add_appointment(new_appointment)
+            patient.add_appointment(new_appointment)
+            room.add_booking(date_time, walk_in)
 
-    def get_appointment_by_id(self, appointment_id):
-        for appointment in self.catalog:
-            if appointment.id == appointment_id:
-                return appointment
-        return None
+    def get_by_id(self, id):
+        return self.catalog_dict[int(id)]
+
+    def get_all(self):
+        return list(self.catalog_dict.values())
 
     def get_appointments_by_clinic_id(self, clinic_id):
-        appointments_by_clinic = []
-        for appointment in self.catalog:
+        clinic_appointments = []
+        for appointment in self.catalog_dict.values():
             if appointment.clinic.id == clinic_id:
-                appointments_by_clinic.append(appointment)
-        if len(appointments_by_clinic) > 0:
-            return appointments_by_clinic
+                clinic_appointments.append(appointment)
+        if len(clinic_appointments) > 0:
+            return clinic_appointments
         else:
             return None
 
     def get_appointments_by_patient_id(self, patient_id):
-        appointments_by_patient = []
-        for appointment in self.catalog:
-            if appointment.appointment_slot.patient_id == patient_id:
-                appointments_by_patient.append(appointment)
-        if len(appointments_by_patient) > 0:
-            return appointments_by_patient
+        patient_appointments = []
+        for appointment in self.catalog_dict.values():
+            if appointment.patient_id == int(patient_id):
+                patient_appointments.append(appointment)
+        if len(patient_appointments) > 0:
+            return patient_appointments
         else:
             return None
 
     def get_appointments_by_doctor_id(self, doctor_id):
-        appointments_by_doctor = []
-        for appointment in self.catalog:
-            if appointment.appointment_slot.doctor_id == int(doctor_id):
-                appointments_by_doctor.append(appointment)
-        if len(appointments_by_doctor) > 0:
-            return appointments_by_doctor
+        doctor_appointments = []
+        for appointment in self.catalog_dict.values():
+            if appointment.doctor_id == int(doctor_id):
+                doctor_appointments.append(appointment)
+        if len(doctor_appointments) > 0:
+            return doctor_appointments
         else:
             return None
 
-    def get_appointments_by_doctor_id_and_week(self, doctor_id, week_index):
-        appointments_by_doctor_and_week = self.get_appointments_by_doctor_id(int(doctor_id))
-        if appointments_by_doctor_and_week is not None:
-            appointments_by_doctor_and_week[:] = [appointment for appointment in appointments_by_doctor_and_week if Tools.get_week_index_from_slot_yearly_index(appointment.appointment_slot.slot_yearly_index) == week_index]
-        return appointments_by_doctor_and_week
+    def get_room_bookings_by_room_id(self, room_id):
+        room_bookings = {}
+        for appointment in self.catalog_dict.values():
+            if appointment.room.id == room_id:
+                room_bookings[appointment.date_time] = appointment.walk_in
+        return room_bookings
 
-    def delete_appointment(self, id):
-        appointment_to_delete = self.get_appointment_by_id(id)
-        if appointment_to_delete is not None:
-            if appointment_to_delete.appointment_slot.id is not None:
-                self.tdg.delete_room_slot(appointment_to_delete.appointment_slot.id)
-                self.catalog.remove(appointment_to_delete)
-            return Scheduler.mark_as_available(self.clinic_registry.clinics[appointment_to_delete.clinic_id - 1], appointment_to_delete.appointment_slot)
+    def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
+        room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in)
+        if room_doctor_tuple is not None:
+            clinic = self.mediator.get_clinic_by_id(clinic_id)
+            room = room_doctor_tuple[0]
+            doctor = room_doctor_tuple[1]
+            patient = self.mediator.get_patient_by_id(patient_id)
+
+            # Create new appointment with default id -1
+            appointment = Appointment(-1, clinic, room, doctor, patient, date_time, walk_in)
+
+            # Insert new appointment in APPOINTMENTS table in database
+            appointment.id = self.tdg.insert_appointment(clinic_id, room.id, doctor.id, patient.id, date_time, walk_in)
+
+            # Insert new appointment in catalog
+            self.catalog_dict[appointment.id] = appointment
+
+            # Add new appointment to the patient's list of appointments
+            patient.add_appointment(appointment)
+
+            # Add new appointment to the doctor's list of appointments
+            doctor.add_appointment(appointment)
+
+            # Return reference to the newly created appointment
+            return appointment
+        return None
+
+    def delete_appointment(self, appointment_id):
+        if int(appointment_id) in self.catalog_dict:
+            appointment_to_delete = self.catalog_dict[int(appointment_id)]
+            if appointment_to_delete is not None:
+                # Remove room booking
+                room = appointment_to_delete.room
+                date_time = appointment_to_delete.date_time
+                room.remove_booking(date_time)
+
+                # Remove appointment from doctor's appointment dict
+                doctor = appointment_to_delete.doctor
+                doctor.remove_appointment(appointment_to_delete)
+
+                # Remove appointment from patient's appointment dict
+                patient = appointment_to_delete.patient
+                patient.remove_appointment(appointment_to_delete)
+
+                # Remove appointment from APPOINTMENTS table in db
+                self.tdg.remove_appointment(appointment_to_delete.id)
+
+                # Remove appointment from memory
+                self.catalog_dict.pop(appointment_to_delete.id)
+
+                return True
         return False
 
     def modify_appointment(self, appointment_id, new_date_time, walk_in):
-        existing_appointment = self.get_appointment_by_id(int(appointment_id))
+        existing_appointment = self.get_by_id(int(appointment_id))
         if existing_appointment is not None:
-            patient_id = existing_appointment.appointment_slot.patient_id
-            clinic = existing_appointment.clinic_id - 1
-            new_appointment_id = self.add_appointment(self.clinic_registry[clinic], new_date_time, patient_id, walk_in) 
-            if new_appointment_id is not None:
+            patient_id = existing_appointment.patent.id
+            clinic_id = existing_appointment.clinic.id
+            new_appointment = self.add_appointment(patient_id, clinic_id, new_date_time, walk_in)
+            if new_appointment is not None:
                 self.delete_appointment(int(appointment_id))
-                return new_appointment_id
+                return new_appointment
         return None
 
     def checkout_cart(self, item_list, patient_id):
         result = {
-            'accepted_appt_ids': [],
+            'accepted_appointments': [],
             'accepted_items': [],
             'accepted_items_is_walk_in': [],
             'rejected_items': []
         }
         for item in item_list:
-            appt_id = self.add_appointment(patient_id, item.clinic, item.start_time, item.is_walk_in)
-            if appt_id is not None:
-                result['accepted_appt_ids'].append(appt_id)
+            appointment = self.add_appointment(patient_id, item.clinic.id, item.start_time, item.is_walk_in)
+            if appointment is not None:
+                result['accepted_appointments'].append(appointment)
                 result['accepted_items'].append(item)
                 result['accepted_items_is_walk_in'].append(item.is_walk_in)
             else:
                 result['rejected_items'].append(item)
         return result
+

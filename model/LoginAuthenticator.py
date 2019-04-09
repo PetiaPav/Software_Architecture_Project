@@ -8,16 +8,16 @@ class LoginAuthenticator(Form):
 
 
 class LoginDoctorAuthenticator(LoginAuthenticator):
-    permit_number = StringField('Physician Permit Number', [validators.Length(min=7)])
+    unique_identifier_value = StringField('Physician Permit Number', [validators.Length(min=7)])
+    unique_identifier = 'permit_number'
 
-    def authenticate_user(self, tdg):
-        user = tdg.get_doctor_by_permit_number(self.permit_number.data)
+    def authenticate_user(self, user):
         if user:
-            if sha256_crypt.verify(self.password.data, user["password"]):
+            if sha256_crypt.verify(self.password.data, user.password):
                 session['logged_in'] = True
                 session['user_type'] = 'doctor'
-                session['id'] = user['id']
-                session['first_name'] = user['first_name']
+                session['id'] = user.id
+                session['first_name'] = user.first_name
                 return True
             else:
                 flash('Incorrect password', 'danger')
@@ -27,17 +27,17 @@ class LoginDoctorAuthenticator(LoginAuthenticator):
 
 
 class LoginNurseAuthenticator(LoginAuthenticator):
-    access_id = StringField('Access ID', [validators.Length(min=8)])
+    unique_identifier_value = StringField('Access ID', [validators.Length(min=8)])
+    unique_identifier = 'access_id'
 
-    def authenticate_user(self, tdg):
-        user = tdg.get_nurse_by_access_id(self.access_id.data)
+    def authenticate_user(self, user):
         if user:
-            if sha256_crypt.verify(self.password.data, user["password"]):
+            if sha256_crypt.verify(self.password.data, user.password):
                 session['logged_in'] = True
                 session['user_type'] = 'nurse'
-                session['first_name'] = user['first_name']
-                session['id'] = user['id']
-                session['access_id'] = self.access_id.data
+                session['first_name'] = user.first_name
+                session['id'] = user.id
+                session['access_id'] = self.unique_identifier_value.data
                 session['selected_clinic'] = None
                 session['has_selected_walk_in'] = None
                 session['selected_patient'] = None
@@ -50,17 +50,16 @@ class LoginNurseAuthenticator(LoginAuthenticator):
 
 
 class LoginPatientAuthenticator(LoginAuthenticator):
-    email = StringField('Email', [validators.InputRequired(), validators.Length(min=5)])
+    unique_identifier_value = StringField('Email', [validators.InputRequired(), validators.Length(min=5)])
+    unique_identifier = 'email'
 
-    def authenticate_user(self, tdg):
-        user = tdg.get_patient_by_email(self.email.data)
+    def authenticate_user(self, user):
         if user:
-            if sha256_crypt.verify(self.password.data, user["password"]):
+            if sha256_crypt.verify(self.password.data, user.password):
                 session['logged_in'] = True
                 session['user_type'] = 'patient'
-                session['id'] = user['id']
-                session['first_name'] = user['first_name']
-                session['id'] = user['id']
+                session['id'] = user.id
+                session['first_name'] = user.first_name
                 session['selected_clinic'] = None
                 session['has_selected_walk_in'] = None
                 return True

@@ -16,36 +16,7 @@
 			<hr>
 			{% include 'includes/_login_choice_component.html' %}
 
-			<div class="row container">
-				<fieldset class="account-border">
-					<legend class="account-border">First Time? Select An Account Type to Get Started:</legend>
-					<div class = "row">
-						<div class="col-sm-6 col-md-4">
-							<div class="col-md-12 account-box">
-								<h4>Patient</h4>
-								<p> Create, view or update appointments yourself.</p>
-								<button type="button" class="btn btn-primary" onclick="location.href = '/register/patient';">Register Now</button>
-
-							</div>
-						</div>
-						<div class="col-sm-6 col-md-4">
-							<div class="col-md-12 account-box">
-								<h4>Doctor</h4>
-								<p> Set availability or view scheduled appointments. </p>
-								<button type="button" class="btn btn-primary" onclick="location.href = '/register/doctor';">Register Now</button>
-							</div>
-						</div>
-
-						<div class="col-sm-6 col-md-4">
-							<div class="account-box">
-								<h4>Nurse</h4>
-								<p> Create, view or update appointments for patients. </p>
-								<button type="button" class="btn btn-primary"  onclick="location.href = '/register/nurse';">Register Now</button>
-							</div>
-						</div>
-					</div>
-				</fieldset>
-			</div>
+			{% include 'includes/_register_choice_component.html' %}
 			<hr>
 		</div>
 	</div>
