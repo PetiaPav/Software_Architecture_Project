@@ -77,13 +77,28 @@ class Tools:
         return datetime(int(fullcalendar_datetime[0:4]), int(fullcalendar_datetime[5:7]), int(fullcalendar_datetime[8:10]), hour, minute)
 
     @staticmethod
-    def convert_to_date_time(input_datetime):
-        return datetime.strptime(input_datetime, '%Y-%m-%dT%H:%M:%S')
-
-    @staticmethod
     def get_date_iso_format(input_datetime):
         return input_datetime.date().isoformat()
 
     @staticmethod
     def get_time_iso_format(input_datetime):
         return input_datetime.time().isoformat()
+
+    @staticmethod
+    def get_unavailable_times_message(date_time):
+        pylist = []
+        week_start = date_time - timedelta(days=date_time.weekday())
+        for day in range(0, 7):
+            start_time = week_start + timedelta(days=day)
+            start_time = datetime(start_time.year, start_time.month, start_time.day, 12, 0)
+            end_time = start_time + timedelta(hours=1)
+            start_time = start_time.strftime("%Y-%m-%dT%H:%M:%S")
+            end_time = end_time.strftime("%Y-%m-%dT%H:%M:%S")
+            pylist.append({
+                "id": "expired",
+                "title": "please select a future date",
+                "start": start_time,
+                "end": end_time,
+                "color": "red"
+            })
+        return json.dumps(pylist)

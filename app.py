@@ -197,6 +197,12 @@ def create_app(db_env="ubersante", debug=False):
         all_patients = mediator.get_all_patients()
         return render_template('includes/_patient_registry.html', all_patients=all_patients)
 
+    @app.route('/dashboard/nurse_info')
+    @is_logged_in
+    def nurset_info():
+        selected_nurse = mediator.get_nurse_by_id(session["id"])
+        return render_template('includes/_nurse_detail_page.html', nurse=selected_nurse)
+
     @app.route('/dashboard/nurse_registry')
     @is_logged_in
     @nurse_login_required
@@ -216,7 +222,7 @@ def create_app(db_env="ubersante", debug=False):
     @nurse_login_required
     def patient_detailed_page(id):
         session['selected_patient'] = id
-        patient = mediator.get_by_patient_id(id)
+        patient = mediator.get_patient_by_id(id)
         return render_template('includes/_patient_detail_page.html', patient=patient)
 
     @app.route('/calendar')
@@ -249,17 +255,14 @@ def create_app(db_env="ubersante", debug=False):
     @is_logged_in
     def view_patient_appointments():
         appointment_info = view_appointments_for_user(session["id"])
+        return render_template('includes/_view_patient_appointments.html', patient_id=session["id"], appointment_info=appointment_info)
 
-        return render_template('includes/_view_patient_appointments.html', appointment_info=appointment_info)
-
-    @app.route('/view_patient_appointments/<id>')
+    @app.route('/view_selected_patient_appointments/<id>')
     @is_logged_in
-    @nurse_login_required
     def view_selected_patient_appointments(id):
-
         session['selected_patient'] = int(id)
         appointment_info = view_appointments_for_user(int(id))
-        return render_template('includes/_view_patient_appointments.html', appointment_info=appointment_info)
+        return render_template('includes/_view_patient_appointments.html', patient_id=id, appointment_info=appointment_info)
 
     def view_appointments_for_user(id):
         selected_patient = mediator.get_patient_by_id(id)
@@ -278,12 +281,11 @@ def create_app(db_env="ubersante", debug=False):
 
         return zip(patient_appointments, appointment_clinics, date_list, time_list)
 
-    @app.route('/delete_appointments/<appointment_id>')
+    @app.route('/delete_appointments/<patient_id>/<appointment_id>')
     @is_logged_in
-    def delete_appointments(appointment_id):
-        # Delete the appointment for good
+    def delete_appointments(patient_id, appointment_id):
         mediator.delete_appointment(int(appointment_id))
-        return redirect(url_for('view_patient_appointments'))
+        return redirect(url_for('view_selected_patient_appointments', id=patient_id))
 
     @app.route('/select_clinic')
     @is_logged_in
@@ -302,15 +304,20 @@ def create_app(db_env="ubersante", debug=False):
         session['has_selected_walk_in'] = (type != "annual")
         return redirect(url_for('make_appointment_calendar'))
 
-    @app.route('/data', methods=["GET", "POST"])
+    @app.route('/return_weekly_availabilities', methods=["GET", "POST"])
     @is_logged_in
     def return_weekly_availabilities():
-        return mediator.find_availability(int(session['selected_clinic']), Tools.convert_to_python_datetime(str(request.args.get('start'))), session['has_selected_walk_in'])
+        date_time = Tools.convert_to_python_datetime(str(request.args.get('start')))
+        result = mediator.find_availability(int(session['selected_clinic']), date_time, session['has_selected_walk_in']) 
+        return result if result is not None else Tools.get_unavailable_times_message(date_time)
 
-    @app.route('/event', methods=["POST"])
+    @app.route('/show_event_details', methods=["POST"])
     @is_logged_in
     def show_event_details():
-        return url_for('selected_appointment', event_id=request.json['id'], start=request.json['start'])
+        event_id = request.json['id']
+        if event_id == 'expired':
+            return url_for('make_appointment_calendar')
+        return url_for('selected_appointment', event_id=event_id, start=request.json['start'])
 
     @app.route('/selected_appointment/<event_id>/<start>')
     @is_logged_in
@@ -321,7 +328,7 @@ def create_app(db_env="ubersante", debug=False):
         else:
             appointment_type = "Walk-in"
 
-        selected_datetime = Tools.convert_to_date_time(start)
+        selected_datetime = Tools.convert_to_python_datetime(start)
         selected_date = Tools.get_date_iso_format(selected_datetime)
         selected_time = Tools.get_time_iso_format(selected_datetime)
 
@@ -336,11 +343,11 @@ def create_app(db_env="ubersante", debug=False):
     @is_logged_in
     def book_for_patient():
         is_walk_in = (request.json['walk_in'] == 'True')
-
-        mediator.add_appointment(session['selected_patient'], request.json['clinic_id'], request.json['start'], is_walk_in)
+        selected_date_time = Tools.convert_to_python_datetime(request.json['start'])
+        mediator.add_appointment(session['selected_patient'], request.json['clinic_id'], selected_date_time, is_walk_in)
 
         result = {
-            'url': url_for('view_patient_appointments', id=str(session['selected_patient']))
+            'url': url_for('view_selected_patient_appointments', id=str(session['selected_patient']))
         }
         return jsonify(result)
 
@@ -355,7 +362,7 @@ def create_app(db_env="ubersante", debug=False):
             start_time = request.json['start']
             is_walk_in = (request.json['walk_in'] == 'True')
 
-            selected_datetime = Tools.convert_to_date_time(start_time.replace(' ', 'T'))
+            selected_datetime = Tools.convert_to_python_datetime(start_time)
 
             cart = mediator.get_patient_cart(session['id'])
             add_item_status = cart.add(clinic, selected_datetime, is_walk_in)

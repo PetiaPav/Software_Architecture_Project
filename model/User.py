@@ -70,7 +70,7 @@ class Doctor(User):
         return self.appointment_dict.pop(appointment.date_time, None)
 
     def get_availability(self, date_time: datetime, walk_in: bool):
-        if date_time in self.appointment_dict:
+        if date_time < datetime.now() or date_time in self.appointment_dict:
             return None
 
         for adjustment in self.adjustment_list:
@@ -199,19 +199,22 @@ class DoctorMapper:
                     if adjustment.id != -1:
                         adjustments_to_delete.append(adjustment)
                     doctor.adjustment_list.remove(adjustment)
-            adjustment_to_add = Adjustment(-1, event.date_time, event.operation_type_add, event.walk_in)
-            # update the db
-            adjustment_to_add.id = self.tdg.insert_doctor_adjustment(doctor.id, adjustment_to_add)
-            # update working memory with a valid db id
-            doctor.adjustment_list.append(adjustment_to_add)
+            # we don't want to add adjustments for past dates
+            if(event.date_time > datetime.now()):
+                adjustment_to_add = Adjustment(-1, event.date_time, event.operation_type_add, event.walk_in)
+                # update the db
+                adjustment_to_add.id = self.tdg.insert_doctor_adjustment(doctor.id, adjustment_to_add)
+                # update working memory with a valid db id
+                doctor.adjustment_list.append(adjustment_to_add)
         # batch remove over-written adjustments
         self.tdg.remove_doctor_adjustments(doctor.id, adjustments_to_delete)
 
     def get_schedule_by_week(self, doctor_id, fullcalendar_datetime):
-        doctor = self.get_by_id(doctor_id)
         date_time = Tools.convert_to_python_datetime(fullcalendar_datetime)
+
         week_start_time = self.week_start_from_date_time(date_time)
         week_end_time = self.week_end_from_week_start(week_start_time)
+        doctor = self.get_by_id(doctor_id)
 
         requested_week_availabilities_dict = {}
         for day in range(0, len(doctor.generic_week_availability)):
@@ -258,7 +261,17 @@ class DoctorMapper:
         doctor.appointment_ids.remove(appointment_id)
 
     def week_start_from_date_time(self, date_time):
+        today = datetime.today()
         week_start_time = date_time
+        if(date_time < today):
+            week_start_time = datetime(today.year, today.month, today.day, today.hour + 1, 0)
+            return week_start_time
+        # if the requested date is within a week, we check if it is in the current week
+        if(date_time - today < timedelta(days=7)):
+            if date_time.weekday() > today.weekday():
+                week_start_time = datetime(today.year, today.month, today.day, 0, 0)
+                return week_start_time
+
         # Monday is 0 and Sunday is 6
         weekday = date_time.weekday()
         if weekday is not 0:
