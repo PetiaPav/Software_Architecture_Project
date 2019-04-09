@@ -39,11 +39,9 @@ class Patient(User):
 
     def update(self, subject, operation):
         if operation == "add":
-            # print('New appointment scheduled at ' + subject.date_time + " at " + subject.clinic)
-            flash(f'New Patient appointment scheduled', 'success')
+            flash('New Patient appointment scheduled')
         else:
-            # print('Appointment at ' + subject.clinic + " has been cancelled.")
-            flash(f'Cancelled Patient appointment scheduled', 'success')
+            flash('Cancelled Patient appointment scheduled')
 
 
 class Nurse(User):
@@ -93,11 +91,9 @@ class Doctor(User):
 
     def update(self, subject, operation):
         if operation == "add":
-            # print('New appointment scheduled at ' + subject.date_time + " at " + subject.clinic)
-            flash(f'New Doctor appointment scheduled', 'success')
+            flash('New Doctor appointment scheduled')
         else:
-            # print('Appointment at ' + subject.clinic + " has been cancelled.")
-            flash(f'Cancelled Doctor appointment scheduled', 'success')
+            flash('Cancelled Doctor appointment scheduled')
 
 class Adjustment():
     def __init__(self, id, date_time, operation_type_add, walk_in):

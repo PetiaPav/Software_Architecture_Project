@@ -8,8 +8,8 @@
         <link rel="stylesheet" href="/static/css/344stylesheet.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
         <script src="/static/js/jquery331.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
         <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
         <link rel="stylesheet" href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
         <script src="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
         {% block head %}{% endblock %}
@@ -17,6 +17,75 @@
     <body>
         {% include 'includes/_navbar.html' %}
         {% include 'includes/_messages.html' %}
+
+        <div id="PatientModal" class="modal" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Patient model</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}
+                            <p>{{ message }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">View Appointment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="DoctorModal" class="modal" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Doctor model</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            {% for message in messages %}
+                            <p>{{ message }}</p>
+                            {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">View patient info</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            var messages = "{{ get_flashed_messages() }}";
+
+            {% if session.logged_in and session.user_type == 'patient' %}
+                if (typeof messages != 'undefined' && messages != '[]') {
+                    $("#PatientModal").modal();
+                    $(".alert-message").hide();
+                };
+            {% endif %}
+
+            {% if session.logged_in and session.user_type == 'doctor' %}
+                if (typeof messages != 'undefined' && messages != '[]') {
+                    $("#DcotorModal").modal();
+                    $(".alert-message").hide();
+                };
+            {% endif %}
+        </script>
+
         {% block body %}{% endblock %}
+
         {% include 'includes/_footer.html' %}
     </body>
+</html>
