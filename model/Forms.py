@@ -1,5 +1,7 @@
+from datetime import datetime
 import re
 
+from dateutil import relativedelta
 from flask import flash
 from wtforms import Form, StringField, DateField, SelectField, IntegerField, PasswordField, validators, ValidationError
 from wtforms.fields.html5 import EmailField
@@ -56,6 +58,12 @@ def nurse_access(form, field):
         raise ValidationError('Invalid access id number, please follow the pattern: DOL96315.')
 
 
+def is_adult(form, field):
+    age = relativedelta.relativedelta(datetime.now(), field.data)
+    if age.years < 18:
+        raise ValidationError('Patient must be over 18 years old.')
+
+
 class UserForm(Form):
     first_name = StringField('First Name', [alpha(2, 50, 0)])
     last_name = StringField('Last Name', [alpha(2, 50, 0)])
@@ -70,7 +78,7 @@ class PatientForm(UserForm):
     email = EmailField('Email address', [validators.Email()])
     health_card = StringField('Health Card', [health_card])
     phone_number = StringField('Phone Number', [phone_number])
-    birthday = DateField('Birth Date', format='%m/%d/%y')
+    birthday = DateField('Birth Date', [is_adult], format='%d/%m/%Y')
     gender = SelectField('Gender', choices=[('M', 'Male'), ('F', 'Female')])
     physical_address = StringField('Address', [alpha(2, 100, 1)])
 
