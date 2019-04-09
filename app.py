@@ -439,12 +439,14 @@ def create_app(db_env="ubersante", debug=False):
         return jsonify(result)
 
     @app.route('/insert_clinic', methods=["GET","POST"])
+    @is_logged_in
+    @nurse_login_required
     def insert_clinic():
-        doctors = user_registry.doctor.get_all()
+        doctors = mediator.get_all_doctors()
         doctors_tuple = []
         for doctor in doctors:
             doctors_tuple.append((doctor.id, doctor.first_name + " " + doctor.last_name))
-        nurses = user_registry.nurse.get_all()
+        nurses = mediator.get_all_nurses()
         nurses_tuple = []
         for nurse in nurses:
             nurses_tuple.append((nurse.id, nurse.first_name + " " + nurse.last_name))
@@ -452,13 +454,68 @@ def create_app(db_env="ubersante", debug=False):
         form.doctors.choices = doctors_tuple
         form.nurses.choices = nurses_tuple
         if request.method == 'GET':
-            return render_template('clinic.html', form=form)
-        else:
-            #TODO: This is where you'll enter the clinic then doctor_clinic_assignment then nurse_clinic_assignment
-            print(form.doctors.data)
-            return render_template('clinic.html', form=form)
+            return render_template('clinic.html', form=form, update=False)
+        if request.method == 'POST' and form.validate():
+            doctor_ids = form.doctors.data
+            nurse_ids = form.nurses.data
+            dict_doctors = {}
+            dict_nurses = {}
+            for id in doctor_ids:
+                dict_doctors[id] = mediator.get_doctor_by_id(id)
+                print(dict_doctors[id].first_name)
+            for id in nurse_ids:
+                dict_nurses[id] = mediator.get_nurse_by_id(id)
+            mediator.register_clinic(form, dict_doctors, dict_nurses)
+            flash('Clinic has been successfully inserted.', 'success')
+            return redirect(url_for('dashboard'))
+        return render_template('clinic.html', form=form, update=False)
+
+    @app.route('/update_clinic', methods=["GET"])
+    @is_logged_in
+    @nurse_login_required
+    def update_clinic():
+        return render_template('includes/_select_clinic.html',clinics=mediator.get_all_clinics(), step="update")
+
+    @app.route('/update_clinic/<id>', methods=["GET","POST"])
+    @is_logged_in
+    def update_clinic_selected(id):
+        clinic_id = id
+        clinic = mediator.get_clinic_by_id(clinic_id)
+        doctors = mediator.get_all_doctors()
+        doctors_tuple = []
+        for doctor in doctors:
+            doctors_tuple.append((doctor.id, doctor.first_name + " " + doctor.last_name))
+        nurses = mediator.get_all_nurses()
+        nurses_tuple = []
+        for nurse in nurses:
+            nurses_tuple.append((nurse.id, nurse.first_name + " " + nurse.last_name))
+        form = get_registration_form("clinic", request.form)
+        form.doctors.choices = doctors_tuple
+        form.nurses.choices = nurses_tuple
+        if request.method == 'GET':
+            form.name.data = clinic.name
+            form.physical_address.data = clinic.physical_address
+            form.start_time.data = clinic.business_hours.opening_time.strftime("%H:%M")
+            form.end_time.data = clinic.business_hours.closing_time.strftime("%H:%M")
+            form.rooms.data = len(clinic.rooms)
+            return render_template('clinic.html', form=form, clinic=clinic, update=True)
+        if request.method == 'POST' and form.validate():
+            doctor_ids = form.doctors.data
+            nurse_ids = form.nurses.data
+            dict_doctors = {}
+            dict_nurses = {}
+            for id in doctor_ids:
+                dict_doctors[id] = mediator.get_doctor_by_id(id)
+                print(dict_doctors[id].first_name)
+            for id in nurse_ids:
+                dict_nurses[id] = mediator.get_nurse_by_id(id)
+            mediator.update_clinic(form, clinic, dict_doctors, dict_nurses)
+            flash('Clinic has been successfully updated.', 'success')
+            return redirect(url_for('dashboard'))
+        return render_template('clinic.html', clinic=clinic, form=form, update=True)
 
     return app
+
 
 
 if __name__ == "__main__":
