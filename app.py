@@ -207,7 +207,7 @@ def create_app(db_env="ubersante", debug=False):
     @nurse_login_required
     def patient_detailed_page(id):
         session['selected_patient'] = id
-        patient = mediator.get_by_patient_id(id)
+        patient = mediator.get_patient_by_id(id)
         return render_template('includes/_patient_detail_page.html', patient=patient)
 
     @app.route('/calendar')
@@ -242,9 +242,8 @@ def create_app(db_env="ubersante", debug=False):
         appointment_info = view_appointments_for_user(session["id"])
         return render_template('includes/_view_patient_appointments.html', patient_id=session["id"], appointment_info=appointment_info)
 
-    @app.route('/view_patient_appointments/<id>')
+    @app.route('/view_selected_patient_appointments/<id>')
     @is_logged_in
-    @nurse_login_required
     def view_selected_patient_appointments(id):
         session['selected_patient'] = int(id)
         appointment_info = view_appointments_for_user(int(id))
@@ -271,7 +270,7 @@ def create_app(db_env="ubersante", debug=False):
     @is_logged_in
     def delete_appointments(patient_id, appointment_id):
         mediator.delete_appointment(int(appointment_id))
-        return redirect(url_for('view_patient_appointments', id=patient_id))
+        return redirect(url_for('view_selected_patient_appointments', id=patient_id))
 
     @app.route('/select_clinic')
     @is_logged_in
