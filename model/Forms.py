@@ -61,7 +61,7 @@ def nurse_access(form, field):
 def is_adult(form, field):
     age = relativedelta.relativedelta(datetime.now(), field.data)
     if age.years < 18:
-        raise ValidationError('Patient must be over 18 years old.')
+        raise ValidationError('Patient must be at least 18 years old.')
 
 
 class UserForm(Form):
