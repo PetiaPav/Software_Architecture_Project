@@ -6,6 +6,7 @@ from wtforms.fields.html5 import EmailField
 
 
 
+
 def alpha(minimum, maximum, allow_digits):
     def _alpha(form, field):
         length = len(field.data)
@@ -55,6 +56,13 @@ def nurse_access(form, field):
         raise ValidationError('Please enter a nurse access id number.')
     elif not re.match('^[a-zA-Z]{3}\s*\d{5}$', field.data):
         raise ValidationError('Invalid access id number, please follow the pattern: DOL96315.')
+
+def room_valid(form, field):
+    if field.data == '' or not all(char.isdigit() for char in field.data):
+        raise ValidationError('Input must be a valid digit.')
+    data = int(field.data)
+    if data < 0 or data > 100:
+        raise ValidationError('Please enter a number of rooms between 0 and 100')
 
 
 class UserForm(Form):
@@ -110,10 +118,15 @@ class ChosenSelectMultipleField(SelectMultipleField):
 class ClinicForm(Form):
     name = StringField('Name', [validators.required()])
     physical_address = StringField('Physical Address', [validators.required()])
-    start_time = IntegerField('Opening Time', [validators.required()])
-    end_time = IntegerField('Closing Time', [validators.required()])
-    doctors = ChosenSelectMultipleField("Doctors", choices=[])
-    nurses = ChosenSelectMultipleField("Nurses", choices=[])
+    start_time = StringField('Opening Time', default = "09:00", validators=[
+        validators.required(),
+        validators.regexp(regex="(24:00|2[0-3]:[0-5][0-9]|[0-1][0-9]:[0-5][0-9])", message="Please input a valid time in the correct format, Example: 11:00")])
+    end_time = StringField('Closing Time', default = "17:00", validators=[
+        validators.required(),
+        validators.regexp(regex="(24:00|2[0-3]:[0-5][0-9]|[0-1][0-9]:[0-5][0-9])", message="Please input a valid time in the correct format, Example: 11:00")])
+    rooms = StringField('Number of Rooms', [validators.required(), room_valid])
+    doctors = ChosenSelectMultipleField("Doctors", coerce=int)
+    nurses = ChosenSelectMultipleField("Nurses", coerce=int)
 
 
 def get_form_data(type, selected_object, request):
@@ -163,4 +176,3 @@ def generate_nurse_form(selected_object, request):
     form.access_id.data = selected_object.access_id
 
     return form
-    
