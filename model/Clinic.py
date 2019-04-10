@@ -5,11 +5,12 @@ from typing import Dict
 class Clinic:
     SLOT_DURATION = 20
 
-    def __init__(self, id: int, name: str, physical_address: str, dict_of_doctors, dict_of_rooms, business_hours):
+    def __init__(self, id: int, name: str, physical_address: str, dict_of_doctors, dict_of_nurses, dict_of_rooms, business_hours):
         self.id = id
         self.name = name
         self.physical_address = physical_address
         self.doctors = dict_of_doctors
+        self.nurses = dict_of_nurses
         self.rooms = dict_of_rooms
         self.business_hours = business_hours
 
