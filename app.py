@@ -190,7 +190,7 @@ def create_app(db_env="ubersante", debug=False):
 
     @app.route('/dashboard/nurse_info')
     @is_logged_in
-    def nurset_info():
+    def nurse_info():
         selected_nurse = mediator.get_nurse_by_id(session["id"])
         return render_template('includes/_nurse_detail_page.html', nurse=selected_nurse)
 
