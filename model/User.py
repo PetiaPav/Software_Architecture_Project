@@ -415,8 +415,9 @@ class Cart:
         for item in self.item_dict.values():
             if clinic == item.clinic and start_time == item.start_time and is_walk_in == item.is_walk_in:
                 return True
-            if not is_walk_in and not item.is_walk_in and (start_time - item.start_time > timedelta(days=365)
-                                                           or start_time - item.start_time > timedelta(days=-365)):
+            if clinic == item.clinic and not is_walk_in and not item.is_walk_in and \
+                    (start_time - item.start_time > timedelta(days=365)
+                     or start_time - item.start_time > timedelta(days=-365)):
                 return True
 
         return False
