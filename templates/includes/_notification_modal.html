@@ -6,7 +6,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                {% with messages = get_flashed_messages() %}
+                {% with messages = get_flashed_messages(category_filter=["dark"]) %}
                 {% if messages %}
                     {% for message in messages %}
                     <p>{{ message }}</p>
@@ -31,9 +31,9 @@
 </div>
 
 <script>
-    var messages = "{{ get_flashed_messages() }}";
+    var messages = "{{ get_flashed_messages(category_filter=["dark"]) }}";
     if (typeof messages != 'undefined' && messages != '[]') {
         $("#notification-modal").modal();
-        $(".alert-message").hide();
+        $(".alert-dark").hide();
     };
 </script>

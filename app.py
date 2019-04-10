@@ -26,25 +26,25 @@ def create_app(db_env="ubersante", debug=False):
 
     @app.before_request
     def before_request():
-        if session and session['user_type']:
+        if session and 'user_type' in session:
             if session['user_type'] == 'patient':
                 patient = mediator.get_patient_by_id(session['id'])
                 if patient.has_new_appointment_notification:
-                    flash('You have a new appointment scheduled!')
+                    flash('You have a new appointment scheduled!', 'dark')
                     patient.has_new_appointment_notification = False
 
                 if patient.has_deleted_appointment_notification:
-                    flash('One of your appointments was canceled!')
+                    flash('One of your appointments was canceled!', 'dark')
                     patient.has_deleted_appointment_notification = False
 
             elif session['user_type'] == 'doctor':
                 doctor = mediator.get_doctor_by_id(session['id'])
                 if doctor.has_new_appointment_notification:
-                    flash('You have a new appointment scheduled!')
+                    flash('You have a new appointment scheduled!', 'dark')
                     doctor.has_new_appointment_notification = False
 
                 if doctor.has_deleted_appointment_notification:
-                    flash('One of your appointments was canceled!')
+                    flash('One of your appointments was canceled!', 'dark')
                     doctor.has_deleted_appointment_notification = False
 
     @app.route('/')
@@ -297,7 +297,7 @@ def create_app(db_env="ubersante", debug=False):
     @is_logged_in
     def view_selected_patient_appointments(id):
         session['selected_patient'] = int(id)
-        appointment_info = view_appointments_for_user(int(id))
+        appointment_info = view_appointments_for_user(int(id), 'patient')
         return render_template('includes/_view_patient_appointments.html', patient_id=id, appointment_info=appointment_info)
 
     def view_appointments_for_user(user_id, user_type):
