@@ -442,6 +442,7 @@ def create_app(db_env="ubersante", debug=False):
     @is_logged_in
     @nurse_login_required
     def insert_clinic():
+        # Change dictionnary to tuple to work in frontend library
         doctors = mediator.get_all_doctors()
         doctors_tuple = []
         for doctor in doctors:
@@ -456,16 +457,7 @@ def create_app(db_env="ubersante", debug=False):
         if request.method == 'GET':
             return render_template('clinic.html', form=form, update=False)
         if request.method == 'POST' and form.validate():
-            doctor_ids = form.doctors.data
-            nurse_ids = form.nurses.data
-            dict_doctors = {}
-            dict_nurses = {}
-            for id in doctor_ids:
-                dict_doctors[id] = mediator.get_doctor_by_id(id)
-                print(dict_doctors[id].first_name)
-            for id in nurse_ids:
-                dict_nurses[id] = mediator.get_nurse_by_id(id)
-            mediator.register_clinic(form, dict_doctors, dict_nurses)
+            mediator.register_clinic(form)
             flash('Clinic has been successfully inserted.', 'success')
             return redirect(url_for('dashboard'))
         return render_template('clinic.html', form=form, update=False)
@@ -480,6 +472,7 @@ def create_app(db_env="ubersante", debug=False):
     @is_logged_in
     def update_clinic_selected(id):
         clinic_id = id
+        # Change dictionnary to tuple to work in frontend library
         clinic = mediator.get_clinic_by_id(clinic_id)
         doctors = mediator.get_all_doctors()
         doctors_tuple = []
@@ -500,16 +493,7 @@ def create_app(db_env="ubersante", debug=False):
             form.rooms.data = len(clinic.rooms)
             return render_template('clinic.html', form=form, clinic=clinic, update=True)
         if request.method == 'POST' and form.validate():
-            doctor_ids = form.doctors.data
-            nurse_ids = form.nurses.data
-            dict_doctors = {}
-            dict_nurses = {}
-            for id in doctor_ids:
-                dict_doctors[id] = mediator.get_doctor_by_id(id)
-                print(dict_doctors[id].first_name)
-            for id in nurse_ids:
-                dict_nurses[id] = mediator.get_nurse_by_id(id)
-            mediator.update_clinic(form, clinic, dict_doctors, dict_nurses)
+            mediator.update_clinic(clinic, form)
             flash('Clinic has been successfully updated.', 'success')
             return redirect(url_for('dashboard'))
         return render_template('clinic.html', clinic=clinic, form=form, update=True)

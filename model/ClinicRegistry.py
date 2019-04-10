@@ -67,7 +67,15 @@ class ClinicRegistry:
     def get_all(self):
         return list(self.catalog_dict.values())
 
-    def register_clinic(self, form, doctors, nurses):
+    def register_clinic(self, form):
+        doctor_ids = form.doctors.data
+        nurse_ids = form.nurses.data
+        doctors = {}
+        nurses = {}
+        for id in doctor_ids:
+            doctors[id] = self.mediator.get_doctor_by_id(id)
+        for id in nurse_ids:
+            nurses[id] = self.mediator.get_nurse_by_id(id)
         start_time_list = form.start_time.data.split(':')
         end_time_list = form.end_time.data.split(':')
         start_time = datetime(2019, 1, 1, hour = int(start_time_list[0]), minute=int(start_time_list[1]), second=0)
@@ -83,7 +91,15 @@ class ClinicRegistry:
         business_hours = BusinessHours(BusinessDays.SEVEN_DAYS, start_time.time(), end_time.time()) 
         self.catalog_dict[clinic_id] = Clinic(clinic_id, form.name.data, form.physical_address.data, doctors, nurses, room_dict, business_hours)
 
-    def update_clinic(self, clinic, form, doctors, nurses):
+    def update_clinic(self, clinic, form):
+        doctor_ids = form.doctors.data
+        nurse_ids = form.nurses.data
+        doctors = {}
+        nurses = {}
+        for id in doctor_ids:
+            doctors[id] = self.mediator.get_doctor_by_id(id)
+        for id in nurse_ids:
+            nurses[id] = self.mediator.get_nurse_by_id(id)
         start_time_list = form.start_time.data.split(':')
         end_time_list = form.end_time.data.split(':')
         start_time = datetime(2019, 1, 1, hour = int(start_time_list[0]), minute=int(start_time_list[1]), second=0)

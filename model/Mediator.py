@@ -125,11 +125,11 @@ class Mediator:
     def get_clinic_by_id(self, clinic_id):
         return self.__clinic_registry.get_by_id(clinic_id)
 
-    def register_clinic(self, form, doctors, nurses):
-        self.__clinic_registry.register_clinic(form, doctors, nurses)
+    def register_clinic(self, form):
+        self.__clinic_registry.register_clinic(form)
 
-    def update_clinic(self, clinic, form, doctors, nurses):
-        self.__clinic_registry.update_clinic(form, clinic, doctors, nurses)
+    def update_clinic(self, clinic, form):
+        self.__clinic_registry.update_clinic(clinic, form)
 
     # # Appointment calls
 
