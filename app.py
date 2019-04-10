@@ -18,6 +18,29 @@ def create_app(db_env="ubersante", debug=False):
     app.debug = debug
     mediator = Mediator.get_instance(app, db_env)
 
+    @app.before_request
+    def before_request():
+        if session and session['user_type']:
+            if session['user_type'] == 'patient':
+                patient = mediator.get_patient_by_id(session['id'])
+                if patient.has_new_appointment_notification:
+                    flash('You have a new appointment scheduled!')
+                    patient.has_new_appointment_notification = False
+
+                if patient.has_deleted_appointment_notification:
+                    flash('One of your appointments was canceled!')
+                    patient.has_deleted_appointment_notification = False
+
+            elif session['user_type'] == 'doctor':
+                doctor = mediator.get_doctor_by_id(session['id'])
+                if doctor.has_new_appointment_notification:
+                    flash('You have a new appointment scheduled!')
+                    doctor.has_new_appointment_notification = False
+
+                if doctor.has_deleted_appointment_notification:
+                    flash('One of your appointments was canceled!')
+                    doctor.has_deleted_appointment_notification = False
+
     @app.route('/')
     def home():
         return render_template('home.html')

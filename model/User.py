@@ -29,6 +29,9 @@ class Patient(User):
         self.email = email
         self.cart = cart
         self.appointment_dict = appointment_dict
+        self.has_new_appointment_notification = False
+        self.has_deleted_appointment_notification = False
+
 
     def add_appointment(self, appointment):
         if appointment is not None:
@@ -39,9 +42,9 @@ class Patient(User):
 
     def update(self, subject, operation):
         if operation == "add":
-            flash('New Patient appointment scheduled')
+            self.has_new_appointment_notification = True
         else:
-            flash('Cancelled Patient appointment scheduled')
+            self.has_deleted_appointment_notification = True
 
 
 class Nurse(User):
@@ -59,6 +62,8 @@ class Doctor(User):
         self.generic_week_availability = generic_week_availability
         self.adjustment_list = adjustment_list
         self.appointment_dict = appointment_dict
+        self.has_new_appointment_notification = False
+        self.has_deleted_appointment_notification = False
 
     def add_appointment(self, appointment):
         if appointment is not None:
@@ -88,12 +93,12 @@ class Doctor(User):
         except KeyError:
             return None
 
-
     def update(self, subject, operation):
         if operation == "add":
-            flash('New Doctor appointment scheduled')
+            self.has_new_appointment_notification = True
         else:
-            flash('Cancelled Doctor appointment scheduled')
+            self.has_deleted_appointment_notification = True
+
 
 class Adjustment():
     def __init__(self, id, date_time, operation_type_add, walk_in):
