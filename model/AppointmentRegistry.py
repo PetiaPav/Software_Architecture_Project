@@ -57,7 +57,7 @@ class AppointmentRegistry:
     def get_appointments_by_patient_id(self, patient_id):
         patient_appointments = []
         for appointment in self.catalog_dict.values():
-            if appointment.patient_id == int(patient_id):
+            if appointment.patient.id == int(patient_id):
                 patient_appointments.append(appointment)
         if len(patient_appointments) > 0:
             return patient_appointments
@@ -82,7 +82,7 @@ class AppointmentRegistry:
         return room_bookings
 
     def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
-        room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in)
+        room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in, patient_id)
         if room_doctor_tuple is not None:
             clinic = self.mediator.get_clinic_by_id(clinic_id)
             room = room_doctor_tuple[0]
