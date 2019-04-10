@@ -1,7 +1,6 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, jsonify
 
 from model import Forms
-from model.Tdg import Tdg
 from model.Forms import PatientForm, DoctorForm, NurseForm, ClinicForm
 from passlib.hash import sha256_crypt
 from functools import wraps
