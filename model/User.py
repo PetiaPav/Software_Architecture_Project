@@ -101,7 +101,7 @@ class Doctor(User):
             self.has_deleted_appointment_notification = True
 
 
-class Adjustment():
+class Adjustment:
     def __init__(self, id, date_time, operation_type_add, walk_in):
         self.id = id
         self.date_time = date_time
