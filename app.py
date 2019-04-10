@@ -1,7 +1,7 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, jsonify
 
 from model import Forms
-from model.Forms import PatientForm, DoctorForm, NurseForm
+from model.Forms import PatientForm, DoctorForm, NurseForm, ClinicForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
@@ -140,6 +140,8 @@ def create_app(db_env="ubersante", debug=False):
             return DoctorForm(form)
         elif user_type == 'nurse':
             return NurseForm(form)
+        elif user_type == 'clinic':
+            return ClinicForm(form)
         return None
 
     def is_logged_in(f):
@@ -435,7 +437,68 @@ def create_app(db_env="ubersante", debug=False):
         result = {'url': url_for('doctor_view_schedule')}
         return jsonify(result)
 
+    @app.route('/insert_clinic', methods=["GET","POST"])
+    @is_logged_in
+    @nurse_login_required
+    def insert_clinic():
+        # Change dictionnary to tuple to work in frontend library
+        doctors = mediator.get_all_doctors()
+        doctors_tuple = []
+        for doctor in doctors:
+            doctors_tuple.append((doctor.id, doctor.first_name + " " + doctor.last_name))
+        nurses = mediator.get_all_nurses()
+        nurses_tuple = []
+        for nurse in nurses:
+            nurses_tuple.append((nurse.id, nurse.first_name + " " + nurse.last_name))
+        form = get_registration_form("clinic", request.form)
+        form.doctors.choices = doctors_tuple
+        form.nurses.choices = nurses_tuple
+        if request.method == 'GET':
+            return render_template('clinic.html', form=form, update=False)
+        if request.method == 'POST' and form.validate():
+            mediator.register_clinic(form)
+            flash('Clinic has been successfully inserted.', 'success')
+            return redirect(url_for('dashboard'))
+        return render_template('clinic.html', form=form, update=False)
+
+    @app.route('/update_clinic', methods=["GET"])
+    @is_logged_in
+    @nurse_login_required
+    def update_clinic():
+        return render_template('includes/_select_clinic.html',clinics=mediator.get_all_clinics(), step="update")
+
+    @app.route('/update_clinic/<id>', methods=["GET","POST"])
+    @is_logged_in
+    def update_clinic_selected(id):
+        clinic_id = id
+        # Change dictionnary to tuple to work in frontend library
+        clinic = mediator.get_clinic_by_id(clinic_id)
+        doctors = mediator.get_all_doctors()
+        doctors_tuple = []
+        for doctor in doctors:
+            doctors_tuple.append((doctor.id, doctor.first_name + " " + doctor.last_name))
+        nurses = mediator.get_all_nurses()
+        nurses_tuple = []
+        for nurse in nurses:
+            nurses_tuple.append((nurse.id, nurse.first_name + " " + nurse.last_name))
+        form = get_registration_form("clinic", request.form)
+        form.doctors.choices = doctors_tuple
+        form.nurses.choices = nurses_tuple
+        if request.method == 'GET':
+            form.name.data = clinic.name
+            form.physical_address.data = clinic.physical_address
+            form.start_time.data = clinic.business_hours.opening_time.strftime("%H:%M")
+            form.end_time.data = clinic.business_hours.closing_time.strftime("%H:%M")
+            form.rooms.data = len(clinic.rooms)
+            return render_template('clinic.html', form=form, clinic=clinic, update=True)
+        if request.method == 'POST' and form.validate():
+            mediator.update_clinic(clinic, form)
+            flash('Clinic has been successfully updated.', 'success')
+            return redirect(url_for('dashboard'))
+        return render_template('clinic.html', clinic=clinic, form=form, update=True)
+
     return app
+
 
 
 if __name__ == "__main__":
