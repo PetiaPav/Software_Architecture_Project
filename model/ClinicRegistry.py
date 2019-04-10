@@ -1,4 +1,4 @@
-from model.Clinic import Clinic, Room, BusinessHours, BusinessDays
+from model.Clinic import Clinic, Room, BusinessHours, BusinessDays, RoomAvailabilityStrategy
 from datetime import datetime
 from model.Tools import Tools
 import random
@@ -51,12 +51,13 @@ class ClinicRegistry:
                         dict_of_nurses[nurse_id] = nurse
             # get the rooms of this clinic
             dict_of_rooms = {}
+            room_availability_strategy = RoomAvailabilityStrategy()
             tdg_dict_of_rooms = self.tdg.get_rooms_by_clinic_id(clinic_id)
             if tdg_dict_of_rooms is not None:
                 for room in tdg_dict_of_rooms:
                     room_id = room['id']
                     bookings_dict = {}
-                    dict_of_rooms[room_id] = Room(room_id, room['name'], bookings_dict)
+                    dict_of_rooms[room_id] = Room(room_id, room['name'], bookings_dict, room_availability_strategy)
 
             business_hours = BusinessHours(BusinessDays.SEVEN_DAYS, opening_time, closing_time)
             self.catalog_dict[clinic_id] = Clinic(clinic_id, clinic_name, clinic_physical_address, dict_of_doctors, dict_of_nurses, dict_of_rooms, business_hours)

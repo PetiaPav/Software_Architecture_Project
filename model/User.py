@@ -5,7 +5,7 @@ from model.Appointment import Appointment
 from model.Tools import Tools
 from model.FullCalendarEventWrapper import WrapDoctorGenericEvent, WrapDoctorAdjustmentEvent
 from flask import flash
-from AvailabilityStrategy import Availability
+from model.AvailabilityStrategy import Availability
 import json
 
 
@@ -133,6 +133,8 @@ class DoctorMapper:
 
             appointment_dict = {}
 
+            doctor_availability_strategy = DoctorAvailabilityStrategy()
+            
             doctor_obj = Doctor(
                 doctor['id'],
                 doctor['first_name'],
@@ -144,7 +146,7 @@ class DoctorMapper:
                 generic_week_availability_list,
                 adjustment_list,
                 appointment_dict,
-                doctor['doctor_availability_strategy']
+                doctor_availability_strategy
             )
 
             self.catalog_dict[doctor_id] = doctor_obj

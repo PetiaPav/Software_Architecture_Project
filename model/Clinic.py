@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 from enum import Enum
 from typing import Dict
-from AvailabilityStrategy import Availability
+from model.AvailabilityStrategy import Availability
 
 
 class Clinic:
