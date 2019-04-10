@@ -7,16 +7,18 @@
             </div>
             <div class="col-md-9">
                 <h2 class="welcome-msg"> Hello Dr. {{ session.first_name }}, Welcome to UberSanté! </h2>
-                <h3 class="upcoming-msg">You have <span class="upcoming-appointments">{{nb_upcoming_appointments}}</span> upcoming appointments with patients</h3>
+                <h3 class="upcoming-msg">You have <span
+                        class="upcoming-appointments">{{nb_upcoming_appointments}}</span> upcoming appointments with
+                    patients</h3>
             </div>
         </div>
     </div>
 </div>
 
-<br />
+<br/>
 <div class="container">
     <h1>Doctor Dashboard</h1>
-    <hr />
+    <hr/>
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
@@ -41,7 +43,7 @@
         </div>
         <div class="col-md-1"></div>
     </div>
-    <br>
+    <br/>
     <div class="row">
         <div class="col-md-1"></div>
         <div class="col-md-5">
@@ -60,6 +62,21 @@
                     <h4>
                         <span class="glyphicon glyphicon-info-sign blank-icon"></span>
                         <span> View Personal Info </span>
+                    </h4>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-1"></div>
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-md-1"></div>
+        <div class="col-md-5">
+            <a href="/view_doctor_appointments">
+                <div class="option-button option-button-update unfade">
+                    <h4>
+                        <span class="glyphicon glyphicon-list-alt blank-icon"></span>
+                        <span> View appointments </span>
                     </h4>
                 </div>
             </a>

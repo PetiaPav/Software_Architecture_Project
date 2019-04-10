@@ -4,17 +4,11 @@ from typing import List, Dict
 from model.Appointment import Appointment
 from model.Tools import Tools
 from model.FullCalendarEventWrapper import WrapDoctorGenericEvent, WrapDoctorAdjustmentEvent
-from flask import flash, Flask
+from flask import flash
 import json
-from flask_socketio import SocketIO, emit, Namespace
-from model.Mediator import *
-# from app import socketio
-# import app
-from model.AppointmentRegistry import AppointmentRegistry
 
-# socketio = SocketIO.connect('http://127.0.0.1:5000')
 
-class User():
+class User:
     def __init__(self, id, first_name: str, last_name: str, password):
         self.id = id
         self.first_name = first_name
@@ -35,6 +29,9 @@ class Patient(User):
         self.email = email
         self.cart = cart
         self.appointment_dict = appointment_dict
+        self.has_new_appointment_notification = False
+        self.has_deleted_appointment_notification = False
+
 
     def add_appointment(self, appointment):
         if appointment is not None:
@@ -45,11 +42,9 @@ class Patient(User):
 
     def update(self, subject, operation):
         if operation == "add":
-            AppointmentRegistry.get_test().socketio.emit('patient modal event', {'data': 'New patient appointment created'}, namespace="/test")
-            # app.test_message_patient("Hi added new appointment")
+            self.has_new_appointment_notification = True
         else:
-            AppointmentRegistry.get_test().socketio.emit('patient modal event', {'data': 'A patient appointment cancelled'}, namespace="/test")
-            # app.test_message_patient("Hi deleted an appointment")
+            self.has_deleted_appointment_notification = True
 
 
 class Nurse(User):
@@ -67,6 +62,8 @@ class Doctor(User):
         self.generic_week_availability = generic_week_availability
         self.adjustment_list = adjustment_list
         self.appointment_dict = appointment_dict
+        self.has_new_appointment_notification = False
+        self.has_deleted_appointment_notification = False
 
     def add_appointment(self, appointment):
         if appointment is not None:
@@ -96,13 +93,13 @@ class Doctor(User):
         except KeyError:
             return None
 
+
     def update(self, subject, operation):
         if operation == "add":
-            AppointmentRegistry.get_test().socketio.emit('doctor modal event', {'data': 'New doctor appointment created'}, namespace="/test")
-            # app.test_message_doctor("Added new appointment doctor")
+            self.has_new_appointment_notification = True
         else:
-            AppointmentRegistry.get_test().socketio.emit('doctor modal event', {'data': 'A doctor appointment cancelled'}, namespace="/test")
-            # app.test_message_doctor("Deleted an appointment doctor")
+            self.has_deleted_appointment_notification = True
+
 
 class Adjustment():
     def __init__(self, id, date_time, operation_type_add, walk_in):
