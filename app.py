@@ -1,4 +1,5 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, jsonify
+from flask_socketio import SocketIO, emit
 
 from model import Forms
 from model.Forms import PatientForm, DoctorForm, NurseForm
@@ -9,14 +10,19 @@ from model.Tools import Tools
 from datetime import datetime
 from model.Payment import Payment
 from model.Mediator import Mediator
+from model.User import User
 
+
+socketio = SocketIO()
 
 def create_app(db_env="ubersante", debug=False):
     print("Loading app . . . ")
     app = Flask(__name__)
     app.secret_key = 'secret123'
     app.debug = debug
-    mediator = Mediator.get_instance(app, db_env)
+    socketio.init_app(app)
+    mediator = Mediator.get_instance(app, db_env, socketio)
+    # socketio.init_app(app, async_mode = True)
 
     @app.route('/')
     def home():
@@ -444,9 +450,24 @@ def create_app(db_env="ubersante", debug=False):
         result = {'url': url_for('doctor_view_schedule')}
         return jsonify(result)
 
+    # socketio.on_namespace(User('/test'), appCtx=app)
+
+    @socketio.on('patient modal event', namespace="/test")
+    def test_message_patient(message):
+        print("============ IN PATIENT")
+        emit('patient modal', {'data': message['data']}, namespace="/test")
+
+    @socketio.on('doctor modal event', namespace="/test")
+    def test_message_doctor(message):
+        print("============ IN DOCTOR")
+        emit('doctor modal', {'data': message['data']}, namespace="/test")
+
+
     return app
+
+
 
 
 if __name__ == "__main__":
     app = create_app(db_env="ubersante", debug=True)
-    app.run()
+    socketio.run(app)

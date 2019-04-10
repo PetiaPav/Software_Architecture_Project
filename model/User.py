@@ -4,11 +4,17 @@ from typing import List, Dict
 from model.Appointment import Appointment
 from model.Tools import Tools
 from model.FullCalendarEventWrapper import WrapDoctorGenericEvent, WrapDoctorAdjustmentEvent
-from flask import flash
+from flask import flash, Flask
 import json
+from flask_socketio import SocketIO, emit, Namespace
+from model.Mediator import *
+# from app import socketio
+# import app
+from model.AppointmentRegistry import AppointmentRegistry
 
+# socketio = SocketIO.connect('http://127.0.0.1:5000')
 
-class User:
+class User():
     def __init__(self, id, first_name: str, last_name: str, password):
         self.id = id
         self.first_name = first_name
@@ -39,9 +45,11 @@ class Patient(User):
 
     def update(self, subject, operation):
         if operation == "add":
-            flash('New Patient appointment scheduled')
+            AppointmentRegistry.get_test().socketio.emit('patient modal event', {'data': 'New patient appointment created'}, namespace="/test")
+            # app.test_message_patient("Hi added new appointment")
         else:
-            flash('Cancelled Patient appointment scheduled')
+            AppointmentRegistry.get_test().socketio.emit('patient modal event', {'data': 'A patient appointment cancelled'}, namespace="/test")
+            # app.test_message_patient("Hi deleted an appointment")
 
 
 class Nurse(User):
@@ -88,12 +96,13 @@ class Doctor(User):
         except KeyError:
             return None
 
-
     def update(self, subject, operation):
         if operation == "add":
-            flash('New Doctor appointment scheduled')
+            AppointmentRegistry.get_test().socketio.emit('doctor modal event', {'data': 'New doctor appointment created'}, namespace="/test")
+            # app.test_message_doctor("Added new appointment doctor")
         else:
-            flash('Cancelled Doctor appointment scheduled')
+            AppointmentRegistry.get_test().socketio.emit('doctor modal event', {'data': 'A doctor appointment cancelled'}, namespace="/test")
+            # app.test_message_doctor("Deleted an appointment doctor")
 
 class Adjustment():
     def __init__(self, id, date_time, operation_type_add, walk_in):
