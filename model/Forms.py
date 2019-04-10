@@ -1,5 +1,7 @@
+from datetime import datetime
 import re, json
 
+from dateutil import relativedelta
 from flask import flash
 from wtforms import Form, StringField, DateField, SelectField, IntegerField, PasswordField, validators, ValidationError, SelectMultipleField
 from wtforms.fields.html5 import EmailField
@@ -65,6 +67,12 @@ def room_valid(form, field):
         raise ValidationError('Please enter a number of rooms between 0 and 100')
 
 
+def is_adult(form, field):
+    age = relativedelta.relativedelta(datetime.now(), field.data)
+    if age.years < 18:
+        raise ValidationError('Patient must be at least 18 years old.')
+
+
 class UserForm(Form):
     first_name = StringField('First Name', [alpha(2, 50, 0)])
     last_name = StringField('Last Name', [alpha(2, 50, 0)])
@@ -79,7 +87,7 @@ class PatientForm(UserForm):
     email = EmailField('Email address', [validators.Email()])
     health_card = StringField('Health Card', [health_card])
     phone_number = StringField('Phone Number', [phone_number])
-    birthday = DateField('Birth Date', format='%m/%d/%y')
+    birthday = DateField('Birth Date', [is_adult], format='%d/%m/%Y')
     gender = SelectField('Gender', choices=[('M', 'Male'), ('F', 'Female')])
     physical_address = StringField('Address', [alpha(2, 100, 1)])
 
