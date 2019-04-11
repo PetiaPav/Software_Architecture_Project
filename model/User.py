@@ -1,11 +1,9 @@
-
 from datetime import timedelta, datetime
 from typing import List, Dict
 from model.Appointment import Appointment
 from model.Tools import Tools
 from model.FullCalendarEventWrapper import WrapDoctorGenericEvent, WrapDoctorAdjustmentEvent
 from flask import flash
-from model.AvailabilityStrategy import Availability
 import json
 
 
@@ -44,7 +42,7 @@ class Nurse(User):
 
 
 class Doctor(User):
-    def __init__(self, id, first_name, last_name, password, permit_number, specialty, city, generic_week_availability: List[Dict[datetime.time, bool]], adjustment_list, appointment_dict: Dict[datetime, Appointment], doctor_availability_strategy):
+    def __init__(self, id, first_name, last_name, password, permit_number, specialty, city, generic_week_availability: List[Dict[datetime.time, bool]], adjustment_list, appointment_dict: Dict[datetime, Appointment]):
         User.__init__(self, id, first_name, last_name, password)
         self.permit_number = permit_number
         self.specialty = specialty
@@ -52,7 +50,6 @@ class Doctor(User):
         self.generic_week_availability = generic_week_availability
         self.adjustment_list = adjustment_list
         self.appointment_dict = appointment_dict
-        self._doctor_availability_strategy = doctor_availability_strategy
 
     def add_appointment(self, appointment):
         if appointment is not None:
@@ -60,33 +57,6 @@ class Doctor(User):
 
     def remove_appointment(self, appointment):
         return self.appointment_dict.pop(appointment.date_time, None)
-
-    def availability_interface(self, date_time, walk_in, closing_time):
-        self._doctor_availability_strategy.get_availability(self, date_time, walk_in, closing_time)
-
-
-class DoctorAvailabilityStrategy(Availability):
-
-    def get_availability(self, doctor, date_time: datetime, walk_in: bool, closing_time):
-        if date_time < datetime.now() or date_time in doctor.appointment_dict:
-            return None
-
-        for adjustment in doctor.adjustment_list:
-            if adjustment.date_time == date_time:
-                if adjustment.operation_type_add:
-                    if adjustment.walk_in == walk_in:
-                        return doctor
-                else:
-                    return None
-
-        generic_day_availability = doctor.generic_week_availability[date_time.weekday()]
-        try:
-            if generic_day_availability[date_time.time()] == walk_in:
-                return doctor
-            else:
-                return None
-        except KeyError:
-            return None
 
 
 class Adjustment:
@@ -132,8 +102,6 @@ class DoctorMapper:
                     adjustment_list.append(adjustment)
 
             appointment_dict = {}
-
-            doctor_availability_strategy = DoctorAvailabilityStrategy()
             
             doctor_obj = Doctor(
                 doctor['id'],
@@ -145,8 +113,7 @@ class DoctorMapper:
                 doctor['city'],
                 generic_week_availability_list,
                 adjustment_list,
-                appointment_dict,
-                doctor_availability_strategy
+                appointment_dict
             )
 
             self.catalog_dict[doctor_id] = doctor_obj
@@ -167,8 +134,7 @@ class DoctorMapper:
         # record this doctor in the database and get a new id
         new_doctor_id = self.tdg.insert_doctor(first_name, last_name, password, permit_number, specialty, city)
         if new_doctor_id is not None:
-            doctor_availability_strategy = DoctorAvailabilityStrategy()
-            self.catalog_dict[new_doctor_id] = Doctor(new_doctor_id, first_name, last_name, password, permit_number, specialty, city, None, None, None, doctor_availability_strategy)
+            self.catalog_dict[new_doctor_id] = Doctor(new_doctor_id, first_name, last_name, password, permit_number, specialty, city, None, None, None)
 
     def set_generic_availability_from_json(self, doctor_id, json):
         doctor = self.get_by_id(int(doctor_id))
@@ -194,7 +160,7 @@ class DoctorMapper:
                         adjustments_to_delete.append(adjustment)
                     doctor.adjustment_list.remove(adjustment)
             # we don't want to add adjustments for past dates
-            if(event.date_time > datetime.now()):
+            if event.date_time > datetime.now():
                 adjustment_to_add = Adjustment(-1, event.date_time, event.operation_type_add, event.walk_in)
                 # update the db
                 adjustment_to_add.id = self.tdg.insert_doctor_adjustment(doctor.id, adjustment_to_add)
@@ -219,7 +185,7 @@ class DoctorMapper:
                 requested_week_availabilities_dict[availability_date_time] = walk_in
 
         for adjustment in doctor.adjustment_list:
-            if adjustment.date_time > week_start_time and adjustment.date_time < week_end_time:
+            if week_start_time < adjustment.date_time < week_end_time:
                 if adjustment.operation_type_add is True:
                     requested_week_availabilities_dict[adjustment.date_time] = adjustment.walk_in
                 else:
@@ -228,7 +194,7 @@ class DoctorMapper:
 
         requested_week_appointments_dict = {}
         for appointment in doctor.appointment_dict.values():
-            if appointment.date_time > week_start_time and appointment.date_time < week_end_time:
+            if week_start_time < appointment.date_time < week_end_time:
                 requested_week_appointments_dict[appointment.date_time] = appointment.walk_in
 
         event_source = Tools.json_from_doctor_week_availabilities(requested_week_availabilities_dict)
@@ -257,11 +223,11 @@ class DoctorMapper:
     def week_start_from_date_time(self, date_time):
         today = datetime.today()
         week_start_time = date_time
-        if(date_time < today):
+        if date_time < today:
             week_start_time = datetime(today.year, today.month, today.day, today.hour + 1, 0)
             return week_start_time
         # if the requested date is within a week, we check if it is in the current week
-        if(date_time - today < timedelta(days=7)):
+        if date_time - today < timedelta(days=7):
             if date_time.weekday() > today.weekday():
                 week_start_time = datetime(today.year, today.month, today.day, 0, 0)
                 return week_start_time
