@@ -540,11 +540,12 @@ def create_app(db_env="ubersante", debug=False):
             payment.initialize()
             step = "receipt"
 
-        for appointment_id in session['newly_booked_appointment_ids']:
-            appointment = mediator.get_appointment_by_id(appointment_id)
-            appointment.notify("add")
+            # This for loop needs to be inside the POST otherwise the user will be notified of new appointment before being done paying
+            for appointment_id in session['newly_booked_appointment_ids']:
+                appointment = mediator.get_appointment_by_id(appointment_id)
+                appointment.notify("add")
 
-        session['newly_booked_appointment_ids'] = []
+            session['newly_booked_appointment_ids'] = []
 
         return render_template('payment.html', user_type=user_type, date=date, step=step, user=user, clinic=clinic, payment=payment)
 
