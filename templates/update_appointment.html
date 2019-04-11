@@ -1,0 +1,97 @@
+{% extends "layout.html" %}
+
+{% block title %}Selected Availability{% endblock %}
+
+{% block body %}
+<br/>
+<div class="container">
+    <h1>Old Appointment details</h1>
+    <br/>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Clinic name</th>
+            <th scope="col">{{appointment_to_modify.clinic.name}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row">Clinic address</th>
+            <td>{{appointment_to_modify.clinic.physical_address}}</td>
+        </tr>
+        <tr>
+            <th scope="row">Type of appointment</th>
+            <td>{{"Walk-in" if appointment_to_modify.walk_in else "Annual"}}</td>
+        </tr>
+        <tr>
+            <th scope="row">Date</th>
+            <td>{{appointment_to_modify_date}}</td>
+        </tr>
+        <tr>
+            <th scope="row">Start time</th>
+            <td>{{appointment_to_modify_time}}</td>
+        </tbody>
+    </table>
+
+    <br/>
+
+    <h1>New Appointment details</h1>
+    <br/>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Clinic name</th>
+            <th scope="col">{{clinic.name}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row">Clinic address</th>
+            <td>{{clinic.physical_address}}</td>
+        </tr>
+        <tr>
+            <th scope="row">Type of appointment</th>
+            <td>{{"Walk-in" if walk_in else "Annual"}}</td>
+        </tr>
+        <tr>
+            <th scope="row">Date</th>
+            <td>{{date}}</td>
+        </tr>
+        <tr>
+            <th scope="row">Start time</th>
+            <td>{{time}}</td>
+        </tbody>
+    </table>
+
+    <br/>
+
+    <button type="button" class="btn btn-primary" id="modify_appointment" data-toggle="button" aria-pressed="false"
+            autocomplete="off" onClick="modify_appointment()">
+        Update appointment
+    </button>
+
+    <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off"
+            onclick="window.history.back()">
+        Cancel
+    </button>
+    <script>
+         function modify_appointment() {
+            $.ajax({
+                url: '/modify_appointment',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    old_appointment_id: {{appointment_to_modify.id}},
+                    clinic_id: {{clinic.id}},
+                    start: "{{datetime}}",
+                    walk_in: "{{walk_in}}"
+                }),
+                success : function(data){
+                    window.location.href = data['url'];
+                }
+            });
+         }
+    </script>
+</div>
+<div class="footer-push"></div>
+{% endblock %}

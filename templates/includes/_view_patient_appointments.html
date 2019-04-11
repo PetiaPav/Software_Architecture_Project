@@ -42,7 +42,7 @@
                 <td>{{"Walk-in" if x.walk_in else "Annual"}}</td>
                 <td>{{u}}</td>
                 <td>{{v}}</td>
-                <td><a class="btn btn-danger" href="">Modify</a></td>
+                <td><a class="btn btn-danger" href="/modify_appointments/{{patient_id}}/{{x.id}}">Modify</a></td>
                 <td><a class="btn btn-danger" href="/delete_appointments/{{patient_id}}/{{x.id}}">Remove</a></td>
             </tr>
         {% endfor %}

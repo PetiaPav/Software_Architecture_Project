@@ -134,11 +134,10 @@ class AppointmentRegistry:
                 return True
         return False
 
-    def modify_appointment(self, appointment_id, new_date_time, walk_in):
+    def modify_appointment(self, appointment_id, clinic_id, new_date_time, walk_in):
         existing_appointment = self.get_by_id(int(appointment_id))
         if existing_appointment is not None:
-            patient_id = existing_appointment.patent.id
-            clinic_id = existing_appointment.clinic.id
+            patient_id = existing_appointment.patient.id
             new_appointment = self.add_appointment(patient_id, clinic_id, new_date_time, walk_in)
             if new_appointment is not None:
                 self.delete_appointment(int(appointment_id))
