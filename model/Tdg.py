@@ -206,6 +206,18 @@ class Tdg:
         connection.commit()
         cur.close()
 
+    def insert_room(self, name, clinic_id):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+
+        cur.execute("INSERT INTO ROOMS (id, name, clinic_id) VALUES (NULL, %s, %s)",
+                    (name, clinic_id))
+        
+        last_inserted_id = cur.lastrowid
+        cur.close()
+        connection.commit()
+        return last_inserted_id
+
     def get_all_rooms(self):
         connection = self.mysql.connect()
         cur = connection.cursor()
@@ -243,6 +255,28 @@ class Tdg:
             clinic_doctor_assignments.append(clinic_doctor_assignment)
         cur.close()
         return clinic_doctor_assignments
+
+    def get_all_nurse_clinic_assignments(self):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM NURSE_CLINIC_ASSIGNMENT")
+        clinic_nurse_assignments = []
+        for clinic_nurse_assignment in cur:
+            clinic_nurse_assignments.append(clinic_nurse_assignment)
+        cur.close()
+        return clinic_nurse_assignments
+
+    def insert_clinic_associations(self, clinic_id, doctors, nurses):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        for doctor_id in doctors:
+            cur.execute("INSERT INTO DOCTOR_CLINIC_ASSIGNMENT (id, clinic_id, doctor_id) VALUES (NULL, %s, %s)",
+            (clinic_id, doctor_id))
+        for nurse_id in nurses:
+            cur.execute("INSERT INTO NURSE_CLINIC_ASSIGNMENT (id, clinic_id, nurse_id) VALUES (NULL, %s, %s)",
+            (clinic_id, nurse_id))
+        connection.commit()
+        cur.close()
 
     def update_patient(self, id, first_name, last_name, health_card, birthday, gender, phone_number, physical_address, email):
         connection = self.mysql.connect()

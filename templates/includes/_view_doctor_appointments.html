@@ -29,8 +29,7 @@
             <th scope="col">Type of appointment</th>
             <th scope="col">Date</th>
             <th scope="col">Time</th>
-            <th scope="col">Modify</th>
-            <th scope="col">Delete</th>
+            <th scope="col">View Patient</th>
         </tr>
         </thead>
         <tbody>
@@ -41,8 +40,7 @@
                 <td>{{"Walk-in" if appointment.walk_in else "Annual"}}</td>
                 <td>{{date}}</td>
                 <td>{{time}}</td>
-                <td><a class="btn btn-danger" href="/modify_appointments/{{patient_id}}/{{x.id}}">Modify</a></td>
-                <td><a class="btn btn-danger" href="/delete_appointments/{{patient_id}}/{{appointment.id}}">Remove</a></td>
+                <td><a class="btn btn-danger" href="/view_scheduled_appointment_details/{{appointment.id}}">View Patient</a></td>
             </tr>
         {% endfor %}
         </tbody>

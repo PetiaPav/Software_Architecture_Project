@@ -14,6 +14,10 @@ class AppointmentRegistry:
         self.populate()
 
     @staticmethod
+    def get_test():
+        return AppointmentRegistry.__instance_of_registry
+
+    @staticmethod
     def get_instance(mediator, tdg):
         if AppointmentRegistry.__instance_of_registry is None:
             AppointmentRegistry.__instance_of_registry = AppointmentRegistry(mediator, tdg)
@@ -99,9 +103,11 @@ class AppointmentRegistry:
             self.catalog_dict[appointment.id] = appointment
 
             # Add new appointment to the patient's list of appointments
+            appointment.attach(patient)
             patient.add_appointment(appointment)
 
             # Add new appointment to the doctor's list of appointments
+            appointment.attach(doctor)
             doctor.add_appointment(appointment)
 
             # Return reference to the newly created appointment
@@ -112,6 +118,9 @@ class AppointmentRegistry:
         if int(appointment_id) in self.catalog_dict:
             appointment_to_delete = self.catalog_dict[int(appointment_id)]
             if appointment_to_delete is not None:
+                # Notify doctor and patient that their appointment is deleted
+                appointment_to_delete.notify("delete")
+
                 # Remove room booking
                 room = appointment_to_delete.room
                 date_time = appointment_to_delete.date_time
@@ -119,10 +128,12 @@ class AppointmentRegistry:
 
                 # Remove appointment from doctor's appointment dict
                 doctor = appointment_to_delete.doctor
+                appointment_to_delete.detach(doctor)
                 doctor.remove_appointment(appointment_to_delete)
 
                 # Remove appointment from patient's appointment dict
                 patient = appointment_to_delete.patient
+                appointment_to_delete.detach(patient)
                 patient.remove_appointment(appointment_to_delete)
 
                 # Remove appointment from APPOINTMENTS table in db
@@ -161,7 +172,7 @@ class AppointmentRegistry:
 
     def checkout_cart(self, item_list, patient_id):
         result = {
-            'accepted_appointments': [],
+            'accepted_appointments_ids': [],
             'accepted_items': [],
             'accepted_items_is_walk_in': [],
             'rejected_items': []
@@ -169,7 +180,7 @@ class AppointmentRegistry:
         for item in item_list:
             appointment = self.add_appointment(patient_id, item.clinic.id, item.start_time, item.is_walk_in)
             if appointment is not None:
-                result['accepted_appointments'].append(appointment)
+                result['accepted_appointments_ids'].append(appointment.id)
                 result['accepted_items'].append(item)
                 result['accepted_items_is_walk_in'].append(item.is_walk_in)
             else:

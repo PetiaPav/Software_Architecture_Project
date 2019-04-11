@@ -63,6 +63,7 @@ class LoginPatientAuthenticator(LoginAuthenticator):
                 session['first_name'] = user.first_name
                 session['selected_clinic'] = None
                 session['has_selected_walk_in'] = None
+                session['newly_booked_appointment_ids'] = []
                 session['selected_appointment'] = None
                 return True
             else:
