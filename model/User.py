@@ -14,6 +14,8 @@ class User:
         self.last_name = last_name
         self.password = password
 
+    def update(self, subject, operation):
+        print('Subject has changed: ' + operation)
 
 class Patient(User):
     def __init__(self, id, first_name: str, last_name: str, password, health_card, birthday, gender, phone_number, physical_address, email, cart, appointment_dict):
@@ -26,6 +28,9 @@ class Patient(User):
         self.email = email
         self.cart = cart
         self.appointment_dict = appointment_dict
+        self.has_new_appointment_notification = False
+        self.has_deleted_appointment_notification = False
+
 
     def add_appointment(self, appointment):
         if appointment is not None:
@@ -33,6 +38,12 @@ class Patient(User):
 
     def remove_appointment(self, appointment):
         return self.appointment_dict.pop(appointment.date_time, None)
+
+    def update(self, subject, operation):
+        if operation == "add":
+            self.has_new_appointment_notification = True
+        else:
+            self.has_deleted_appointment_notification = True
 
 
 class Nurse(User):
@@ -50,6 +61,8 @@ class Doctor(User):
         self.generic_week_availability = generic_week_availability
         self.adjustment_list = adjustment_list
         self.appointment_dict = appointment_dict
+        self.has_new_appointment_notification = False
+        self.has_deleted_appointment_notification = False
 
     def add_appointment(self, appointment):
         if appointment is not None:
@@ -57,6 +70,12 @@ class Doctor(User):
 
     def remove_appointment(self, appointment):
         return self.appointment_dict.pop(appointment.date_time, None)
+
+    def update(self, subject, operation):
+        if operation == "add":
+            self.has_new_appointment_notification = True
+        else:
+            self.has_deleted_appointment_notification = True
 
 
 class Adjustment:
@@ -223,7 +242,7 @@ class DoctorMapper:
     def week_start_from_date_time(self, date_time):
         today = datetime.today()
         week_start_time = date_time
-        if date_time < today:
+        if(date_time < today):
             week_start_time = datetime(today.year, today.month, today.day, today.hour + 1, 0)
             return week_start_time
         # if the requested date is within a week, we check if it is in the current week

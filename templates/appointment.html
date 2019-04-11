@@ -3,98 +3,104 @@
 {% block title %}Selected Availability{% endblock %}
 
 {% block body %}
-<br />
+<br/>
 <div class="container">
-  <h1>Appointment details</h1>
-  <br/>
+    <h1>Appointment details</h1>
+    <br/>
     <div id="add-item-to-cart-error"></div>
     <table class="table table-striped">
-      <thead>
+        <thead>
         <tr>
-          <th scope="col">Clinic name</th>
-          <th scope="col">{{clinic.name}}</th>
+            <th scope="col">Clinic name</th>
+            <th scope="col">{{clinic.name}}</th>
         </tr>
-      </thead>
-      <tbody>
+        </thead>
+        <tbody>
         <tr>
-          <th scope="row">Clinic address</th>
-          <td>{{clinic.physical_address}}</td>
-        </tr>
-        <tr>
-          <th scope="row">Type of appointment</th>
-          <td>{{"Walk-in" if walk_in else "Annual"}}</td>
-        </tr>
-          <tr>
-          <th scope="row">Date</th>
-          <td>{{date}}</td>
+            <th scope="row">Clinic address</th>
+            <td>{{clinic.physical_address}}</td>
         </tr>
         <tr>
-          <th scope="row">Start time</th>
-          <td>{{time}}</td>
-      </tbody>
-    </table>
-
-  <br />
-
-{% if user_type == 'patient' %}
-  <button type="button" class="btn btn-primary" id="add-to-cart-button" data-toggle="button" aria-pressed="false" autocomplete="off" onClick="addToCart()">
-    Add to Cart
- </button>
-{% endif %}
-{% if user_type == 'nurse' %}
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th scope="col">Patient Information</th>
-          <th scope="col"></th>
+            <th scope="row">Type of appointment</th>
+            <td>{{"Walk-in" if walk_in else "Annual"}}</td>
         </tr>
-      </thead>
-      <tbody>
-                <tr>
-                  <td>First Name</td>
-                  <td>{{selected_patient.first_name}}</td>
-                </tr>
-                <tr>
-                  <td>Last Name</td>
-                  <td>{{selected_patient.last_name}}</td>
-                </tr>
-                <tr>
-                  <td>Email</td>
-                  <td>{{selected_patient.email}}</td>
-                </tr>
-                <tr>
-                  <td>Health Card</td>
-                  <td>{{selected_patient.health_card}}</td>
-                </tr>
-                <tr>
-                  <td>Phone Number</td>
-                  <td>{{selected_patient.phone_number}}</td>
-                </tr>
-                <tr>
-                  <td>Birthday</td>
-                  <td>{{selected_patient.birthday}}</td>
-                </tr>
-                <tr>
-                  <td>Gender</td>
-                  <td>{{selected_patient.gender}}</td>
-                </tr>
-                <tr>
-                  <td>Physical Address</td>
-                  <td>{{selected_patient.physical_address}}</td>
-                </tr>
-              </tbody>
+        <tr>
+            <th scope="row">Date</th>
+            <td>{{date}}</td>
+        </tr>
+        <tr>
+            <th scope="row">Start time</th>
+            <td>{{time}}</td>
         </tbody>
     </table>
 
- <button type="button" class="btn btn-primary" id="book_appointment" data-toggle="button" aria-pressed="false" autocomplete="off" onClick="bookAppointment()">
-    Book appointment
- </button>
-{% endif %}
-  <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="window.history.back()">
-    Cancel
-  </button>
+    <br/>
 
-  <script>
+    {% if user_type == 'patient' %}
+    <button type="button" class="btn btn-primary" id="add-to-cart-button" data-toggle="button" aria-pressed="false"
+            autocomplete="off" onClick="addToCart()">
+        Add to Cart
+    </button>
+    {% endif %}
+
+    {% if user_type != 'patient' %}
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Patient Information</th>
+            <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>First Name</td>
+            <td>{{selected_patient.first_name}}</td>
+        </tr>
+        <tr>
+            <td>Last Name</td>
+            <td>{{selected_patient.last_name}}</td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td>{{selected_patient.email}}</td>
+        </tr>
+        <tr>
+            <td>Health Card</td>
+            <td>{{selected_patient.health_card}}</td>
+        </tr>
+        <tr>
+            <td>Phone Number</td>
+            <td>{{selected_patient.phone_number}}</td>
+        </tr>
+        <tr>
+            <td>Birthday</td>
+            <td>{{selected_patient.birthday}}</td>
+        </tr>
+        <tr>
+            <td>Gender</td>
+            <td>{{selected_patient.gender}}</td>
+        </tr>
+        <tr>
+            <td>Physical Address</td>
+            <td>{{selected_patient.physical_address}}</td>
+        </tr>
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if user_type == 'nurse' %}
+    <button type="button" class="btn btn-primary" id="book_appointment" data-toggle="button" aria-pressed="false"
+            autocomplete="off" onClick="bookAppointment()">
+        Book appointment
+    </button>
+    {% endif %}
+
+    <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off"
+            onclick="window.history.back()">
+        Back
+    </button>
+
+    <script>
     function addToCart() {
         $.ajax({
             url: '/cart',
@@ -135,7 +141,8 @@
             }
         });
     }
-  </script>
+
+    </script>
 </div>
 
 <div class="footer-push"></div>
