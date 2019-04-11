@@ -41,6 +41,7 @@ class LoginNurseAuthenticator(LoginAuthenticator):
                 session['selected_clinic'] = None
                 session['has_selected_walk_in'] = None
                 session['selected_patient'] = None
+                session['selected_appointment'] = None
                 return True
             else:
                 flash('Incorrect password', 'danger')
@@ -62,6 +63,7 @@ class LoginPatientAuthenticator(LoginAuthenticator):
                 session['first_name'] = user.first_name
                 session['selected_clinic'] = None
                 session['has_selected_walk_in'] = None
+                session['selected_appointment'] = None
                 return True
             else:
                 flash('Incorrect password', 'danger')

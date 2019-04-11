@@ -145,6 +145,9 @@ class Mediator:
     def delete_appointment(self, appointment_id):
         self.__appointment_registry.delete_appointment(int(appointment_id))
 
+    def modify_appointment(self, appointment_id, clinic_id, new_date_time, walk_in):
+        self.__appointment_registry.modify_appointment(appointment_id, clinic_id, new_date_time, walk_in)
+
     def checkout_cart(self, cart_items, patient_id):
         return self.__appointment_registry.checkout_cart(cart_items, patient_id)
 
