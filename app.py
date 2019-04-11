@@ -21,25 +21,23 @@ def create_app(db_env="ubersante", debug=False):
     @app.before_request
     def before_request():
         if session and 'user_type' in session:
+            user = None
             if session['user_type'] == 'patient':
-                patient = mediator.get_patient_by_id(session['id'])
-                if patient.has_new_appointment_notification:
-                    flash('New appointment(s) scheduled!', 'dark')
-                    patient.has_new_appointment_notification = False
-
-                if patient.has_deleted_appointment_notification:
-                    flash('An appointment was canceled!', 'dark')
-                    patient.has_deleted_appointment_notification = False
-
+                user = mediator.get_patient_by_id(session['id'])
             elif session['user_type'] == 'doctor':
-                doctor = mediator.get_doctor_by_id(session['id'])
-                if doctor.has_new_appointment_notification:
-                    flash('New appointment(s) scheduled!', 'dark')
-                    doctor.has_new_appointment_notification = False
+                user = mediator.get_doctor_by_id(session['id'])
 
-                if doctor.has_deleted_appointment_notification:
-                    flash('An appointment was canceled!', 'dark')
-                    doctor.has_deleted_appointment_notification = False
+            if user.has_new_appointment_notification:
+                flash('New appointment(s) scheduled!', 'dark')
+                user.has_new_appointment_notification = False
+
+            if user.has_deleted_appointment_notification:
+                flash('An appointment was canceled!', 'dark')
+                user.has_deleted_appointment_notification = False
+
+            if user.has_updated_appointment_notification:
+                flash('An appointment was updated!', 'dark')
+                user.has_updated_appointment_notification = False
 
     @app.route('/')
     def home():

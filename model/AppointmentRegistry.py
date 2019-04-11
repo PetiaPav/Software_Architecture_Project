@@ -154,6 +154,9 @@ class AppointmentRegistry:
             room = room_doctor_tuple[0]
             doctor = room_doctor_tuple[1]
 
+            # Inform old doctor that their appointment has been cancelled
+            existing_appointment.doctor.update(existing_appointment, "delete")
+
             # Updating current appointment in working memory with the new information
             existing_appointment.clinic = clinic
             existing_appointment.doctor = doctor
@@ -165,6 +168,9 @@ class AppointmentRegistry:
 
             # Add modified appointment to the new doctor's list of appointments
             doctor.add_appointment(existing_appointment)
+
+            # Notify patient and doctor that their appointment has changed
+            existing_appointment.notify("update")
 
             # Return reference to the updated appointment
             return existing_appointment

@@ -31,6 +31,7 @@ class Patient(User):
         self.appointment_dict = appointment_dict
         self.has_new_appointment_notification = False
         self.has_deleted_appointment_notification = False
+        self.has_updated_appointment_notification = False
 
 
     def add_appointment(self, appointment):
@@ -43,8 +44,10 @@ class Patient(User):
     def update(self, subject, operation):
         if operation == "add":
             self.has_new_appointment_notification = True
-        else:
+        elif operation == "delete":
             self.has_deleted_appointment_notification = True
+        elif operation == "update":
+            self.has_updated_appointment_notification = True
 
 
 class Nurse(User):
@@ -64,6 +67,7 @@ class Doctor(User):
         self.appointment_dict = appointment_dict
         self.has_new_appointment_notification = False
         self.has_deleted_appointment_notification = False
+        self.has_updated_appointment_notification = False
 
     def add_appointment(self, appointment):
         if appointment is not None:
@@ -97,8 +101,10 @@ class Doctor(User):
     def update(self, subject, operation):
         if operation == "add":
             self.has_new_appointment_notification = True
-        else:
+        elif operation == "delete":
             self.has_deleted_appointment_notification = True
+        elif operation == "update":
+            self.has_updated_appointment_notification = True
 
 
 class Adjustment:
