@@ -26,6 +26,8 @@ class Mediator:
 
         self.__scheduler = Scheduler(self)
 
+        self.__tools = Tools(self)
+
     @staticmethod
     def get_instance(app, db_env):
         if Mediator.__instance_of_mediator is None:
@@ -164,3 +166,17 @@ class Mediator:
 
     def confirm_availability(self, clinic_id, date_time, walk_in):
         return self.__scheduler.confirm_availability(clinic_id, date_time, walk_in)
+
+    # # Tools calls
+
+    def get_date_iso_format(self, date_time):
+        return self.__tools.get_date_iso_format(date_time)
+
+    def get_time_iso_format(self, date_time):
+        return self.__tools.get_time_iso_format(date_time)
+
+    def convert_to_python_datetime(self, date_time):
+        return self.__tools.convert_to_python_datetime(date_time)
+
+    def get_unavailable_times_message(self, date_time):
+        return self.__tools.get_unavailable_times_message(date_time)
