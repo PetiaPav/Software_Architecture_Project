@@ -409,9 +409,8 @@ def create_app(db_env="ubersante", debug=False):
     @app.route('/doctor_booked_appointment_details/<title>/<start>')
     @is_logged_in
     def doctor_selected_appointment(title, start):
-        appointment_type = title
 
-        if appointment_type == 'Walk_in':
+        if title == 'Walk_in':
             walk_in = True
         else:
             walk_in = False
