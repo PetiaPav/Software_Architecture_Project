@@ -266,7 +266,8 @@ class DoctorMapper:
         today = datetime.today()
         week_start_time = date_time
         if(date_time < today):
-            week_start_time = datetime(today.year, today.month, today.day, today.hour + 1, 0)
+            hour = today.hour + 1 if today.hour < 23 else 23
+            week_start_time = datetime(today.year, today.month, today.day, hour, 0)
             return week_start_time
         # if the requested date is within a week, we check if it is in the current week
         if(date_time - today < timedelta(days=7)):
