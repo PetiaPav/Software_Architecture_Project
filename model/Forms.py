@@ -1,8 +1,12 @@
-import re
+from datetime import datetime
+import re, json
 
+from dateutil import relativedelta
 from flask import flash
-from wtforms import Form, StringField, DateField, SelectField, IntegerField, PasswordField, validators, ValidationError
+from wtforms import Form, StringField, DateField, SelectField, IntegerField, PasswordField, validators, ValidationError, SelectMultipleField
 from wtforms.fields.html5 import EmailField
+
+
 
 
 def alpha(minimum, maximum, allow_digits):
@@ -55,6 +59,19 @@ def nurse_access(form, field):
     elif not re.match('^[a-zA-Z]{3}\s*\d{5}$', field.data):
         raise ValidationError('Invalid access id number, please follow the pattern: DOL96315.')
 
+def room_valid(form, field):
+    if field.data == '' or not all(char.isdigit() for char in field.data):
+        raise ValidationError('Input must be a valid digit.')
+    data = int(field.data)
+    if data < 0 or data > 100:
+        raise ValidationError('Please enter a number of rooms between 0 and 100')
+
+
+def is_adult(form, field):
+    age = relativedelta.relativedelta(datetime.now(), field.data)
+    if age.years < 18:
+        raise ValidationError('Patient must be at least 18 years old.')
+
 
 class UserForm(Form):
     first_name = StringField('First Name', [alpha(2, 50, 0)])
@@ -70,7 +87,7 @@ class PatientForm(UserForm):
     email = EmailField('Email address', [validators.Email()])
     health_card = StringField('Health Card', [health_card])
     phone_number = StringField('Phone Number', [phone_number])
-    birthday = DateField('Birth Date', format='%m/%d/%y')
+    birthday = DateField('Birth Date', [is_adult], format='%d/%m/%Y')
     gender = SelectField('Gender', choices=[('M', 'Male'), ('F', 'Female')])
     physical_address = StringField('Address', [alpha(2, 100, 1)])
 
@@ -83,6 +100,41 @@ class DoctorForm(UserForm):
 
 class NurseForm(UserForm):
     access_id = StringField('Access id', [nurse_access])
+
+def _add_chosen_class(kwargs):
+    if 'render_kw' in kwargs:
+        if 'class' in kwargs['render_kw']:
+            kwargs['render_kw']['class'] += ' chosen-select'
+        else:
+            kwargs['render_kw']['class'] = 'chosen-select'
+    else:
+        kwargs['render_kw'] = {'class': 'chosen-select'}
+
+
+class ChosenSelectField(SelectField):
+    def __init__(self, *args, **kwargs):
+        _add_chosen_class(kwargs)
+        super(ChosenSelectField, self).__init__(*args, **kwargs)
+
+
+class ChosenSelectMultipleField(SelectMultipleField):
+    def __init__(self, *args, **kwargs):
+        _add_chosen_class(kwargs)
+        super(ChosenSelectMultipleField, self).__init__(*args, **kwargs)
+
+
+class ClinicForm(Form):
+    name = StringField('Name', [validators.required()])
+    physical_address = StringField('Physical Address', [validators.required()])
+    start_time = StringField('Opening Time', default = "09:00", validators=[
+        validators.required(),
+        validators.regexp(regex="(24:00|2[0-3]:[0-5][0-9]|[0-1][0-9]:[0-5][0-9])", message="Please input a valid time in the correct format, Example: 11:00")])
+    end_time = StringField('Closing Time', default = "17:00", validators=[
+        validators.required(),
+        validators.regexp(regex="(24:00|2[0-3]:[0-5][0-9]|[0-1][0-9]:[0-5][0-9])", message="Please input a valid time in the correct format, Example: 11:00")])
+    rooms = StringField('Number of Rooms', [validators.required(), room_valid])
+    doctors = ChosenSelectMultipleField("Doctors", coerce=int)
+    nurses = ChosenSelectMultipleField("Nurses", coerce=int)
 
 
 def get_form_data(type, selected_object, request):
@@ -132,4 +184,3 @@ def generate_nurse_form(selected_object, request):
     form.access_id.data = selected_object.access_id
 
     return form
-    

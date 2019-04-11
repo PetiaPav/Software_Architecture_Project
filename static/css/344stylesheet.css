@@ -4,6 +4,11 @@ body, html {
 
 .navbar {
     margin: 0 !important;
+    background-color: #404e60 !important; 
+}
+
+.nav-item, .navbar-brand {
+    color: #fff !important;
 }
 
 .cover {
@@ -268,4 +273,18 @@ legend.account-border {
 .panel-title {
     display: inline;
     font-weight: bold;
+}
+
+/* Clinic Interface CSS */
+.clinic-title {
+    font-size: 22pt;
+    text-align: center;
+}
+
+.clinic-holder {
+    border-style: solid;
+    margin-top: 50px;
+    border-radius: 30px;
+    margin-bottom: 150px;
+    border-color: #35404f;
 }
