@@ -219,10 +219,10 @@ class DoctorMapper:
         doctor = self.get_by_id(doctor_id)
 
         requested_week_availabilities_dict = {}
-        for day in range(0, len(doctor.generic_week_availability)):
+        for day in range(week_start_time.weekday(), len(doctor.generic_week_availability)):
             daily_availability = doctor.generic_week_availability[day]
             for time, walk_in in daily_availability.items():
-                availability_date_time = week_start_time + timedelta(days=day)
+                availability_date_time = week_start_time + timedelta(days=day-week_start_time.weekday())
                 availability_date_time = datetime(availability_date_time.year, availability_date_time.month, availability_date_time.day, time.hour, time.minute)
                 requested_week_availabilities_dict[availability_date_time] = walk_in
 
@@ -282,7 +282,7 @@ class DoctorMapper:
         return week_start_time
 
     def week_end_from_week_start(self, week_start_time):
-        week_end_time = week_start_time + timedelta(days=6)
+        week_end_time = week_start_time + timedelta(days=6-week_start_time.weekday())
         week_end_time = datetime(week_end_time.year, week_end_time.month, week_end_time.day, 23, 40)
         return week_end_time
 

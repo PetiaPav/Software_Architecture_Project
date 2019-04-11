@@ -1,3 +1,4 @@
+// Function for generating pdf
 function print(rows = 1) {
     const filename  = 'uber-sante-receipt.pdf';
     let size = (rows * 8) + 80;
@@ -10,3 +11,11 @@ function print(rows = 1) {
         pdf.save(filename);
     });
 }
+
+// Small script for generating chosen fields
+$(document).ready(function () {
+    $('.chosen-select').chosen({
+        width: "100%",
+        placeholder_text_multiple: "Select Options"
+    });
+});
