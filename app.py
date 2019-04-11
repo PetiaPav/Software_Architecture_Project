@@ -30,21 +30,21 @@ def create_app(db_env="ubersante", debug=False):
             if session['user_type'] == 'patient':
                 patient = mediator.get_patient_by_id(session['id'])
                 if patient.has_new_appointment_notification:
-                    flash('You have a new appointment scheduled!', 'dark')
+                    flash('New appointment(s) scheduled!', 'dark')
                     patient.has_new_appointment_notification = False
 
                 if patient.has_deleted_appointment_notification:
-                    flash('One of your appointments was canceled!', 'dark')
+                    flash('An appointment was canceled!', 'dark')
                     patient.has_deleted_appointment_notification = False
 
             elif session['user_type'] == 'doctor':
                 doctor = mediator.get_doctor_by_id(session['id'])
                 if doctor.has_new_appointment_notification:
-                    flash('You have a new appointment scheduled!', 'dark')
+                    flash('New appointment(s) scheduled!', 'dark')
                     doctor.has_new_appointment_notification = False
 
                 if doctor.has_deleted_appointment_notification:
-                    flash('One of your appointments was canceled!', 'dark')
+                    flash('An appointment was canceled!', 'dark')
                     doctor.has_deleted_appointment_notification = False
 
     @app.route('/')
@@ -456,6 +456,8 @@ def create_app(db_env="ubersante", debug=False):
         # Mark unavailable items in cart for frontend
         patient.cart.batch_mark_booked(checkout_result['rejected_items'])
 
+        session['newly_booked_appointment_ids'] = checkout_result['accepted_appointments_ids']
+
         # Until appointments are paid, will remain in session
         if 'items_to_pay' in session:
             session['items_to_pay'] += checkout_result['accepted_items_is_walk_in']
@@ -484,6 +486,13 @@ def create_app(db_env="ubersante", debug=False):
             session.pop('items_to_pay')
             payment.initialize()
             step = "receipt"
+
+        for appointment_id in session['newly_booked_appointment_ids']:
+            appointment = mediator.get_appointment_by_id(appointment_id)
+            appointment.notify("add")
+
+        session['newly_booked_appointment_ids'] = []
+
         return render_template('payment.html', user_type=user_type, date=date, step=step, user=user, clinic=clinic, payment=payment)
 
     @app.route('/doctor_schedule', methods=["GET", "POST"])

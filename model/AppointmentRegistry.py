@@ -111,9 +111,6 @@ class AppointmentRegistry:
             appointment.attach(doctor)
             doctor.add_appointment(appointment)
 
-            # Notify doctor and patient that their appointment has been created
-            appointment.notify("add")
-
             # Return reference to the newly created appointment
             return appointment
         return None
@@ -162,7 +159,7 @@ class AppointmentRegistry:
 
     def checkout_cart(self, item_list, patient_id):
         result = {
-            'accepted_appointments': [],
+            'accepted_appointments_ids': [],
             'accepted_items': [],
             'accepted_items_is_walk_in': [],
             'rejected_items': []
@@ -170,7 +167,7 @@ class AppointmentRegistry:
         for item in item_list:
             appointment = self.add_appointment(patient_id, item.clinic.id, item.start_time, item.is_walk_in)
             if appointment is not None:
-                result['accepted_appointments'].append(appointment)
+                result['accepted_appointments_ids'].append(appointment.id)
                 result['accepted_items'].append(item)
                 result['accepted_items_is_walk_in'].append(item.is_walk_in)
             else:
