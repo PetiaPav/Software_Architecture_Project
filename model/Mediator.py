@@ -10,7 +10,7 @@ class Mediator:
 
     __instance_of_mediator = None
 
-    def __init__(self, app, db_env, socketio):
+    def __init__(self, app, db_env):
 
         self.__tdg = Tdg(app, db_env)
 
@@ -22,16 +22,14 @@ class Mediator:
         self.__clinic_registry = ClinicRegistry.get_instance(self, self.__tdg)
 
         print("Loading Appointment Registry . . . ")
-        self.__appointment_registry = AppointmentRegistry.get_instance(self, self.__tdg, socketio=socketio)
+        self.__appointment_registry = AppointmentRegistry.get_instance(self, self.__tdg)
 
         self.__scheduler = Scheduler(self)
 
-        self.socketio = socketio
-
     @staticmethod
-    def get_instance(app, db_env, socketio):
+    def get_instance(app, db_env):
         if Mediator.__instance_of_mediator is None:
-            Mediator.__instance_of_mediator = Mediator(app, db_env, socketio)
+            Mediator.__instance_of_mediator = Mediator(app, db_env)
         return Mediator.__instance_of_mediator
 
     # Registry calls

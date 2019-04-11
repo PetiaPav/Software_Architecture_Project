@@ -1,5 +1,4 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, jsonify
-from flask_socketio import SocketIO, emit
 
 from model import Forms
 from model.Forms import PatientForm, DoctorForm, NurseForm, ClinicForm
@@ -13,16 +12,12 @@ from model.Mediator import Mediator
 from model.User import User
 
 
-socketio = SocketIO()
-
 def create_app(db_env="ubersante", debug=False):
     print("Loading app . . . ")
     app = Flask(__name__)
     app.secret_key = 'secret123'
     app.debug = debug
-    socketio.init_app(app)
-    mediator = Mediator.get_instance(app, db_env, socketio)
-    # socketio.init_app(app, async_mode = True)
+    mediator = Mediator.get_instance(app, db_env)
 
     @app.before_request
     def before_request():
@@ -575,8 +570,8 @@ def create_app(db_env="ubersante", debug=False):
             return redirect(url_for('dashboard'))
         return render_template('clinic.html', clinic=clinic, form=form, update=True)
 
-      return app
+    return app
 
 if __name__ == "__main__":
     app = create_app(db_env="ubersante", debug=True)
-    socketio.run(app)
+    app.run()

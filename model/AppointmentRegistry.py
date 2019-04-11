@@ -7,21 +7,20 @@ class AppointmentRegistry:
 
     __instance_of_registry = None
 
-    def __init__(self, mediator, tdg, socketio):
+    def __init__(self, mediator, tdg):
         self.tdg = tdg
         self.mediator = mediator
         self.catalog_dict = {}
         self.populate()
-        self.socketio = socketio
 
     @staticmethod
     def get_test():
         return AppointmentRegistry.__instance_of_registry
 
     @staticmethod
-    def get_instance(mediator, tdg, socketio):
+    def get_instance(mediator, tdg):
         if AppointmentRegistry.__instance_of_registry is None:
-            AppointmentRegistry.__instance_of_registry = AppointmentRegistry(mediator, tdg, socketio)
+            AppointmentRegistry.__instance_of_registry = AppointmentRegistry(mediator, tdg)
         return AppointmentRegistry.__instance_of_registry
 
     def populate(self):
