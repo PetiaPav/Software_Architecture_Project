@@ -5,6 +5,7 @@ from model.Forms import PatientForm, DoctorForm, NurseForm, ClinicForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
+from model.Tools import Tools
 from datetime import datetime
 from model.Payment import Payment
 from model.Mediator import Mediator
@@ -352,9 +353,9 @@ def create_app(db_env="ubersante", debug=False):
     @app.route('/return_weekly_availabilities', methods=["GET", "POST"])
     @is_logged_in
     def return_weekly_availabilities():
-        date_time = mediator.convert_to_python_datetime(str(request.args.get('start')))
+        date_time = Tools.convert_to_python_datetime(str(request.args.get('start')))
         result = mediator.find_availability(int(session['selected_clinic']), date_time, session['has_selected_walk_in']) 
-        return result if result is not None else mediator.get_unavailable_times_message(date_time)
+        return result if result is not None else Tools.get_unavailable_times_message(date_time)
 
     @app.route('/show_event_details', methods=["POST"])
     @is_logged_in
@@ -373,9 +374,9 @@ def create_app(db_env="ubersante", debug=False):
         else:
             appointment_type = "Walk-in"
 
-        selected_datetime = mediator.convert_to_python_datetime(start)
-        selected_date = mediator.get_date_iso_format(selected_datetime)
-        selected_time = mediator.get_time_iso_format(selected_datetime)
+        selected_datetime = Tools.convert_to_python_datetime(start)
+        selected_date = Tools.get_date_iso_format(selected_datetime)
+        selected_time = Tools.get_time_iso_format(selected_datetime)
 
         user_type = session['user_type']
         
@@ -390,8 +391,8 @@ def create_app(db_env="ubersante", debug=False):
 
         clinic = selected_appointment.clinic
         walk_in = selected_appointment.walk_in
-        date = mediator.get_date_iso_format(selected_appointment.date_time)
-        time = mediator.get_time_iso_format(selected_appointment.date_time)
+        date = Tools.get_date_iso_format(selected_appointment.date_time)
+        time = Tools.get_time_iso_format(selected_appointment.date_time)
         datetime = str(selected_appointment.date_time)
         user_type = session['user_type']
         selected_patient = selected_appointment.patient
@@ -408,15 +409,16 @@ def create_app(db_env="ubersante", debug=False):
     @app.route('/doctor_booked_appointment_details/<title>/<start>')
     @is_logged_in
     def doctor_selected_appointment(title, start):
+        appointment_type = title
 
-        if title == 'Walk_in':
+        if appointment_type == 'Walk_in':
             walk_in = True
         else:
             walk_in = False
 
-        selected_datetime = mediator.convert_to_python_datetime(start)
-        selected_date = mediator.get_date_iso_format(selected_datetime)
-        selected_time = mediator.get_time_iso_format(selected_datetime)
+        selected_datetime = Tools.convert_to_python_datetime(start)
+        selected_date = Tools.get_date_iso_format(selected_datetime)
+        selected_time = Tools.get_time_iso_format(selected_datetime)
 
         user_type = 'doctor'
         doctor = mediator.get_doctor_by_id(session['id'])
@@ -431,7 +433,7 @@ def create_app(db_env="ubersante", debug=False):
     @is_logged_in
     def book_for_patient():
         is_walk_in = (request.json['walk_in'] == 'True')
-        selected_date_time = mediator.convert_to_python_datetime(request.json['start'])
+        selected_date_time = Tools.convert_to_python_datetime(request.json['start'])
         mediator.add_appointment(session['selected_patient'], request.json['clinic_id'], selected_date_time, is_walk_in)
 
         result = {
@@ -450,7 +452,7 @@ def create_app(db_env="ubersante", debug=False):
             start_time = request.json['start']
             is_walk_in = (request.json['walk_in'] == 'True')
 
-            selected_datetime = mediator.convert_to_python_datetime(start_time)
+            selected_datetime = Tools.convert_to_python_datetime(start_time)
 
             cart = mediator.get_patient_cart(session['id'])
             add_item_status = cart.add(clinic, selected_datetime, is_walk_in)
