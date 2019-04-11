@@ -20,14 +20,12 @@ def test_dup_patient(client):
 
 
 def test_login_patient(client):
-    data = dict([('email', 'ivan@mail.ru'), ('password', 'q1w2e3')])
+    data = dict([('password', 'q1w2e3'), ('unique_identifier_value', 'ivan@mail.ru')])
     rv = client.post('/login/patient', data=data, follow_redirects=True)
     assert rv.status_code == 200
     assert b'Hello Ivan, Welcome' in rv.data
     assert session['logged_in'] is True
 
-
-def test_logout_patient(client):
     rv2 = client.get('/logout', follow_redirects=True)
     assert rv2.status_code == 200
     assert b'You are now logged out!' in rv2.data
@@ -43,7 +41,7 @@ def test_reg_nurse(client):
 
 
 def test_login_nurse(client):
-    data = dict([('access_id', 'CBA12345'), ('password', '1q2w3e')])
+    data = dict([('unique_identifier_value', 'CBA12345'), ('password', '1q2w3e')])
     rv = client.post('/login/nurse', data=data, follow_redirects=True)
     assert rv.status_code == 200
     assert b'Hello Ivana, Welcome' in rv.data
@@ -65,7 +63,7 @@ def test_reg_doctor(client):
 
 
 def test_login_doctor(client):
-    data = dict([('permit_number', '1245789'), ('password', 'q1w2e3')])
+    data = dict([('unique_identifier_value', '1245789'), ('password', 'q1w2e3')])
     rv = client.post('/login/doctor', data=data, follow_redirects=True)
     assert rv.status_code == 200
     assert b'Hello Dr. Peter, Welcome' in rv.data
@@ -78,15 +76,16 @@ def test_login_doctor(client):
 
 
 def test_incorrect_patient_email(client):
-    data = dict([('email', 'fedor@mail.ru'), ('password', 'q1w2e3')])
+    data = dict([('unique_identifier_value', 'fedor@mail.ru'), ('password', 'q1w2e3')])
     rv = client.post('/login/patient', data=data, follow_redirects=True)
     assert rv.status_code == 200
+    print(rv.data)
     assert b'No user registered with that email address' in rv.data
     assert 'logged in' not in session
 
 
 def test_incorrect_patient_password(client):
-    data = dict([('email', 'ivan@mail.ru'), ('password', 'letmein')])
+    data = dict([('unique_identifier_value', 'ivan@mail.ru'), ('password', 'letmein')])
     rv = client.post('/login/patient', data=data, follow_redirects=True)
     assert rv.status_code == 200
     assert b'Incorrect password' in rv.data
