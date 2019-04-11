@@ -157,6 +157,9 @@ class Mediator:
     def get_room_bookings_by_room_id(self, room_id):
         return self.__appointment_registry.get_room_bookings_by_room_id(room_id)
 
+    def get_all_appointments(self):
+        return self.__appointment_registry.get_all()
+
     # # Scheduler calls
 
     def find_availability(self, clinic_id, date_time, walk_in):

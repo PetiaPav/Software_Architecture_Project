@@ -1,15 +1,30 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, jsonify
 
-from model import Forms
+from apscheduler.schedulers.background import BackgroundScheduler
 from model.Forms import PatientForm, DoctorForm, NurseForm, ClinicForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
 from model.Tools import Tools
-from datetime import datetime
+from datetime import datetime, timedelta
 from model.Payment import Payment
 from model.Mediator import Mediator
 
+
+def cleanup_and_archive(mediator):
+    deleted_walkins = 0
+    deleted_annuals = 0
+    all_appts = mediator.get_all_appointments()
+    for appointment in all_appts:
+        if appointment.walk_in and appointment.date_time < datetime.now():
+            deleted_walkins+=1
+            mediator.delete_appointment(appointment.id)
+        elif not appointment.walk_in and appointment.date_time+timedelta(days=365) < datetime.now():
+            mediator.delete_appointment(appointment.id)
+            deleted_annuals+=1
+    print ("Scheduled cleanup ran on: " + str(datetime.now())[:-7])
+    print (str(deleted_walkins) + " walk-in appointments deleted.")
+    print (str(deleted_annuals) + " annual appointments deleted.")
 
 def create_app(db_env="ubersante", debug=False):
     print("Loading app . . . ")
@@ -17,6 +32,10 @@ def create_app(db_env="ubersante", debug=False):
     app.secret_key = 'secret123'
     app.debug = debug
     mediator = Mediator.get_instance(app, db_env)
+
+    sched = BackgroundScheduler(daemon=True)
+    sched.add_job(cleanup_and_archive, 'interval', days=1, args=[mediator], next_run_time=datetime.now())
+    sched.start()
 
     @app.before_request
     def before_request():
