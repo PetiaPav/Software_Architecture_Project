@@ -9,7 +9,6 @@ from model.Tools import Tools
 from datetime import datetime
 from model.Payment import Payment
 from model.Mediator import Mediator
-from model.User import User
 
 
 def create_app(db_env="ubersante", debug=False):
