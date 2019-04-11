@@ -134,14 +134,29 @@ class AppointmentRegistry:
                 return True
         return False
 
-    def modify_appointment(self, appointment_id, clinic_id, new_date_time, walk_in):
+    def update_appointment(self, appointment_id, clinic_id, date_time, walk_in):
         existing_appointment = self.get_by_id(int(appointment_id))
-        if existing_appointment is not None:
-            patient_id = existing_appointment.patient.id
-            new_appointment = self.add_appointment(patient_id, clinic_id, new_date_time, walk_in)
-            if new_appointment is not None:
-                self.delete_appointment(int(appointment_id))
-                return new_appointment
+        room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in)
+        if room_doctor_tuple is not None:
+            # Get an available room and doctor from the clinic
+            clinic = self.mediator.get_clinic_by_id(clinic_id)
+            room = room_doctor_tuple[0]
+            doctor = room_doctor_tuple[1]
+
+            # Updating current appointment in working memory with the new information
+            existing_appointment.clinic = clinic
+            existing_appointment.doctor = doctor
+            existing_appointment.date_time = date_time
+            existing_appointment.walk_in = walk_in
+
+            # Update appointment in DB
+            self.tdg.update_appointment(appointment_id, clinic_id, room.id, doctor.id, date_time, walk_in)
+
+            # Add modified appointment to the new doctor's list of appointments
+            doctor.add_appointment(existing_appointment)
+
+            # Return reference to the updated appointment
+            return existing_appointment
         return None
 
     def checkout_cart(self, item_list, patient_id):

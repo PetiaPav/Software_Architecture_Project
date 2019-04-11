@@ -387,7 +387,7 @@ def create_app(db_env="ubersante", debug=False):
     def modify_appointment():
         is_walk_in = (request.json['walk_in'] == 'True')
         selected_date_time = Tools.convert_to_python_datetime(request.json['start'])
-        mediator.modify_appointment(request.json['old_appointment_id'], request.json['clinic_id'], selected_date_time, is_walk_in)
+        mediator.update_appointment(request.json['old_appointment_id'], request.json['clinic_id'], selected_date_time, is_walk_in)
 
         result = None
 

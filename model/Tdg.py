@@ -322,6 +322,15 @@ class Tdg:
         connection.commit()
         return last_inserted_id
 
+    def update_appointment(self, appointment_id, clinic_id, room_id, doctor_id, date_time, walk_in):
+        connection = self.mysql.connect()
+        cur = connection.cursor()
+        cur.execute("UPDATE APPOINTMENTS SET clinic_id = %s, room_id = %s, doctor_id = %s, date_time = %s, walk_in = %s WHERE APPOINTMENTS.id = %s",(clinic_id, room_id, doctor_id, date_time, walk_in, appointment_id))
+        last_inserted_id = cur.lastrowid
+        cur.close()
+        connection.commit()
+        return last_inserted_id
+
     def get_all_appointments(self):
         connection = self.mysql.connect()
         cur = connection.cursor()
