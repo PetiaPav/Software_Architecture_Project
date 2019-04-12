@@ -202,10 +202,12 @@ def create_app(db_env="ubersante", debug=False):
         nb_upcoming_appointments = 0
         if user_type == 'patient':
             patient = mediator.get_patient_by_id(session['id'])
-            nb_upcoming_appointments = len(patient.appointment_dict)
+            if patient.appointment_dict is not None:
+                nb_upcoming_appointments = len(patient.appointment_dict)
         if user_type == 'doctor':
             doctor = mediator.get_doctor_by_id(session['id'])
-            nb_upcoming_appointments = len(doctor.appointment_dict)
+            if doctor.appointment_dict is not None:
+                nb_upcoming_appointments = len(doctor.appointment_dict)
 
         return render_template('dashboard.html', user_type=user_type, nb_upcoming_appointments=nb_upcoming_appointments)
 
