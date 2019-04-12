@@ -8,6 +8,7 @@ from model.Tools import Tools
 from datetime import datetime
 from model.Payment import Payment
 from model.Mediator import Mediator
+import logging
 
 
 def create_app(db_env="ubersante", debug=False):
@@ -16,6 +17,7 @@ def create_app(db_env="ubersante", debug=False):
     app.secret_key = 'secret123'
     app.debug = debug
     mediator = Mediator.get_instance(app, db_env)
+    logging.basicConfig(filename='ubersante.log', level=logging.INFO)
 
     @app.before_request
     def before_request():
@@ -448,9 +450,9 @@ def create_app(db_env="ubersante", debug=False):
     @app.route('/book_for_patient', methods=["POST"])
     @is_logged_in
     def book_for_patient():
-        is_walk_in = (request.json['walk_in'] == 'True')
+        walk_in = (request.json['walk_in'] == 'True')
         selected_date_time = Tools.convert_to_python_datetime(request.json['start'])
-        mediator.add_appointment(session['selected_patient'], request.json['clinic_id'], selected_date_time, is_walk_in)
+        mediator.add_appointment(session['selected_patient'], request.json['clinic_id'], selected_date_time, walk_in)
 
         result = {
             'url': url_for('view_selected_patient_appointments', id=str(session['selected_patient']))
@@ -462,16 +464,16 @@ def create_app(db_env="ubersante", debug=False):
     def cart():
         if request.method == 'GET':  # view cart
             cart = mediator.get_patient_cart(session['id'])
-            return render_template('cart.html', items=cart.item_dict)
+            return render_template('cart.html', items=cart.get_item_dict())
         elif request.method == 'POST':  # add item to cart
             clinic = mediator.get_clinic_by_id(request.json['clinic_id'])
             start_time = request.json['start']
-            is_walk_in = (request.json['walk_in'] == 'True')
+            walk_in = (request.json['walk_in'] == 'True')
 
             selected_datetime = Tools.convert_to_python_datetime(start_time)
 
             cart = mediator.get_patient_cart(session['id'])
-            add_item_status = cart.add(clinic, selected_datetime, is_walk_in)
+            add_item_status = cart.add(clinic, selected_datetime, walk_in)
             result = {
                 'url': url_for('cart'),
                 'status': str(add_item_status)
@@ -508,9 +510,9 @@ def create_app(db_env="ubersante", debug=False):
 
         # Until appointments are paid, will remain in session
         if 'items_to_pay' in session:
-            session['items_to_pay'] += checkout_result['accepted_items_is_walk_in']
+            session['items_to_pay'] += checkout_result['accepted_items_walk_in']
         else:
-            session['items_to_pay'] = checkout_result['accepted_items_is_walk_in']
+            session['items_to_pay'] = checkout_result['accepted_items_walk_in']
 
         url = url_for('payment')
         if len(checkout_result['rejected_items']) != 0:

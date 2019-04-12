@@ -171,15 +171,15 @@ class AppointmentRegistry:
         result = {
             'accepted_appointments_ids': [],
             'accepted_items': [],
-            'accepted_items_is_walk_in': [],
+            'accepted_items_walk_in': [],
             'rejected_items': []
         }
         for item in item_list:
-            appointment = self.add_appointment(patient_id, item.clinic.id, item.start_time, item.is_walk_in)
+            appointment = self.add_appointment(patient_id, item.clinic.id, item.start_time, item.walk_in)
             if appointment is not None:
                 result['accepted_appointments_ids'].append(appointment.id)
                 result['accepted_items'].append(item)
-                result['accepted_items_is_walk_in'].append(item.is_walk_in)
+                result['accepted_items_walk_in'].append(item.walk_in)
             else:
                 result['rejected_items'].append(item)
         return result
