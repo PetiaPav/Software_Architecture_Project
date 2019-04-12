@@ -1,7 +1,7 @@
 -- UBER_CLINICS
 INSERT INTO UBER_CLINICS (id, physical_address, name, start_time, end_time) VALUES (1, '222 Maisonneuve Blvd. W.', 'Uber Children Hospital', '2019-01-01 08:00:00', '2019-01-07 20:00:00');
-INSERT INTO UBER_CLINICS (id, physical_address, name, start_time, end_time) VALUES (2, '243 St-Catherine W.', 'Uber Hospital', null, null);
-INSERT INTO UBER_CLINICS (id, physical_address, name, start_time, end_time) VALUES (3, '225 Rene-Levesque Blvd. W.', 'Uber Sante Hospital', null, null);
+INSERT INTO UBER_CLINICS (id, physical_address, name, start_time, end_time) VALUES (2, '243 St-Catherine W.', 'Uber Hospital',  '2019-01-01 08:00:00', '2019-01-07 20:00:00');
+INSERT INTO UBER_CLINICS (id, physical_address, name, start_time, end_time) VALUES (3, '225 Rene-Levesque Blvd. W.', 'Uber Sante Hospital', '2019-01-01 08:00:00', '2019-01-07 20:00:00');
 
 -- USERS (All passwords qwe123456)
 INSERT INTO USERS (id, first_name, last_name, password) VALUES (1, 'Benny', 'Bombs', '$5$rounds=535000$9Hn.TKXfmLsr4Riy$IjnYzjlHIfBq4o7kL4kGGxROnTtlttfJ4WLVCqHvydB');
