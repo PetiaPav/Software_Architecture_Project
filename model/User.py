@@ -241,9 +241,24 @@ class DoctorMapper:
         # remove any availabilities that have become appointments
         no_longer_available_list = []
         for date_time in requested_week_availabilities_dict.keys():
-            for appointment_date_time in requested_week_appointments_dict:
+            date_time_to_check = date_time - timedelta(minutes=20)
+            date_time_to_check2 = date_time - timedelta(minutes=40)
+            for appointment_date_time in requested_week_appointments_dict.keys():
                 if date_time == appointment_date_time:
                     no_longer_available_list.append(date_time)
+                elif date_time_to_check == appointment_date_time and requested_week_appointments_dict[appointment_date_time].walk_in == False:
+                    no_longer_available_list.append(date_time)
+                elif date_time_to_check2 == appointment_date_time and requested_week_appointments_dict[appointment_date_time].walk_in == False:
+                    no_longer_available_list.append(date_time)
+            if requested_week_availabilities_dict[date_time] is False:
+                date_time_to_check = date_time + timedelta(minutes=20)
+                date_time_to_check2 = date_time + timedelta(minutes=40)
+                for appointment_date_time in requested_week_appointments_dict.keys():
+                    if date_time_to_check == appointment_date_time:
+                        no_longer_available_list.append(date_time)
+                    elif date_time_to_check2 == appointment_date_time:
+                        no_longer_available_list.append(date_time)
+
         for date_time in no_longer_available_list:
             requested_week_availabilities_dict.pop(date_time)
 
