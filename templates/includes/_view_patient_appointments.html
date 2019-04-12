@@ -41,7 +41,7 @@
                 <td>{{"Walk-in" if appointment.walk_in else "Annual"}}</td>
                 <td>{{date}}</td>
                 <td>{{time}}</td>
-                <td><a class="btn btn-danger" href="">Modify</a></td>
+                <td><a class="btn btn-danger" href="/modify_appointments/{{patient_id}}/{{appointment.id}}">Modify</a></td>
                 <td><a class="btn btn-danger" href="/delete_appointments/{{patient_id}}/{{appointment.id}}">Remove</a></td>
             </tr>
         {% endfor %}

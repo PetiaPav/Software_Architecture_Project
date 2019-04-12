@@ -1,15 +1,31 @@
 import os
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, jsonify
+from apscheduler.schedulers.background import BackgroundScheduler
 from model.Forms import PatientForm, DoctorForm, NurseForm, ClinicForm
 from passlib.hash import sha256_crypt
 from functools import wraps
 from model.LoginAuthenticator import LoginDoctorAuthenticator, LoginNurseAuthenticator, LoginPatientAuthenticator
 from model.Tools import Tools
-from datetime import datetime
+from datetime import datetime, timedelta
 from model.Payment import Payment
 from model.Mediator import Mediator
 import logging
 
+
+def cleanup_and_archive(mediator):
+    deleted_walkins = 0
+    deleted_annuals = 0
+    all_appts = mediator.get_all_appointments()
+    for appointment in all_appts:
+        if appointment.walk_in and appointment.date_time < datetime.now():
+            deleted_walkins+=1
+            mediator.delete_appointment(appointment.id)
+        elif not appointment.walk_in and appointment.date_time+timedelta(days=365) < datetime.now():
+            mediator.delete_appointment(appointment.id)
+            deleted_annuals+=1
+    print ("Scheduled cleanup ran on: " + str(datetime.now())[:-7])
+    print (str(deleted_walkins) + " walk-in appointments deleted.")
+    print (str(deleted_annuals) + " annual appointments deleted.")
 
 def create_app(db_env="ubersante", debug=False):
     print("Loading app . . . ")
@@ -26,6 +42,10 @@ def create_app(db_env="ubersante", debug=False):
     formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
+
+    sched = BackgroundScheduler(daemon=True)
+    sched.add_job(cleanup_and_archive, 'interval', days=1, args=[mediator], next_run_time=datetime.now())
+    sched.start()
 
     @app.before_request
     def before_request():
@@ -53,7 +73,7 @@ def create_app(db_env="ubersante", debug=False):
                 user.modified_appointment_dict['inserted'] = []
 
             if user.has_deleted_appointment_notification():
-                flash('An appointment was canceled!', 'dark')
+                flash('Cancelled appointment(s)!', 'dark')
                 deleted_appointments = user.modified_appointment_dict['deleted']
 
                 for appointment in deleted_appointments:
@@ -64,6 +84,19 @@ def create_app(db_env="ubersante", debug=False):
 
                 mediator.reset_appointment_operation_states(deleted_appointments)
                 user.modified_appointment_dict['deleted'] = []
+
+            if user.has_updated_appointment_notification():
+                flash('Updated appoinment(s)!', 'dark')
+                updated_appointments = user.modified_appointment_dict['updated']
+
+                for appointment in updated_appointments:
+                    clinic_name = appointment.clinic.name
+                    date = Tools.get_date_iso_format(appointment.date_time)
+                    time = Tools.get_time_iso_format(appointment.date_time)
+                    flash(clinic_name + ' at ' + time + ' on ' + date, 'dark')
+
+                mediator.reset_appointment_operation_states(updated_appointments)
+                user.modified_appointment_dict['updated'] = []
 
 
     @app.route('/')
@@ -354,6 +387,13 @@ def create_app(db_env="ubersante", debug=False):
         return zip(user_appointments, appointment_clinics, date_list, time_list)
 
 
+    @app.route('/modify_appointments/<patient_id>/<appointment_id>')
+    @is_logged_in
+    def modify_appointments(patient_id, appointment_id):
+        session['selected_appointment'] = appointment_id
+        # return redirect(url_for('select_clinic'))
+        return render_template('includes/_select_clinic.html', clinics=mediator.get_all_clinics())
+
     @app.route('/delete_appointments/<patient_id>/<appointment_id>')
     @is_logged_in
     def delete_appointments(patient_id, appointment_id):
@@ -390,7 +430,11 @@ def create_app(db_env="ubersante", debug=False):
         event_id = request.json['id']
         if event_id == 'expired':
             return url_for('make_appointment_calendar')
-        return url_for('selected_appointment', start=request.json['start'])
+
+        if session['selected_appointment'] is not None:
+            return url_for('update_selected_appointment', event_id=event_id, start=request.json['start'])
+        else:
+            return url_for('selected_appointment', event_id=event_id, start=request.json['start'])
 
     @app.route('/selected_appointment/<start>')
     @is_logged_in
@@ -428,6 +472,35 @@ def create_app(db_env="ubersante", debug=False):
                                date=date, time=time, datetime=datetime,
                                user_type=user_type, selected_patient=selected_patient)
 
+    @app.route('/update_selected_appointment/<event_id>/<start>')
+    @is_logged_in
+    def update_selected_appointment(event_id, start):
+        appointment_to_modify = mediator.get_appointment_by_id(session['selected_appointment'])
+        session['selected_appointment'] = None
+        clinic = mediator.get_clinic_by_id(session['selected_clinic'])
+        if not session['has_selected_walk_in']:
+            appointment_type = "Annual"
+        else:
+            appointment_type = "Walk-in"
+
+        selected_datetime = Tools.convert_to_python_datetime(start)
+        selected_date = Tools.get_date_iso_format(selected_datetime)
+        selected_time = Tools.get_time_iso_format(selected_datetime)
+
+        appointment_to_modify_date = Tools.get_date_iso_format(appointment_to_modify.date_time)
+        appointment_to_modify_time = Tools.get_time_iso_format(appointment_to_modify.date_time)
+
+        user_type = session['user_type']
+
+        patient_id = session['selected_patient'] if user_type == 'nurse' else session['id']
+
+        selected_patient = mediator.get_patient_by_id(patient_id)
+        return render_template('update_appointment.html', clinic=clinic,
+                               walk_in=session['has_selected_walk_in'], date=selected_date, time=selected_time,
+                               datetime=str(selected_datetime), user_type=user_type, selected_patient=selected_patient,
+                               appointment_to_modify = appointment_to_modify, appointment_to_modify_date = appointment_to_modify_date,
+                               appointment_to_modify_time = appointment_to_modify_time)
+
     @app.route('/show_doctor_appointment_details', methods=["POST"])
     @is_logged_in
     def show_doctor_appointment_details():
@@ -461,10 +534,28 @@ def create_app(db_env="ubersante", debug=False):
         walk_in = (request.json['walk_in'] == 'True')
         selected_date_time = Tools.convert_to_python_datetime(request.json['start'])
         mediator.add_appointment(session['selected_patient'], request.json['clinic_id'], selected_date_time, walk_in)
-
         result = {
             'url': url_for('view_selected_patient_appointments', id=str(session['selected_patient']))
         }
+        return jsonify(result)
+
+    @app.route('/modify_appointment', methods=["POST"])
+    @is_logged_in
+    def modify_appointment():
+        is_walk_in = (request.json['walk_in'] == 'True')
+        selected_date_time = Tools.convert_to_python_datetime(request.json['start'])
+        mediator.update_appointment(request.json['old_appointment_id'], request.json['clinic_id'], selected_date_time, is_walk_in)
+
+        result = None
+
+        if session['user_type'] == 'nurse':
+            result = {
+                'url': url_for('view_selected_patient_appointments', id=str(session['selected_patient']))
+            }
+        elif session['user_type'] == 'patient':
+            result = {
+                'url': url_for('view_selected_patient_appointments', id=str(session['id']))
+            }
         return jsonify(result)
 
     @app.route('/cart', methods=["GET", "POST"])

@@ -151,6 +151,9 @@ class Mediator:
     def delete_appointment(self, appointment_id):
         self.__appointment_registry.delete_appointment(int(appointment_id))
 
+    def update_appointment(self, appointment_id, clinic_id, new_date_time, walk_in):
+        self.__appointment_registry.update_appointment(appointment_id, clinic_id, new_date_time, walk_in)
+
     def reset_appointment_operation_states(self, appointments):
         self.__appointment_registry.reset_appointment_operation_states(appointments)
 
@@ -159,6 +162,9 @@ class Mediator:
 
     def get_room_bookings_by_room_id(self, room_id):
         return self.__appointment_registry.get_room_bookings_by_room_id(room_id)
+
+    def get_all_appointments(self):
+        return self.__appointment_registry.get_all()
 
     # # Scheduler calls
 
