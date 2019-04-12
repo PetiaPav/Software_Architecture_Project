@@ -93,7 +93,6 @@ class Doctor(User):
         except KeyError:
             return None
 
-
     def update(self, subject, operation):
         if operation == "add":
             self.has_new_appointment_notification = True
@@ -238,6 +237,15 @@ class DoctorMapper:
         for appointment in doctor.appointment_dict.values():
             if appointment.date_time > week_start_time and appointment.date_time < week_end_time:
                 requested_week_appointments_dict[appointment.date_time] = appointment.walk_in
+
+        # remove any availabilities that have become appointments
+        no_longer_available_list = []
+        for date_time in requested_week_availabilities_dict.keys():
+            for appointment_date_time in requested_week_appointments_dict:
+                if date_time == appointment_date_time:
+                    no_longer_available_list.append(date_time)
+        for date_time in no_longer_available_list:
+            requested_week_availabilities_dict.pop(date_time)
 
         event_source = Tools.json_from_doctor_week_availabilities(requested_week_availabilities_dict)
         event_source2 = Tools.json_from_doctor_week_appointments(requested_week_appointments_dict)
