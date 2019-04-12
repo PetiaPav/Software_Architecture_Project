@@ -68,6 +68,14 @@ legend.account-border {
     transform: translate(-50%, -50%);
 }
 
+.banner-text-with-background {
+    background-color: #404e60;
+    opacity: 0.75;
+    width: 100%;
+    padding-top: 1pt;
+    padding-bottom: 10pt;
+}
+
 .page-title {
     font-size: 50pt;
     text-align: center;
@@ -82,6 +90,14 @@ legend.account-border {
     font-style: italic;
     color: white;
     text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
+.page-subtitle-centered {
+    font-size: 30pt;
+    font-style: italic;
+    color: white;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+    text-align: center;
 }
 
 /* Parallax CSS */
@@ -161,7 +177,7 @@ legend.account-border {
 
 /* Dashboard section */
 .dashboard-profile {
-    background-color: #003ea3 !important;
+    background-color: #404e60 !important;
     border-bottom-style: solid;
     border-bottom-width: 3px;
     border-bottom-color: #001942;

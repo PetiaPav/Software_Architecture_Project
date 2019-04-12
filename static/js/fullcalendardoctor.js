@@ -8,9 +8,9 @@ var counter = 0;
 $(document).ready(function() {
 
      //defining the dialog
-     myDialog = $("#event-modal").dialog({
+     myDialog = $('#event-modal').dialog({
         modal: true, 
-        title: "none", 
+        title: 'none', 
         width:350,
         autoOpen: false
     });
@@ -18,7 +18,7 @@ $(document).ready(function() {
     $('#external-events .walk-in').each(function() {
         // store data so the calendar knows to render an event upon drop
         $(this).data('event', {
-            title: "Walk-in", // use the element's text as the event title
+            title: 'Walk-in', // use the element's text as the event title
             stick: true, // maintain when user navigates (see docs on the renderEvent method)
             duration: '00:20:00',
             color: '#257e4a',  //defining the color of the draggeable object
@@ -35,7 +35,7 @@ $(document).ready(function() {
     $('#external-events .annual').each(function() {
         // store data so the calendar knows to render an event upon drop
         $(this).data('event', {
-            title: "Annual", // use the element's text as the event title
+            title: 'Annual', // use the element's text as the event title
             stick: true, // maintain when user navigates (see docs on the renderEvent method)
             duration: '01:00:00',
             color: '#257e4a', //defining the color of the draggeable object
@@ -67,8 +67,8 @@ $(document).ready(function() {
         eventLimit: true, // allow "more" link when too many events
 
         // Limit hours visible per day
-        minTime: "08:00:00",
-        maxTime: "20:00:00",
+        minTime: '08:00:00',
+        maxTime: '20:00:00',
 
         // Height of calendar
         contentHeight: 1000,
@@ -77,14 +77,14 @@ $(document).ready(function() {
         // Grey out non-business hours
         businessHours: {
             dow: [ 0, 1, 2, 3, 4, 5, 6],   // Days of the week - Sunday to Saturday
-            start: "08:00:00",
-            end: "20:00:00"
+            start: '08:00:00',
+            end: '20:00:00'
         },
 
         // Frequency for displaying time slots, in minutes (20 minute partitions)
-        slotDuration: "00:20:00",
+        slotDuration: '00:20:00',
 
-        allDay: true,
+        allDay: false,
 
         events: {
             url: 'doctor_schedule',
@@ -99,24 +99,42 @@ $(document).ready(function() {
         allDaySlot: false,
 
         //Open modal when an event is clicked and handle remove event functionality
+        //If the event is a booked appointment send to backend to display an info page
         eventClick: function (eventObj){
-            $('#calendar').fullCalendar('updateEvent', eventObj);
+            
+            if(eventObj.color == 'orange'){
+                $.ajax({
+                    url: 'show_doctor_appointment_details',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({
+                        title: eventObj.title,
+                        start: eventObj.start
+                    }),
+                    success : function(res){
+                        console.log('Response received')
+                        console.log('Redirecting to ' + res)
+                        window.location.href = res
+                    }
+                });
+            }else{
+                $('#calendar').fullCalendar('updateEvent', eventObj);
 
-            //Set information to be displayed
-            $('#appointment-type').html(eventObj.title);
-            $("#startTime").html(moment(eventObj.start).format('MMM Do h:mm A'));
-            $("#endTime").html(moment(eventObj.end).format('MMM Do h:mm A'));
-            
-            current_event_object = eventObj;
-            myDialog.dialog('open');
-            
+                //Set information to be displayed
+                $('#appointment-type').html(eventObj.title);
+                $('#startTime').html(moment(eventObj.start).format('MMM Do h:mm A'));
+                $('#endTime').html(moment(eventObj.end).format('MMM Do h:mm A'));
+                
+                current_event_object = eventObj;
+                myDialog.dialog('open');
+            }
         },
 
         eventRender: function(eventObj){
-            if(eventObj._id == "walk-in"){
-                eventObj._id = "w" + get_counter();
-            }else if (eventObj._id == "annual"){
-                eventObj._id = "a" + get_counter();
+            if(eventObj._id == 'walk-in'){
+                eventObj._id = 'w' + get_counter();
+            }else if (eventObj._id == 'annual'){
+                eventObj._id = 'a' + get_counter();
             }
         }
 
@@ -153,7 +171,7 @@ function send_to_backend(){
     $.ajax({
         url: 'doctor_update_schedule',
         type: 'POST',
-        contentType: "application/json; charset=utf-8",
+        contentType: 'application/json; charset=utf-8',
         dataType: 'json',
         data: JSON.stringify(list_of_events),
         success : function(data){
