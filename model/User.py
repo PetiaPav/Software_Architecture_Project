@@ -30,6 +30,7 @@ class Patient(User):
         self.email = email
         self.cart = cart
         self.appointment_dict = appointment_dict
+        self.date_of_last_annual_appointment = {}
         self.modified_appointment_dict = {
             'inserted': [],
             'deleted': []
