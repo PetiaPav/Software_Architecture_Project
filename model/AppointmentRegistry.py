@@ -1,5 +1,5 @@
 from model.Appointment import Appointment
-from datetime import datetime
+from datetime import datetime, timedelta
 from model.Tools import Tools
 
 
@@ -86,12 +86,18 @@ class AppointmentRegistry:
         return room_bookings
 
     def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
+        patient = self.mediator.get_patient_by_id(patient_id)
+        if walk_in == False:
+            if patient.date_of_last_annual_appointment is not None:
+                if date_time - patient.date_of_last_annual_appointment < timedelta(days=365):
+                    return None
+                    
         room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in)
         if room_doctor_tuple is not None:
             clinic = self.mediator.get_clinic_by_id(clinic_id)
             room = room_doctor_tuple[0]
             doctor = room_doctor_tuple[1]
-            patient = self.mediator.get_patient_by_id(patient_id)
+            
 
             # Create new appointment with default id -1
             appointment = Appointment(-1, clinic, room, doctor, patient, date_time, walk_in)
@@ -105,6 +111,8 @@ class AppointmentRegistry:
             # Add new appointment to the patient's list of appointments
             appointment.attach(patient)
             patient.add_appointment(appointment)
+            if walk_in == False:
+                patient.date_of_last_annual_appointment = date_time
 
             # Add new appointment to the doctor's list of appointments
             appointment.attach(doctor)

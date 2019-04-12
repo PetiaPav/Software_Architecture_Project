@@ -17,6 +17,7 @@ class User:
     def update(self, subject, operation):
         print('Subject has changed: ' + operation)
 
+
 class Patient(User):
     def __init__(self, id, first_name: str, last_name: str, password, health_card, birthday, gender, phone_number, physical_address, email, cart, appointment_dict):
         User.__init__(self, id, first_name, last_name, password)
@@ -30,7 +31,7 @@ class Patient(User):
         self.appointment_dict = appointment_dict
         self.has_new_appointment_notification = False
         self.has_deleted_appointment_notification = False
-
+        self.date_of_last_annual_appointment = None
 
     def add_appointment(self, appointment):
         if appointment is not None:
