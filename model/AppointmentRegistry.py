@@ -163,16 +163,14 @@ class AppointmentRegistry:
                 doctor = room_doctor_tuple[1]
                 patient = existing_appointment.patient
 
-                # If the patient is being assigned a new doctor, then detach the old one and attach the new doctor
+                # If the patient is being assigned a new doctor, then detach the old one and attach the new one
                 if doctor.id != existing_appointment.doctor.id:
                     doctor.remove_appointment(existing_appointment)
                     existing_appointment.detach(existing_appointment.doctor)
+                    existing_appointment.attach(doctor)
 
-                existing_appointment.attach(doctor)
-
-                # Need to remove the appointment from the patient appointment's dictionary because the key value is the date_time of the appointment
+                # Need to remove the appointment from the patient appointment's dictionary because the key value is the date_time of the appointment which might have changed
                 patient.remove_appointment(existing_appointment)
-
 
                 # Updating current appointment in working memory with the new information
                 existing_appointment.clinic = clinic
