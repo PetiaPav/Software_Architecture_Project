@@ -30,6 +30,7 @@ class Patient(User):
         self.email = email
         self.cart = cart
         self.appointment_dict = appointment_dict
+        self.date_of_last_annual_appointment = {}
         self.modified_appointment_dict = {
             'inserted': [],
             'deleted': [],
@@ -264,6 +265,30 @@ class DoctorMapper:
         for appointment in doctor.appointment_dict.values():
             if week_start_time < appointment.date_time < week_end_time:
                 requested_week_appointments_dict[appointment.date_time] = appointment.walk_in
+
+        # remove any availabilities that have become appointments
+        no_longer_available_list = []
+        for date_time in requested_week_availabilities_dict.keys():
+            date_time_to_check = date_time - timedelta(minutes=20)
+            date_time_to_check2 = date_time - timedelta(minutes=40)
+            for appointment_date_time in requested_week_appointments_dict.keys():
+                if date_time == appointment_date_time:
+                    no_longer_available_list.append(date_time)
+                elif date_time_to_check == appointment_date_time and requested_week_appointments_dict[appointment_date_time].walk_in == False:
+                    no_longer_available_list.append(date_time)
+                elif date_time_to_check2 == appointment_date_time and requested_week_appointments_dict[appointment_date_time].walk_in == False:
+                    no_longer_available_list.append(date_time)
+            if requested_week_availabilities_dict[date_time] is False:
+                date_time_to_check = date_time + timedelta(minutes=20)
+                date_time_to_check2 = date_time + timedelta(minutes=40)
+                for appointment_date_time in requested_week_appointments_dict.keys():
+                    if date_time_to_check == appointment_date_time:
+                        no_longer_available_list.append(date_time)
+                    elif date_time_to_check2 == appointment_date_time:
+                        no_longer_available_list.append(date_time)
+
+        for date_time in no_longer_available_list:
+            requested_week_availabilities_dict.pop(date_time)
 
         event_source = Tools.json_from_doctor_week_availabilities(requested_week_availabilities_dict)
         event_source2 = Tools.json_from_doctor_week_appointments(requested_week_appointments_dict)
