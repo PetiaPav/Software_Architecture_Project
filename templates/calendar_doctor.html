@@ -25,7 +25,14 @@
 
 {% block body %}
     <br/>
-    <div class='container'>
+    {% if request.path == "/calendar_doctor" %}
+            <h1>Modify your Schedule</h1>
+        {% elif request.path == "/create_schedule" %}
+            <h1>Create your Schedule</h1>
+            <h4>To modify a specific week, visit the "Modify an Availability" page after saving your new schedule</h4>
+        {% endif %}
+        
+        <div class='container'>
 
         <!-- Draggable Appointments -->
         <div id='wrapper'>
