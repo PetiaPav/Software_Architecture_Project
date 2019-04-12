@@ -87,17 +87,16 @@ class AppointmentRegistry:
 
     def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
         patient = self.mediator.get_patient_by_id(patient_id)
-        if walk_in == False:
-            if patient.date_of_last_annual_appointment is not None:
-                if date_time - patient.date_of_last_annual_appointment < timedelta(days=365):
+        if walk_in is False:
+            if clinic_id in patient.date_of_last_annual_appointment:
+                if date_time - patient.date_of_last_annual_appointment[clinic_id] < timedelta(days=365):
                     return None
-                    
+
         room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in)
         if room_doctor_tuple is not None:
             clinic = self.mediator.get_clinic_by_id(clinic_id)
             room = room_doctor_tuple[0]
             doctor = room_doctor_tuple[1]
-            
 
             # Create new appointment with default id -1
             appointment = Appointment(-1, clinic, room, doctor, patient, date_time, walk_in)
@@ -111,8 +110,8 @@ class AppointmentRegistry:
             # Add new appointment to the patient's list of appointments
             appointment.attach(patient)
             patient.add_appointment(appointment)
-            if walk_in == False:
-                patient.date_of_last_annual_appointment = date_time
+            if walk_in is False:
+                patient.date_of_last_annual_appointment[clinic_id] = date_time
 
             # Add new appointment to the doctor's list of appointments
             appointment.attach(doctor)
@@ -143,6 +142,10 @@ class AppointmentRegistry:
                 patient = appointment_to_delete.patient
                 appointment_to_delete.detach(patient)
                 patient.remove_appointment(appointment_to_delete)
+                if appointment_to_delete.walk_in is False:
+                    if appointment_to_delete.clinic.id in patient.date_of_last_annual_appointment:
+                        if patient.date_of_last_annual_appointment[appointment_to_delete.clinic.id] == appointment_to_delete.date_time:
+                            patient.date_of_last_annual_appointment.pop(appointment_to_delete.clinic.id)
 
                 # Remove appointment from APPOINTMENTS table in db
                 self.tdg.remove_appointment(appointment_to_delete.id)

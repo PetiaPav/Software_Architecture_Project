@@ -31,7 +31,7 @@ class Patient(User):
         self.appointment_dict = appointment_dict
         self.has_new_appointment_notification = False
         self.has_deleted_appointment_notification = False
-        self.date_of_last_annual_appointment = None
+        self.date_of_last_annual_appointment = {}
 
     def add_appointment(self, appointment):
         if appointment is not None:
