@@ -43,7 +43,7 @@ def create_app(db_env="ubersante", debug=False):
                 user.modified_appointment_dict['inserted'] = []
 
             if user.has_deleted_appointment_notification():
-                flash('An appointment was canceled!', 'dark')
+                flash('Cancelled appointment(s)!', 'dark')
                 deleted_appointments = user.modified_appointment_dict['deleted']
 
                 for appointment in deleted_appointments:
@@ -54,6 +54,19 @@ def create_app(db_env="ubersante", debug=False):
 
                 mediator.reset_appointment_operation_states(deleted_appointments)
                 user.modified_appointment_dict['deleted'] = []
+
+            if user.has_updated_appointment_notification():
+                flash('Updated appoinment(s)!', 'dark')
+                updated_appointments = user.modified_appointment_dict['updated']
+
+                for appointment in updated_appointments:
+                    clinic_name = appointment.clinic.name
+                    date = Tools.get_date_iso_format(appointment.date_time)
+                    time = Tools.get_time_iso_format(appointment.date_time)
+                    flash(clinic_name + ' at ' + time + ' on ' + date, 'dark')
+
+                mediator.reset_appointment_operation_states(updated_appointments)
+                user.modified_appointment_dict['updated'] = []
 
 
     @app.route('/')

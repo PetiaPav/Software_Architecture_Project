@@ -163,11 +163,16 @@ class AppointmentRegistry:
                 doctor = room_doctor_tuple[1]
                 patient = existing_appointment.patient
 
+                # If the patient is being assigned a new doctor, then detach the old one and attach the new doctor
+                if doctor.id != existing_appointment.doctor.id:
+                    doctor.remove_appointment(existing_appointment)
+                    existing_appointment.detach(existing_appointment.doctor)
+
+                existing_appointment.attach(doctor)
+
                 # Need to remove the appointment from the patient appointment's dictionary because the key value is the date_time of the appointment
                 patient.remove_appointment(existing_appointment)
 
-                # Inform old doctor that their appointment has been cancelled
-                existing_appointment.doctor.update(existing_appointment, "delete")
 
                 # Updating current appointment in working memory with the new information
                 existing_appointment.clinic = clinic
@@ -178,6 +183,9 @@ class AppointmentRegistry:
                 # Re add the updated appointment with the new key which is the date_time of the new appointment
                 patient.add_appointment(existing_appointment)
 
+                # Mark the appointment as updated (Used by the observer design pattern)
+                existing_appointment.operation_state = 'update'
+
                 # Update appointment in DB
                 self.tdg.update_appointment(appointment_id, clinic_id, room.id, doctor.id, date_time, walk_in)
 
@@ -185,7 +193,7 @@ class AppointmentRegistry:
                 doctor.add_appointment(existing_appointment)
 
                 # Notify patient and doctor that their appointment has changed
-                existing_appointment.notify("update")
+                existing_appointment.notify()
 
                 # Return reference to the updated appointment
                 return existing_appointment

@@ -32,7 +32,8 @@ class Patient(User):
         self.appointment_dict = appointment_dict
         self.modified_appointment_dict = {
             'inserted': [],
-            'deleted': []
+            'deleted': [],
+            'updated': []
         }
 
     def add_appointment(self, appointment):
@@ -47,12 +48,17 @@ class Patient(User):
             self.modified_appointment_dict['inserted'].append(subject)
         elif subject.operation_state == 'delete':
             self.modified_appointment_dict['deleted'].append(subject)
+        elif subject.operation_state == 'update':
+            self.modified_appointment_dict['updated'].append(subject)
 
     def has_new_appointment_notification(self):
         return len(self.modified_appointment_dict['inserted']) > 0
 
     def has_deleted_appointment_notification(self):
         return len(self.modified_appointment_dict['deleted']) > 0
+
+    def has_updated_appointment_notification(self):
+        return len(self.modified_appointment_dict['updated']) > 0
 
 class Nurse(User):
     def __init__(self, id, first_name, last_name, password, access_id):
@@ -72,7 +78,8 @@ class Doctor(User):
 
         self.modified_appointment_dict = {
             'inserted': [],
-            'deleted': []
+            'deleted': [],
+            'updated': []
         }
 
     def add_appointment(self, appointment):
@@ -108,12 +115,17 @@ class Doctor(User):
             self.modified_appointment_dict['inserted'].append(subject)
         elif subject.operation_state == 'delete':
             self.modified_appointment_dict['deleted'].append(subject)
+        elif subject.operation_state == 'update':
+            self.modified_appointment_dict['updated'].append(subject)
 
     def has_new_appointment_notification(self):
         return len(self.modified_appointment_dict['inserted']) > 0
 
     def has_deleted_appointment_notification(self):
         return len(self.modified_appointment_dict['deleted']) > 0
+
+    def has_updated_appointment_notification(self):
+        return len(self.modified_appointment_dict['updated']) > 0
 
 class Adjustment:
     def __init__(self, id, date_time, operation_type_add, walk_in):
