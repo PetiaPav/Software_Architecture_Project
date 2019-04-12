@@ -3,19 +3,20 @@ from typing import List, Dict
 from model.Appointment import Appointment
 from model.Tools import Tools
 from model.FullCalendarEventWrapper import WrapDoctorGenericEvent, WrapDoctorAdjustmentEvent
+from model.Observer import Observer
 from flask import flash
 import json
 
 
-class User:
+class User(Observer):
     def __init__(self, id, first_name: str, last_name: str, password):
         self.id = id
         self.first_name = first_name
         self.last_name = last_name
         self.password = password
 
-    def update(self, subject, operation):
-        print('Subject has changed: ' + operation)
+    def update(self, subject):
+        print("Subject has updated")
 
 
 class Patient(User):
@@ -29,9 +30,11 @@ class Patient(User):
         self.email = email
         self.cart = cart
         self.appointment_dict = appointment_dict
-        self.has_new_appointment_notification = False
-        self.has_deleted_appointment_notification = False
         self.date_of_last_annual_appointment = {}
+        self.modified_appointment_dict = {
+            'inserted': [],
+            'deleted': []
+        }
 
     def add_appointment(self, appointment):
         if appointment is not None:
@@ -40,12 +43,17 @@ class Patient(User):
     def remove_appointment(self, appointment):
         return self.appointment_dict.pop(appointment.date_time, None)
 
-    def update(self, subject, operation):
-        if operation == "add":
-            self.has_new_appointment_notification = True
-        else:
-            self.has_deleted_appointment_notification = True
+    def update(self, subject):
+        if subject.operation_state == 'insert':
+            self.modified_appointment_dict['inserted'].append(subject)
+        elif subject.operation_state == 'delete':
+            self.modified_appointment_dict['deleted'].append(subject)
 
+    def has_new_appointment_notification(self):
+        return len(self.modified_appointment_dict['inserted']) > 0
+
+    def has_deleted_appointment_notification(self):
+        return len(self.modified_appointment_dict['deleted']) > 0
 
 class Nurse(User):
     def __init__(self, id, first_name, last_name, password, access_id):
@@ -62,8 +70,11 @@ class Doctor(User):
         self.generic_week_availability = generic_week_availability
         self.adjustment_list = adjustment_list
         self.appointment_dict = appointment_dict
-        self.has_new_appointment_notification = False
-        self.has_deleted_appointment_notification = False
+
+        self.modified_appointment_dict = {
+            'inserted': [],
+            'deleted': []
+        }
 
     def add_appointment(self, appointment):
         if appointment is not None:
@@ -72,12 +83,38 @@ class Doctor(User):
     def remove_appointment(self, appointment):
         return self.appointment_dict.pop(appointment.date_time, None)
 
-    def update(self, subject, operation):
-        if operation == "add":
-            self.has_new_appointment_notification = True
-        else:
-            self.has_deleted_appointment_notification = True
+    def get_availability(self, date_time: datetime, walk_in: bool):
+        if date_time < datetime.now() or date_time in self.appointment_dict:
+            return None
 
+        for adjustment in self.adjustment_list:
+            if adjustment.date_time == date_time:
+                if adjustment.operation_type_add:
+                    if adjustment.walk_in == walk_in:
+                        return self
+                else:
+                    return None
+
+        generic_day_availability = self.generic_week_availability[date_time.weekday()]
+        try:
+            if generic_day_availability[date_time.time()] == walk_in:
+                return self
+            else:
+                return None
+        except KeyError:
+            return None
+
+    def update(self, subject):
+        if subject.operation_state == 'insert':
+            self.modified_appointment_dict['inserted'].append(subject)
+        elif subject.operation_state == 'delete':
+            self.modified_appointment_dict['deleted'].append(subject)
+
+    def has_new_appointment_notification(self):
+        return len(self.modified_appointment_dict['inserted']) > 0
+
+    def has_deleted_appointment_notification(self):
+        return len(self.modified_appointment_dict['deleted']) > 0
 
 class Adjustment:
     def __init__(self, id, date_time, operation_type_add, walk_in):
@@ -122,7 +159,7 @@ class DoctorMapper:
                     adjustment_list.append(adjustment)
 
             appointment_dict = {}
-            
+
             doctor_obj = Doctor(
                 doctor['id'],
                 doctor['first_name'],
