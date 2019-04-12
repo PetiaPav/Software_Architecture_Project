@@ -86,7 +86,7 @@ class AppointmentRegistry:
         return room_bookings
 
     def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
-        room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in, patient_id)
+        room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in)
         if room_doctor_tuple is not None:
             clinic = self.mediator.get_clinic_by_id(clinic_id)
             room = room_doctor_tuple[0]

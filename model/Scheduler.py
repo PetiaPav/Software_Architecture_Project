@@ -46,20 +46,10 @@ class Scheduler:
         # now we need to make our availablities into a format valid for fullcalendar
         return Tools.json_from_available_slots(available_date_times, walk_in)
 
-
-    def confirm_availability(self, clinic_id: int, date_time: datetime, walk_in: bool, patient_id: int) -> Union[Tuple[Room, Doctor], None]:
+    def confirm_availability(self, clinic_id: int, date_time: datetime, walk_in: bool) -> Union[Tuple[Room, Doctor], None]:
         # final check for appointment time expiration
         if date_time < datetime.now():
             return None
-
-        if not walk_in:
-            appointments = self.mediator.get_appointments_by_patient_id(patient_id)
-            if appointments is not None:
-                for appointment in appointments:
-                    if not appointment.walk_in and appointment.clinic.id == clinic_id and \
-                            (appointment.date_time - date_time > timedelta(days=365) or
-                             appointment.date_time - date_time > timedelta(days=-365)):
-                        return None
 
         # step 1: get clinic
         clinic = self.mediator.get_clinic_by_id(clinic_id)

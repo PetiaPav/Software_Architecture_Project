@@ -454,8 +454,7 @@ def create_app(db_env="ubersante", debug=False):
     def book_for_patient():
         is_walk_in = (request.json['walk_in'] == 'True')
         selected_date_time = Tools.convert_to_python_datetime(request.json['start'])
-        if mediator.add_appointment(session['selected_patient'], request.json['clinic_id'], selected_date_time, is_walk_in) is None:
-            flash('Appointment was not added due to a conflict.', 'danger')
+        mediator.add_appointment(session['selected_patient'], request.json['clinic_id'], selected_date_time, is_walk_in)
         result = {
             'url': url_for('view_selected_patient_appointments', id=str(session['selected_patient']))
         }

@@ -402,23 +402,17 @@ class Cart:
         self.__id_counter = 0  # Internal ID of cart items, analogous to an autoincrementing ID as seen in popular DBs.
 
     def add(self, clinic, start_time, is_walk_in):
-        if not (self.__check_if_illegal_booking(clinic, start_time, is_walk_in)):
+        if not self.__check_if_item_exists(clinic, start_time, is_walk_in):
             self.item_dict[self.__id_counter] = CartItem(self.__id_counter, clinic, start_time, is_walk_in, False)
             self.__id_counter += 1
             return True
         return False
 
-    def __check_if_illegal_booking(self, clinic, start_time, is_walk_in):  # Checks if the booking is incorrect.
+    def __check_if_item_exists(self, clinic, start_time, is_walk_in):  # Checks if a cart item already exists.
         for item in self.item_dict.values():
             if clinic == item.clinic and start_time == item.start_time and is_walk_in == item.is_walk_in:
                 return True
-            if clinic == item.clinic and not is_walk_in and not item.is_walk_in and \
-                    (start_time - item.start_time > timedelta(days=365)
-                     or start_time - item.start_time > timedelta(days=-365)):
-                return True
-
         return False
-
 
     def remove(self, item_id):
         try:
