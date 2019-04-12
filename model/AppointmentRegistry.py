@@ -1,5 +1,5 @@
 from model.Appointment import Appointment
-from datetime import datetime
+from datetime import datetime, timedelta
 from model.Tools import Tools
 
 
@@ -86,15 +86,23 @@ class AppointmentRegistry:
         return room_bookings
 
     def add_appointment(self, patient_id, clinic_id, date_time, walk_in):
+        patient = self.mediator.get_patient_by_id(patient_id)
+        if walk_in is False:
+            if clinic_id in patient.date_of_last_annual_appointment:
+                if date_time - patient.date_of_last_annual_appointment[clinic_id] < timedelta(days=365):
+                    return None
+
         room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in)
         if room_doctor_tuple is not None:
             clinic = self.mediator.get_clinic_by_id(clinic_id)
             room = room_doctor_tuple[0]
             doctor = room_doctor_tuple[1]
-            patient = self.mediator.get_patient_by_id(patient_id)
 
             # Create new appointment with default id -1
             appointment = Appointment(-1, clinic, room, doctor, patient, date_time, walk_in)
+
+            # Mark the new appointment as recently inserted (Used by the observer design pattern)
+            appointment.operation_state = 'insert'
 
             # Insert new appointment in APPOINTMENTS table in database
             appointment.id = self.tdg.insert_appointment(clinic_id, room.id, doctor.id, patient.id, date_time, walk_in)
@@ -105,6 +113,8 @@ class AppointmentRegistry:
             # Add new appointment to the patient's list of appointments
             appointment.attach(patient)
             patient.add_appointment(appointment)
+            if walk_in is False:
+                patient.date_of_last_annual_appointment[clinic_id] = date_time
 
             # Add new appointment to the doctor's list of appointments
             appointment.attach(doctor)
@@ -118,8 +128,12 @@ class AppointmentRegistry:
         if int(appointment_id) in self.catalog_dict:
             appointment_to_delete = self.catalog_dict[int(appointment_id)]
             if appointment_to_delete is not None:
+
+                # Mark the appointment as delete (Used by the observer design pattern)
+                appointment_to_delete.operation_state = 'delete'
+
                 # Notify doctor and patient that their appointment is deleted
-                appointment_to_delete.notify("delete")
+                appointment_to_delete.notify()
 
                 # Remove room booking
                 room = appointment_to_delete.room
@@ -135,6 +149,10 @@ class AppointmentRegistry:
                 patient = appointment_to_delete.patient
                 appointment_to_delete.detach(patient)
                 patient.remove_appointment(appointment_to_delete)
+                if appointment_to_delete.walk_in is False:
+                    if appointment_to_delete.clinic.id in patient.date_of_last_annual_appointment:
+                        if patient.date_of_last_annual_appointment[appointment_to_delete.clinic.id] == appointment_to_delete.date_time:
+                            patient.date_of_last_annual_appointment.pop(appointment_to_delete.clinic.id)
 
                 # Remove appointment from APPOINTMENTS table in db
                 self.tdg.remove_appointment(appointment_to_delete.id)
@@ -155,6 +173,10 @@ class AppointmentRegistry:
                 self.delete_appointment(int(appointment_id))
                 return new_appointment
         return None
+
+    def reset_appointment_operation_states(self, appointments):
+        for appointment in appointments:
+            appointment.operation_state = None
 
     def checkout_cart(self, item_list, patient_id):
         result = {
