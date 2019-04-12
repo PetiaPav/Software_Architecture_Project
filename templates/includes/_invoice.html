@@ -40,12 +40,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for is_walk_in in payment.slots %}
+                    {% for walk_in in payment.slots %}
                         <tr>
                             <td class="center">{{loop.index}}</td>
-                            <td class="left strong">{% if is_walk_in %} Walk In {% else %} Yearly {% endif %}</td>
-                            <td class="left">{% if is_walk_in %} 20-Minute Appointment {% else %} 1-Hour Appointment {% endif %}</td>
-                            <td class="right">{% if is_walk_in %} $100.00 {% else %} $150.00 {% endif %}</td>
+                            <td class="left strong">{% if walk_in %} Walk In {% else %} Yearly {% endif %}</td>
+                            <td class="left">{% if walk_in %} 20-Minute Appointment {% else %} 1-Hour Appointment {% endif %}</td>
+                            <td class="right">{% if walk_in %} $100.00 {% else %} $150.00 {% endif %}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

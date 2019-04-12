@@ -15,8 +15,8 @@ class Payment:
 
     def set_sub_total(self):
         sub_total = 0
-        for is_walk_in in self.slots:
-            if is_walk_in:
+        for walk_in in self.slots:
+            if walk_in:
                 sub_total += self.WALK_IN_COST
             else:
                 sub_total += self.ANNUAL_COST

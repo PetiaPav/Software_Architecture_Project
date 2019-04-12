@@ -19,7 +19,7 @@
                     {% for item_id, item in items.items() %}
                         <tr class="d-flex">
                             <td class="col-4">{{item.clinic.name}}</td>
-                            <td class="col-2">{{"Walk-in" if item.is_walk_in else "Annual"}}</td>
+                            <td class="col-2">{{"Walk-in" if item.walk_in else "Annual"}}</td>
                             <td class="col-2">{{item.start_time}}</td>
                             <td class="col-2 {% if item.is_booked %}table-danger{% endif %}">
                                 {{"Not Available" if item.is_booked else "Available"}}
