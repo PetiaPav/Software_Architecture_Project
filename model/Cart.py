@@ -43,7 +43,8 @@ class Cart(CartInterface):
             return True
         return False
 
-    def __check_if_item_exists(self, clinic: Clinic, start_time: datetime, walk_in: bool) -> bool:  # Checks if a cart item already exists.
+    def __check_if_item_exists(self, clinic: Clinic, start_time: datetime,
+                               walk_in: bool) -> bool:  # Checks if a cart item already exists.
         for item in self.item_dict.values():
             if clinic == item.clinic and start_time == item.start_time and walk_in == item.walk_in:
                 return True
@@ -84,20 +85,20 @@ class CartItem:
                str(self.start_time) + "\nType: " + "Walk-in" if self.walk_in else "Annual" + "\nStatus - Booked: " + \
                                                                                   str(self.is_booked)
 
-
 class StatisticsProxyCart(CartInterface):
     def __init__(self):
         self.cart = Cart()
+        self.logger = logging.getLogger('ubersante.model.Cart.StatisticsProxyCart')
 
     def add(self, clinic: Clinic, start_time: datetime.time, walk_in: bool) -> bool:
-        logging.info('Added item to cart with:'
-                     ' Clinic: ' + clinic.name +
-                     ' Start time: ' + str(start_time) +
-                     ' Type: ' + 'Walk-in' if walk_in else 'Annual')
+        self.logger.info('Added item to cart with:'
+                         ' Clinic: ' + clinic.name +
+                         ' Start time: ' + str(start_time) +
+                         ' Type: ' + 'Walk-in' if walk_in else 'Annual')
         return self.cart.add(clinic, start_time, walk_in)
 
     def remove(self, item_id: int):
-        logging.info('Removed item from cart with ID: ' + str(item_id))
+        self.logger.info('Removed item from cart with ID: ' + str(item_id))
         return self.cart.remove(item_id)
 
     def get_all(self):

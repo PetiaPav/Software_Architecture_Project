@@ -1,5 +1,5 @@
+import os
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, jsonify
-
 from model.Forms import PatientForm, DoctorForm, NurseForm, ClinicForm
 from passlib.hash import sha256_crypt
 from functools import wraps
@@ -17,7 +17,15 @@ def create_app(db_env="ubersante", debug=False):
     app.secret_key = 'secret123'
     app.debug = debug
     mediator = Mediator.get_instance(app, db_env)
-    logging.basicConfig(filename='ubersante.log', level=logging.INFO)
+
+    logger = logging.getLogger('ubersante')
+    logger.setLevel(logging.INFO)
+    path = os.getcwd() + '/ubersante_log.txt'
+    file_handler = logging.FileHandler(path)
+    file_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
 
     @app.before_request
     def before_request():
