@@ -22,8 +22,8 @@ $(document).ready(function() {
         eventLimit: true, // allow "more" link when too many events
 
         // Limit hours visible per day
-        minTime: "07:00:00",
-        maxTime: "21:00:00",
+        minTime: '07:00:00',
+        maxTime: '21:00:00',
 
         // Height of calendar
         contentHeight: 1000,
@@ -32,19 +32,39 @@ $(document).ready(function() {
         // Grey out non-business hours
         businessHours: {
             dow: [0, 1, 2, 3, 4, 5, 6],   // Days of the week - Mon to Fri
-            start: "08:00:00",
-            end: "20:00:00",
+            start: '08:00:00',
+            end: '20:00:00',
         },
 
         // Frequency for displaying time slots, in minutes (20 minute partitions)
-        slotDuration: "00:20:00",
+        slotDuration: '00:20:00',
 
-        allDay: true,
+        allDay: false,
+        allDaySlot: false,
 
         events: {
             url: 'doctor_schedule'
         },
         
-        eventOverlap: false
+        eventOverlap: false,
+
+        eventClick: function(eventObj) {
+            if(eventObj.color == 'orange'){
+                $.ajax({
+                    url: 'show_doctor_appointment_details',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify({
+                        title: eventObj.title,
+                        start: eventObj.start
+                    }),
+                    success : function(res){
+                        console.log('Response received')
+                        console.log('Redirecting to ' + res)
+                        window.location.href = res
+                    }
+                });
+            }
+		}
     });
 });
