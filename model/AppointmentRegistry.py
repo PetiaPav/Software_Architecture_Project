@@ -96,6 +96,9 @@ class AppointmentRegistry:
             # Create new appointment with default id -1
             appointment = Appointment(-1, clinic, room, doctor, patient, date_time, walk_in)
 
+            # Mark the new appointment as recently inserted (Used by the observer design pattern)
+            appointment.operation_state = 'insert'
+
             # Insert new appointment in APPOINTMENTS table in database
             appointment.id = self.tdg.insert_appointment(clinic_id, room.id, doctor.id, patient.id, date_time, walk_in)
 
@@ -118,8 +121,12 @@ class AppointmentRegistry:
         if int(appointment_id) in self.catalog_dict:
             appointment_to_delete = self.catalog_dict[int(appointment_id)]
             if appointment_to_delete is not None:
+
+                # Mark the appointment as delete (Used by the observer design pattern)
+                appointment_to_delete.operation_state = 'delete'
+
                 # Notify doctor and patient that their appointment is deleted
-                appointment_to_delete.notify("delete")
+                appointment_to_delete.notify()
 
                 # Remove room booking
                 room = appointment_to_delete.room
@@ -183,6 +190,10 @@ class AppointmentRegistry:
                 # Return reference to the updated appointment
                 return existing_appointment
         return None
+
+    def reset_appointment_operation_states(self, appointments):
+        for appointment in appointments:
+            appointment.operation_state = None
 
     def checkout_cart(self, item_list, patient_id):
         result = {

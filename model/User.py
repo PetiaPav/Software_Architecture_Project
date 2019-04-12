@@ -1,22 +1,23 @@
-
 from datetime import timedelta, datetime
 from typing import List, Dict
 from model.Appointment import Appointment
 from model.Tools import Tools
 from model.FullCalendarEventWrapper import WrapDoctorGenericEvent, WrapDoctorAdjustmentEvent
+from model.Observer import Observer
 from flask import flash
 import json
 
 
-class User:
+class User(Observer):
     def __init__(self, id, first_name: str, last_name: str, password):
         self.id = id
         self.first_name = first_name
         self.last_name = last_name
         self.password = password
 
-    def update(self, subject, operation):
-        print('Subject has changed: ' + operation)
+    def update(self, subject):
+        print("Subject has updated")
+
 
 class Patient(User):
     def __init__(self, id, first_name: str, last_name: str, password, health_card, birthday, gender, phone_number, physical_address, email, cart, appointment_dict):
@@ -29,10 +30,10 @@ class Patient(User):
         self.email = email
         self.cart = cart
         self.appointment_dict = appointment_dict
-        self.has_new_appointment_notification = False
-        self.has_deleted_appointment_notification = False
-        self.has_updated_appointment_notification = False
-
+        self.modified_appointment_dict = {
+            'inserted': [],
+            'deleted': []
+        }
 
     def add_appointment(self, appointment):
         if appointment is not None:
@@ -41,14 +42,17 @@ class Patient(User):
     def remove_appointment(self, appointment):
         return self.appointment_dict.pop(appointment.date_time, None)
 
-    def update(self, subject, operation):
-        if operation == "add":
-            self.has_new_appointment_notification = True
-        elif operation == "delete":
-            self.has_deleted_appointment_notification = True
-        elif operation == "update":
-            self.has_updated_appointment_notification = True
+    def update(self, subject):
+        if subject.operation_state == 'insert':
+            self.modified_appointment_dict['inserted'].append(subject)
+        elif subject.operation_state == 'delete':
+            self.modified_appointment_dict['deleted'].append(subject)
 
+    def has_new_appointment_notification(self):
+        return len(self.modified_appointment_dict['inserted']) > 0
+
+    def has_deleted_appointment_notification(self):
+        return len(self.modified_appointment_dict['deleted']) > 0
 
 class Nurse(User):
     def __init__(self, id, first_name, last_name, password, access_id):
@@ -65,9 +69,11 @@ class Doctor(User):
         self.generic_week_availability = generic_week_availability
         self.adjustment_list = adjustment_list
         self.appointment_dict = appointment_dict
-        self.has_new_appointment_notification = False
-        self.has_deleted_appointment_notification = False
-        self.has_updated_appointment_notification = False
+
+        self.modified_appointment_dict = {
+            'inserted': [],
+            'deleted': []
+        }
 
     def add_appointment(self, appointment):
         if appointment is not None:
@@ -97,15 +103,17 @@ class Doctor(User):
         except KeyError:
             return None
 
+    def update(self, subject):
+        if subject.operation_state == 'insert':
+            self.modified_appointment_dict['inserted'].append(subject)
+        elif subject.operation_state == 'delete':
+            self.modified_appointment_dict['deleted'].append(subject)
 
-    def update(self, subject, operation):
-        if operation == "add":
-            self.has_new_appointment_notification = True
-        elif operation == "delete":
-            self.has_deleted_appointment_notification = True
-        elif operation == "update":
-            self.has_updated_appointment_notification = True
+    def has_new_appointment_notification(self):
+        return len(self.modified_appointment_dict['inserted']) > 0
 
+    def has_deleted_appointment_notification(self):
+        return len(self.modified_appointment_dict['deleted']) > 0
 
 class Adjustment:
     def __init__(self, id, date_time, operation_type_add, walk_in):
@@ -208,7 +216,7 @@ class DoctorMapper:
                         adjustments_to_delete.append(adjustment)
                     doctor.adjustment_list.remove(adjustment)
             # we don't want to add adjustments for past dates
-            if(event.date_time > datetime.now()):
+            if event.date_time > datetime.now():
                 adjustment_to_add = Adjustment(-1, event.date_time, event.operation_type_add, event.walk_in)
                 # update the db
                 adjustment_to_add.id = self.tdg.insert_doctor_adjustment(doctor.id, adjustment_to_add)
@@ -228,12 +236,12 @@ class DoctorMapper:
         for day in range(week_start_time.weekday(), len(doctor.generic_week_availability)):
             daily_availability = doctor.generic_week_availability[day]
             for time, walk_in in daily_availability.items():
-                availability_date_time = week_start_time + timedelta(days=day-week_start_time.weekday())
+                availability_date_time = week_start_time + timedelta(days=day - week_start_time.weekday())
                 availability_date_time = datetime(availability_date_time.year, availability_date_time.month, availability_date_time.day, time.hour, time.minute)
                 requested_week_availabilities_dict[availability_date_time] = walk_in
 
         for adjustment in doctor.adjustment_list:
-            if adjustment.date_time > week_start_time and adjustment.date_time < week_end_time:
+            if week_start_time < adjustment.date_time < week_end_time:
                 if adjustment.operation_type_add is True:
                     requested_week_availabilities_dict[adjustment.date_time] = adjustment.walk_in
                 else:
@@ -242,7 +250,7 @@ class DoctorMapper:
 
         requested_week_appointments_dict = {}
         for appointment in doctor.appointment_dict.values():
-            if appointment.date_time > week_start_time and appointment.date_time < week_end_time:
+            if week_start_time < appointment.date_time < week_end_time:
                 requested_week_appointments_dict[appointment.date_time] = appointment.walk_in
 
         event_source = Tools.json_from_doctor_week_availabilities(requested_week_availabilities_dict)
@@ -271,11 +279,11 @@ class DoctorMapper:
     def week_start_from_date_time(self, date_time):
         today = datetime.today()
         week_start_time = date_time
-        if(date_time < today):
-            week_start_time = datetime(today.year, today.month, today.day, today.hour + 1, 0)
+        if date_time < today:
+            week_start_time = datetime(today.year, today.month, today.day, today.hour, 0)
             return week_start_time
         # if the requested date is within a week, we check if it is in the current week
-        if(date_time - today < timedelta(days=7)):
+        if date_time - today < timedelta(days=7):
             if date_time.weekday() > today.weekday():
                 week_start_time = datetime(today.year, today.month, today.day, 0, 0)
                 return week_start_time
@@ -288,7 +296,7 @@ class DoctorMapper:
         return week_start_time
 
     def week_end_from_week_start(self, week_start_time):
-        week_end_time = week_start_time + timedelta(days=6-week_start_time.weekday())
+        week_end_time = week_start_time + timedelta(days=6 - week_start_time.weekday())
         week_end_time = datetime(week_end_time.year, week_end_time.month, week_end_time.day, 23, 40)
         return week_end_time
 

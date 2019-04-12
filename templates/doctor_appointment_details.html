@@ -1,0 +1,93 @@
+{% extends "layout.html" %}
+
+{% block title %}Selected Appointment{% endblock %}
+
+{% block body %}
+<br />
+<div class="container">
+    <h1>Appointment details</h1>
+    <br/>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">{{clinic.name}}</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>    
+        <tbody>
+            <tr>
+                <td>Clinic address</td>
+                <td>{{clinic.physical_address}}</td>
+            </tr>
+            <tr>
+                <td>Room</td>
+                <td>{{room}}</td>
+            </tr>
+            <tr>
+                <td>Type of appointment</td>
+                <td>{{"Walk-in" if walk_in else "Annual"}}</td>
+            </tr>
+            <tr>
+                <td>Date</td>
+                <td>{{date}}</td>
+            </tr>
+            <tr>
+                <td>Start time</td>
+                <td>{{time}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br/>
+
+    <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Patient Information</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>    
+            <tbody>
+                <tr>
+                    <td>First Name</td>
+                    <td>{{patient.first_name}}</td>
+                </tr>
+                <tr>
+                    <td>Last Name</td>
+                    <td>{{patient.last_name}}</td>
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>{{patient.email}}</td>
+                </tr>
+                <tr>
+                    <td>Health Card</td>
+                    <td>{{patient.health_card}}</td>
+                </tr>
+                <tr>
+                    <td>Phone Number</td>
+                    <td>{{patient.phone_number}}</td>
+                </tr>
+                <tr>
+                    <td>Birthday</td>
+                    <td>{{patient.birthday}}</td>
+                </tr>
+                <tr>
+                    <td>Gender</td>
+                    <td>{{patient.gender}}</td>
+                </tr>
+                <tr>
+                    <td>Physical Address</td>
+                    <td>{{patient.physical_address}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    <button type="button" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off" onclick="window.history.back()">
+        Back to Schedule
+    </button>
+
+</div>
+
+<div class="footer-push"></div>
+{% endblock %}

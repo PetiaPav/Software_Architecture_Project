@@ -1,6 +1,5 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, jsonify
 
-from model import Forms
 from model.Forms import PatientForm, DoctorForm, NurseForm, ClinicForm
 from passlib.hash import sha256_crypt
 from functools import wraps
@@ -27,17 +26,35 @@ def create_app(db_env="ubersante", debug=False):
             elif session['user_type'] == 'doctor':
                 user = mediator.get_doctor_by_id(session['id'])
 
-            if user.has_new_appointment_notification:
+            if user is None:
+                return
+
+            if user.has_new_appointment_notification():
                 flash('New appointment(s) scheduled!', 'dark')
-                user.has_new_appointment_notification = False
+                inserted_appointments = user.modified_appointment_dict['inserted']
 
-            if user.has_deleted_appointment_notification:
+                for appointment in inserted_appointments:
+                    clinic_name = appointment.clinic.name
+                    date = Tools.get_date_iso_format(appointment.date_time)
+                    time = Tools.get_time_iso_format(appointment.date_time)
+                    flash(clinic_name + ' at ' + time + ' on ' + date, 'dark')
+
+                mediator.reset_appointment_operation_states(inserted_appointments)
+                user.modified_appointment_dict['inserted'] = []
+
+            if user.has_deleted_appointment_notification():
                 flash('An appointment was canceled!', 'dark')
-                user.has_deleted_appointment_notification = False
+                deleted_appointments = user.modified_appointment_dict['deleted']
 
-            if user.has_updated_appointment_notification:
-                flash('An appointment was updated!', 'dark')
-                user.has_updated_appointment_notification = False
+                for appointment in deleted_appointments:
+                    clinic_name = appointment.clinic.name
+                    date = Tools.get_date_iso_format(appointment.date_time)
+                    time = Tools.get_time_iso_format(appointment.date_time)
+                    flash(clinic_name + ' at ' + time + ' on ' + date, 'dark')
+
+                mediator.reset_appointment_operation_states(deleted_appointments)
+                user.modified_appointment_dict['deleted'] = []
+
 
     @app.route('/')
     def home():
@@ -200,10 +217,12 @@ def create_app(db_env="ubersante", debug=False):
         nb_upcoming_appointments = 0
         if user_type == 'patient':
             patient = mediator.get_patient_by_id(session['id'])
-            nb_upcoming_appointments = len(patient.appointment_dict)
+            if patient.appointment_dict is not None:
+                nb_upcoming_appointments = len(patient.appointment_dict)
         if user_type == 'doctor':
             doctor = mediator.get_doctor_by_id(session['id'])
-            nb_upcoming_appointments = len(doctor.appointment_dict)
+            if doctor.appointment_dict is not None:
+                nb_upcoming_appointments = len(doctor.appointment_dict)
 
         return render_template('dashboard.html', user_type=user_type, nb_upcoming_appointments=nb_upcoming_appointments)
 
@@ -232,6 +251,12 @@ def create_app(db_env="ubersante", debug=False):
     def nurse_registry():
         all_nurses = mediator.get_all_nurses()
         return render_template('includes/_nurse_registry.html', all_nurses=all_nurses)
+
+    @app.route('/dashboard/doctor_info')
+    @is_logged_in
+    def doctor_info():
+        selected_doctor = mediator.get_doctor_by_id(session["id"])
+        return render_template('includes/_doctor_detail_page.html', doctor=selected_doctor)
 
     @app.route('/dashboard/doctor_registry')
     @is_logged_in
@@ -433,6 +458,33 @@ def create_app(db_env="ubersante", debug=False):
                                appointment_to_modify = appointment_to_modify, appointment_to_modify_date = appointment_to_modify_date,
                                appointment_to_modify_time = appointment_to_modify_time)
 
+    @app.route('/show_doctor_appointment_details', methods=["POST"])
+    @is_logged_in
+    def show_doctor_appointment_details():
+        return url_for('doctor_selected_appointment', title=request.json['title'], start=request.json['start'])
+
+    @app.route('/doctor_booked_appointment_details/<title>/<start>')
+    @is_logged_in
+    def doctor_selected_appointment(title, start):
+
+        if title == 'Walk_in':
+            walk_in = True
+        else:
+            walk_in = False
+
+        selected_datetime = Tools.convert_to_python_datetime(start)
+        selected_date = Tools.get_date_iso_format(selected_datetime)
+        selected_time = Tools.get_time_iso_format(selected_datetime)
+
+        user_type = 'doctor'
+        doctor = mediator.get_doctor_by_id(session['id'])
+        selected_appointment = doctor.appointment_dict[selected_datetime]
+        clinic = selected_appointment.clinic
+        room = selected_appointment.room.name
+        patient = selected_appointment.patient
+
+        return render_template('doctor_appointment_details.html', clinic=clinic, room=room, walk_in=walk_in, date=selected_date, time=selected_time, datetime=str(selected_datetime), user_type=user_type, patient=patient)
+
     @app.route('/book_for_patient', methods=["POST"])
     @is_logged_in
     def book_for_patient():
@@ -509,6 +561,8 @@ def create_app(db_env="ubersante", debug=False):
         # Mark unavailable items in cart for frontend
         patient.cart.batch_mark_booked(checkout_result['rejected_items'])
 
+        # Assign new appointment ids to session variable so that we can display modal
+        # with appointment information once the user completes their payment
         session['newly_booked_appointment_ids'] = checkout_result['accepted_appointments_ids']
 
         # Until appointments are paid, will remain in session
@@ -540,10 +594,10 @@ def create_app(db_env="ubersante", debug=False):
             payment.initialize()
             step = "receipt"
 
-            # This for loop needs to be inside the POST otherwise the user will be notified of new appointment before being done paying
+            # Notify patient and doctor that they are scheduled an appointment
             for appointment_id in session['newly_booked_appointment_ids']:
                 appointment = mediator.get_appointment_by_id(appointment_id)
-                appointment.notify("add")
+                appointment.notify()
 
             session['newly_booked_appointment_ids'] = []
 
