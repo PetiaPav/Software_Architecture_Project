@@ -61,7 +61,7 @@ class AppointmentRegistry:
     def get_appointments_by_patient_id(self, patient_id):
         patient_appointments = []
         for appointment in self.catalog_dict.values():
-            if appointment.patient_id == int(patient_id):
+            if appointment.patient.id == int(patient_id):
                 patient_appointments.append(appointment)
         if len(patient_appointments) > 0:
             return patient_appointments
