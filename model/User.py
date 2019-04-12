@@ -207,7 +207,7 @@ class DoctorMapper:
         # record this doctor in the database and get a new id
         new_doctor_id = self.tdg.insert_doctor(first_name, last_name, password, permit_number, specialty, city)
         if new_doctor_id is not None:
-            self.catalog_dict[new_doctor_id] = Doctor(new_doctor_id, first_name, last_name, password, permit_number, specialty, city, None, None, None)
+            self.catalog_dict[new_doctor_id] = Doctor(new_doctor_id, first_name, last_name, password, permit_number, specialty, city, [], [], {})
 
     def set_generic_availability_from_json(self, doctor_id, json):
         doctor = self.get_by_id(int(doctor_id))
