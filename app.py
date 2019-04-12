@@ -202,10 +202,12 @@ def create_app(db_env="ubersante", debug=False):
         nb_upcoming_appointments = 0
         if user_type == 'patient':
             patient = mediator.get_patient_by_id(session['id'])
-            nb_upcoming_appointments = len(patient.appointment_dict)
+            if patient.appointment_dict is not None:
+                nb_upcoming_appointments = len(patient.appointment_dict)
         if user_type == 'doctor':
             doctor = mediator.get_doctor_by_id(session['id'])
-            nb_upcoming_appointments = len(doctor.appointment_dict)
+            if doctor.appointment_dict is not None:
+                nb_upcoming_appointments = len(doctor.appointment_dict)
 
         return render_template('dashboard.html', user_type=user_type, nb_upcoming_appointments=nb_upcoming_appointments)
 
@@ -234,6 +236,12 @@ def create_app(db_env="ubersante", debug=False):
     def nurse_registry():
         all_nurses = mediator.get_all_nurses()
         return render_template('includes/_nurse_registry.html', all_nurses=all_nurses)
+
+    @app.route('/dashboard/doctor_info')
+    @is_logged_in
+    def doctor_info():
+        selected_doctor = mediator.get_doctor_by_id(session["id"])
+        return render_template('includes/_doctor_detail_page.html', doctor=selected_doctor)
 
     @app.route('/dashboard/doctor_registry')
     @is_logged_in
@@ -394,6 +402,33 @@ def create_app(db_env="ubersante", debug=False):
         return render_template('appointment.html', clinic=clinic, walk_in=walk_in,
                                date=date, time=time, datetime=datetime,
                                user_type=user_type, selected_patient=selected_patient)
+
+    @app.route('/show_doctor_appointment_details', methods=["POST"])
+    @is_logged_in
+    def show_doctor_appointment_details():
+        return url_for('doctor_selected_appointment', title=request.json['title'], start=request.json['start'])
+
+    @app.route('/doctor_booked_appointment_details/<title>/<start>')
+    @is_logged_in
+    def doctor_selected_appointment(title, start):
+
+        if title == 'Walk_in':
+            walk_in = True
+        else:
+            walk_in = False
+
+        selected_datetime = Tools.convert_to_python_datetime(start)
+        selected_date = Tools.get_date_iso_format(selected_datetime)
+        selected_time = Tools.get_time_iso_format(selected_datetime)
+
+        user_type = 'doctor'
+        doctor = mediator.get_doctor_by_id(session['id'])
+        selected_appointment = doctor.appointment_dict[selected_datetime]
+        clinic = selected_appointment.clinic
+        room = selected_appointment.room.name
+        patient = selected_appointment.patient
+
+        return render_template('doctor_appointment_details.html', clinic=clinic, room=room, walk_in=walk_in, date=selected_date, time=selected_time, datetime=str(selected_datetime), user_type=user_type, patient=patient)
 
     @app.route('/book_for_patient', methods=["POST"])
     @is_logged_in

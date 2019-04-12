@@ -1,0 +1,37 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Information</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>First Name</td>
+                <td>{{doctor.first_name}}</td>
+            </tr>
+            <tr>
+                <td>Last Name</td>
+                <td>{{doctor.last_name}}</td>
+            </tr>
+            <tr>
+                <td>Permit Number</td>
+                <td>{{doctor.permit_number}}</td>
+            </tr>
+            <tr>
+                <td>Specialty</td>
+                <td>{{doctor.specialty}}</td>
+            </tr>
+            <tr>
+                <td>City</td>
+                <td>{{doctor.city}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="footer-push"></div>
+{% endblock %}
