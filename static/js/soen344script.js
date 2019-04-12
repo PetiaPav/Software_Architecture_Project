@@ -14,8 +14,11 @@ function print(rows = 1) {
 
 // Small script for generating chosen fields
 $(document).ready(function () {
-    $('.chosen-select').chosen({
-        width: "100%",
-        placeholder_text_multiple: "Select Options"
-    });
+    var chosenField = $('.chosen-select');
+    if(chosenField !== null) {
+        chosenField.chosen({
+            width: "100%",
+            placeholder_text_multiple: "Select Options"
+        });
+    }
 });
