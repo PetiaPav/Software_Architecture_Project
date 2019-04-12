@@ -13,7 +13,3 @@ class Appointment(Subject):
         self.date_time = date_time
         self.walk_in = walk_in
         self.operation_state = None
-
-    def notify(self):
-        for observer in self._observers:
-            observer.update(self)

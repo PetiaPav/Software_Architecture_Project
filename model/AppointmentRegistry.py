@@ -163,15 +163,49 @@ class AppointmentRegistry:
                 return True
         return False
 
-    def modify_appointment(self, appointment_id, new_date_time, walk_in):
+    def update_appointment(self, appointment_id, clinic_id, date_time, walk_in):
         existing_appointment = self.get_by_id(int(appointment_id))
         if existing_appointment is not None:
-            patient_id = existing_appointment.patent.id
-            clinic_id = existing_appointment.clinic.id
-            new_appointment = self.add_appointment(patient_id, clinic_id, new_date_time, walk_in)
-            if new_appointment is not None:
-                self.delete_appointment(int(appointment_id))
-                return new_appointment
+            room_doctor_tuple = self.mediator.confirm_availability(clinic_id, date_time, walk_in)
+            if room_doctor_tuple is not None:
+                # Get an available room and doctor from the clinic
+                clinic = self.mediator.get_clinic_by_id(clinic_id)
+                room = room_doctor_tuple[0]
+                doctor = room_doctor_tuple[1]
+                patient = existing_appointment.patient
+
+                # If the patient is being assigned a new doctor, then detach the old one and attach the new one
+                if doctor.id != existing_appointment.doctor.id:
+                    doctor.remove_appointment(existing_appointment)
+                    existing_appointment.detach(existing_appointment.doctor)
+                    existing_appointment.attach(doctor)
+
+                # Need to remove the appointment from the patient appointment's dictionary because the key value is the date_time of the appointment which might have changed
+                patient.remove_appointment(existing_appointment)
+
+                # Updating current appointment in working memory with the new information
+                existing_appointment.clinic = clinic
+                existing_appointment.doctor = doctor
+                existing_appointment.date_time = date_time
+                existing_appointment.walk_in = walk_in
+
+                # Re add the updated appointment with the new key which is the date_time of the new appointment
+                patient.add_appointment(existing_appointment)
+
+                # Mark the appointment as updated (Used by the observer design pattern)
+                existing_appointment.operation_state = 'update'
+
+                # Update appointment in DB
+                self.tdg.update_appointment(appointment_id, clinic_id, room.id, doctor.id, date_time, walk_in)
+
+                # Add modified appointment to the new doctor's list of appointments
+                doctor.add_appointment(existing_appointment)
+
+                # Notify patient and doctor that their appointment has changed
+                existing_appointment.notify()
+
+                # Return reference to the updated appointment
+                return existing_appointment
         return None
 
     def reset_appointment_operation_states(self, appointments):

@@ -151,6 +151,9 @@ class Mediator:
     def delete_appointment(self, appointment_id):
         self.__appointment_registry.delete_appointment(int(appointment_id))
 
+    def update_appointment(self, appointment_id, clinic_id, new_date_time, walk_in):
+        self.__appointment_registry.update_appointment(appointment_id, clinic_id, new_date_time, walk_in)
+
     def reset_appointment_operation_states(self, appointments):
         self.__appointment_registry.reset_appointment_operation_states(appointments)
 
