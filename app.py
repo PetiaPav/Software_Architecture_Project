@@ -1,6 +1,5 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, jsonify
 
-from model import Forms
 from model.Forms import PatientForm, DoctorForm, NurseForm, ClinicForm
 from passlib.hash import sha256_crypt
 from functools import wraps
@@ -26,6 +25,9 @@ def create_app(db_env="ubersante", debug=False):
                 user = mediator.get_patient_by_id(session['id'])
             elif session['user_type'] == 'doctor':
                 user = mediator.get_doctor_by_id(session['id'])
+
+            if user is None:
+                return
 
             if user.has_new_appointment_notification():
                 flash('New appointment(s) scheduled!', 'dark')
